@@ -106,6 +106,24 @@ void ACerberusCharacter::OnRep_CurrentHealth()
 	OnHealthUpdate();
 }
 
+void ACerberusCharacter::SetCurrentHealth(float healthValue)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
+		//TODO: Keep track of player health in cache or database ?
+		
+		OnHealthUpdate();
+	}
+}
+
+float ACerberusCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float damageApplied = CurrentHealth - DamageAmount;
+	SetCurrentHealth(damageApplied);
+	return damageApplied;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////

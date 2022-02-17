@@ -28,6 +28,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
 
+	/** Getter for Current Health.*/
+	UFUNCTION(BlueprintPure, Category="Health")
+	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+
+	/** Setter for Current Health. Clamps the value between 0 and MaxHealth and calls OnHealthUpdate. Should only be called on the server.*/
+	UFUNCTION(BlueprintCallable, Category="Health")
+	void SetCurrentHealth(float healthValue);
+
+	/** Event for taking damage. Overridden from APawn */
+	UFUNCTION(BlueprintCallable, Category="Health")
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	
+
 protected:
 
 	/** Called for forwards/backward input */
