@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
+#include "Core/Combat/Projectile.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,13 @@ ACerberusCharacter::ACerberusCharacter()
 	// Set Health Values
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
+
+	//@TODO : and other weapon types?
+	//Initialize projectile class
+	ProjectileClass =  AProjectile::StaticClass();
+
+	FireRate = 0.25f;
+	bIsFiringWeapon = false;
 }
 
 /** Property replication */
@@ -129,6 +137,37 @@ float ACerberusCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 //////////////////////////////////////////////////////////////////////////
 // Input
 
+void ACerberusCharacter::StartFire()
+{
+	if (!bIsFiringWeapon)
+	{
+		bIsFiringWeapon = true;
+		UWorld* World = GetWorld();
+		// StopFire is called when the time with the length of FireRate finishes -- bIsFiringWeapon will be set to false automatically
+		//@TODO : this does not account for automatic firing / Seems to be good for semi-automatic weapons
+		World->GetTimerManager().SetTimer(FiringTimer, this, &ACerberusCharacter::StopFire, FireRate, false);
+		HandleFire();
+	}
+}
+
+void ACerberusCharacter::StopFire()
+{
+	bIsFiringWeapon = false;
+}
+
+
+void ACerberusCharacter::HandleFire_Implementation()
+{
+	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
+	FRotator spawnRotation = GetControlRotation();
+
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Instigator = GetInstigator();
+	spawnParameters.Owner = this;
+
+	AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
+}
+
 void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -150,6 +189,9 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACerberusCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ACerberusCharacter::TouchStopped);
+
+	// Handle firing projectiles
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACerberusCharacter::StartFire);
 }
 
 void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)

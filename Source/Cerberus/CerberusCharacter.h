@@ -79,6 +79,31 @@ protected:
 
 	void OnHealthUpdate();
 
+	UPROPERTY(EditDefaultsOnly, Category="Gameplay|Projectile")
+	TSubclassOf<class AProjectile> ProjectileClass;
+
+	/** Delay between shots in seconds. Also prevents an overflow of server functions from binding SpawnProjectile directly to input.*/
+	UPROPERTY(EditDefaultsOnly, Category="Gameplay")
+	float FireRate;
+
+	/** If true, we are firing projectiles */ //@TODO : options for melee and non-projectile type weapons 
+	bool bIsFiringWeapon;
+
+	/** Function for beginning weapon fire. */
+	UFUNCTION(BlueprintCallable, Category="Gameplay")
+	void StartFire();
+
+	/** Function for ending weapon fire. */
+	UFUNCTION(BlueprintCallable, Category="Gameplay")
+	void StopFire();
+
+	/** Server function for spawning projectiles. */
+	UFUNCTION(Server, Reliable)
+	void HandleFire();
+
+	/** a timer handle used for providing the fire rate delay in-between spawns.*/
+	FTimerHandle FiringTimer;
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
