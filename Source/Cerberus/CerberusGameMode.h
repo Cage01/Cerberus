@@ -13,6 +13,12 @@ class ACerberusGameMode : public AGameModeBase
 
 public:
 	ACerberusGameMode();
+
+	void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
+	
+protected:
+	UFUNCTION(Server, Reliable)
+	void RequestedRespawn(APlayerController* PlayerController);
 };
 
 

@@ -39,7 +39,6 @@ public:
 	/** Event for taking damage. Overridden from APawn */
 	UFUNCTION(BlueprintCallable, Category="Health")
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
 	
 
 protected:
@@ -70,13 +69,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth;
-
+	
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentHealth)
 	float CurrentHealth;
 
 	UFUNCTION()
 	void OnRep_CurrentHealth();
-
+	
 	void OnHealthUpdate();
 
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay|Projectile")
@@ -104,6 +103,17 @@ protected:
 	/** a timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;
 
+private:
+	bool bIsDying;
+
+	bool CanDie() const;
+
+	bool Die(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+
+	void OnDeath();
+	
+	void SetRagdollPhysics();
+	
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

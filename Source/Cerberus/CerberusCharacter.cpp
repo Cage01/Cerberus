@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CerberusCharacter.h"
+
+#include "CerberusGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -10,6 +12,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
 #include "Core/Combat/Projectile.h"
+#include "GameFramework/GameModeBase.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,8 +78,17 @@ void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ACerberusCharacter, CurrentHealth);
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// Health
+void ACerberusCharacter::OnRep_CurrentHealth()
+{
+	OnHealthUpdate();
+}
+
 void ACerberusCharacter::OnHealthUpdate()
 {
+	//@TODO : Update progress bars
 	//Client-specific functionality
 	if (IsLocallyControlled())
 	{
@@ -85,7 +97,7 @@ void ACerberusCharacter::OnHealthUpdate()
 
 		if (CurrentHealth <= 0)
 		{
-			FString deathMessage = FString::Printf(TEXT("You Died"));
+			FString deathMessage = FString::Printf(TEXT("Player Died"));
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
 		}
 	}
@@ -96,22 +108,6 @@ void ACerberusCharacter::OnHealthUpdate()
 		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining"), *GetFName().ToString(), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
 	}
-	
-	//Functions that occur on all machines. 
-	/*  
-		Any special functionality that should occur as a result of damage or death should be placed here. 
-	*/
-}
-
-/* TODO: I will likely have to change the Replication code to only work for players within a certain vicinity of local player
- *Variables replicate any time their value changes rather than constantly replicating,
- *and RepNotifies run any time the client successfully receives a replicated value for a variable.
- *Therefore, any time we change the player's CurrentHealth on the server, we would expect OnRep_CurrentHealth to run on each connected client.
- *This makes OnRep_CurrentHealth the ideal place to call OnHealthUpdate on clients' machines.
- */
-void ACerberusCharacter::OnRep_CurrentHealth()
-{
-	OnHealthUpdate();
 }
 
 void ACerberusCharacter::SetCurrentHealth(float healthValue)
@@ -129,44 +125,70 @@ float ACerberusCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	float damageApplied = CurrentHealth - DamageAmount;
 	SetCurrentHealth(damageApplied);
+
+	if (CurrentHealth <= 0)
+	{
+		Die(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	}
 	return damageApplied;
 }
 
+bool ACerberusCharacter::Die(float DamageAmount, FDamageEvent const& DamageEvent, AController* Attacker,
+	AActor* DamageCauser)
+{
+	if(!CanDie())
+	{
+		return false;
+	}
+
+	/* Fallback to default DamageType if none is specified */
+	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
+	Attacker = GetDamageInstigator(Attacker, *DamageType);
+
+	/* Notify the gamemode we got killed for game state */
+	AController* Victim = Controller ? Controller : Cast<AController>(GetOwner());
+	GetWorld()->GetAuthGameMode<ACerberusGameMode>()->Killed(Attacker, Victim, this, DamageType);
+
+	OnDeath();
+	return true;
+}
+
+bool ACerberusCharacter::CanDie() const
+{
+	/* Check if character is already dying, destroyed or if we have authority */
+	if (bIsDying || IsValid(this) || !HasAuthority() || GetWorld()->GetAuthGameMode() == nullptr)
+		return false;
+	
+	return true;
+}
+
+void ACerberusCharacter::OnDeath()
+{
+	if (IsLocallyControlled())
+	{
+		if (bIsDying)
+			return;
+
+		bIsDying = true;
+
+		//Disconnect controller from pawn
+		
+		//Preform rag-doll physics?
+		SetRagdollPhysics();
+
+		//Destroy pawn
+
+	}
+}
+
+void ACerberusCharacter::SetRagdollPhysics()
+{
+	
+}
 
 
 //////////////////////////////////////////////////////////////////////////
 // Input
-
-void ACerberusCharacter::StartFire()
-{
-	if (!bIsFiringWeapon)
-	{
-		bIsFiringWeapon = true;
-		UWorld* World = GetWorld();
-		// StopFire is called when the time with the length of FireRate finishes -- bIsFiringWeapon will be set to false automatically
-		//@TODO : this does not account for automatic firing / Seems to be good for semi-automatic weapons
-		World->GetTimerManager().SetTimer(FiringTimer, this, &ACerberusCharacter::StopFire, FireRate, false);
-		HandleFire();
-	}
-}
-
-void ACerberusCharacter::StopFire()
-{
-	bIsFiringWeapon = false;
-}
-
-
-void ACerberusCharacter::HandleFire_Implementation()
-{
-	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
-	FRotator spawnRotation = GetControlRotation();
-
-	FActorSpawnParameters spawnParameters;
-	spawnParameters.Instigator = GetInstigator();
-	spawnParameters.Owner = this;
-
-	AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
-}
 
 void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -243,4 +265,34 @@ void ACerberusCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void ACerberusCharacter::StartFire()
+{
+	if (!bIsFiringWeapon)
+	{
+		bIsFiringWeapon = true;
+		UWorld* World = GetWorld();
+		// StopFire is called when the time with the length of FireRate finishes -- bIsFiringWeapon will be set to false automatically
+		//@TODO : this does not account for automatic firing / Seems to be good for semi-automatic weapons
+		World->GetTimerManager().SetTimer(FiringTimer, this, &ACerberusCharacter::StopFire, FireRate, false);
+		HandleFire();
+	}
+}
+
+void ACerberusCharacter::StopFire()
+{
+	bIsFiringWeapon = false;
+}
+
+void ACerberusCharacter::HandleFire_Implementation()
+{
+	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
+	FRotator spawnRotation = GetControlRotation();
+
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Instigator = GetInstigator();
+	spawnParameters.Owner = this;
+
+	AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
 }
