@@ -98,19 +98,18 @@ protected:
 
 	/** Server function for spawning projectiles. */
 	UFUNCTION(Server, Reliable)
-	void HandleFire();
+	void OnFire();
 
 	/** a timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;
 
-private:
 	bool bIsDying;
 
 	bool CanDie() const;
 
-	bool Die(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	bool Die();
 
-	void OnDeath();
+	void OnDeath(AController* Victim);
 	
 	void SetRagdollPhysics();
 	

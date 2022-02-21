@@ -12,7 +12,6 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
 #include "Core/Combat/Projectile.h"
-#include "GameFramework/GameModeBase.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -108,6 +107,11 @@ void ACerberusCharacter::OnHealthUpdate()
 		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining"), *GetFName().ToString(), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
 	}
+
+	if (CurrentHealth <= 0)
+	{
+		Die();
+	}
 }
 
 void ACerberusCharacter::SetCurrentHealth(float healthValue)
@@ -115,8 +119,6 @@ void ACerberusCharacter::SetCurrentHealth(float healthValue)
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
-		//TODO: Keep track of player health in cache or database ?
-		
 		OnHealthUpdate();
 	}
 }
@@ -125,65 +127,74 @@ float ACerberusCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	float damageApplied = CurrentHealth - DamageAmount;
 	SetCurrentHealth(damageApplied);
-
-	if (CurrentHealth <= 0)
-	{
-		Die(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	}
 	return damageApplied;
 }
 
-bool ACerberusCharacter::Die(float DamageAmount, FDamageEvent const& DamageEvent, AController* Attacker,
-	AActor* DamageCauser)
+bool ACerberusCharacter::Die()
 {
 	if(!CanDie())
 	{
+		FString message = FString::Printf(TEXT("Cant Die!!!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, message);
 		return false;
 	}
 
 	/* Fallback to default DamageType if none is specified */
-	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
-	Attacker = GetDamageInstigator(Attacker, *DamageType);
+	//UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
+	//Attacker = GetDamageInstigator(Attacker, *DamageType);
 
 	/* Notify the gamemode we got killed for game state */
 	AController* Victim = Controller ? Controller : Cast<AController>(GetOwner());
-	GetWorld()->GetAuthGameMode<ACerberusGameMode>()->Killed(Attacker, Victim, this, DamageType);
+	//GetWorld()->GetAuthGameMode<ACerberusGameMode>()->Killed(Attacker, Victim, this, DamageType);
 
-	OnDeath();
+	OnDeath(Victim);
 	return true;
 }
 
 bool ACerberusCharacter::CanDie() const
 {
 	/* Check if character is already dying, destroyed or if we have authority */
-	if (bIsDying || IsValid(this) || !HasAuthority() || GetWorld()->GetAuthGameMode() == nullptr)
+	if (bIsDying ||
+		!IsValid(this) ||
+		!HasAuthority() ||
+		GetWorld()->GetAuthGameMode() == NULL)
+	{
 		return false;
+	}
 	
 	return true;
 }
 
-void ACerberusCharacter::OnDeath()
+void ACerberusCharacter::OnDeath(AController* Victim)
 {
-	if (IsLocallyControlled())
-	{
+	//if (IsLocallyControlled())
+	//{
 		if (bIsDying)
 			return;
 
+		FString deathMessage = FString::Printf(TEXT("Is now dying!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, deathMessage);
+		
 		bIsDying = true;
 
 		//Disconnect controller from pawn
+		DetachFromControllerPendingDestroy();
 		
 		//Preform rag-doll physics?
 		SetRagdollPhysics();
 
-		//Destroy pawn
+		//Request Respawn from gamemode
+		//@TODO : Will include some kind of UI to pop up for multiple options on spawn location
+		GetWorld()->GetAuthGameMode<ACerberusGameMode>()->RequestRespawn(Victim);
 
-	}
+	//}
 }
 
 void ACerberusCharacter::SetRagdollPhysics()
 {
-	
+	TurnOff();
+	SetActorHiddenInGame(true);
+	SetLifeSpan(1.0f);
 }
 
 
@@ -276,7 +287,7 @@ void ACerberusCharacter::StartFire()
 		// StopFire is called when the time with the length of FireRate finishes -- bIsFiringWeapon will be set to false automatically
 		//@TODO : this does not account for automatic firing / Seems to be good for semi-automatic weapons
 		World->GetTimerManager().SetTimer(FiringTimer, this, &ACerberusCharacter::StopFire, FireRate, false);
-		HandleFire();
+		OnFire();
 	}
 }
 
@@ -285,7 +296,8 @@ void ACerberusCharacter::StopFire()
 	bIsFiringWeapon = false;
 }
 
-void ACerberusCharacter::HandleFire_Implementation()
+//@TODO : Will eventually be removed to be handled by weapon
+void ACerberusCharacter::OnFire_Implementation()
 {
 	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
 	FRotator spawnRotation = GetControlRotation();
