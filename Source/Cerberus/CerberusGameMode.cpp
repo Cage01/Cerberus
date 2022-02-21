@@ -20,7 +20,7 @@ void ACerberusGameMode::Killed(AController* Attacker, AController* Victim, APawn
 {
 }
 
-void ACerberusGameMode::RequestRespawn_Implementation(AController* Player)
+void ACerberusGameMode::ServerRequestRespawn_Implementation(AController* Player)
 {
 	FString respawnMessage = FString::Printf(TEXT("Respawn Requested"));
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, respawnMessage);

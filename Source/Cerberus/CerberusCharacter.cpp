@@ -68,16 +68,6 @@ ACerberusCharacter::ACerberusCharacter()
 	bIsFiringWeapon = false;
 }
 
-/** Property replication */
-void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	//Replicate current health
-	DOREPLIFETIME(ACerberusCharacter, CurrentHealth);
-}
-
-
 //////////////////////////////////////////////////////////////////////////
 // Health
 void ACerberusCharacter::OnRep_CurrentHealth()
@@ -139,55 +129,41 @@ bool ACerberusCharacter::Die()
 		return false;
 	}
 
-	/* Fallback to default DamageType if none is specified */
-	//UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
-	//Attacker = GetDamageInstigator(Attacker, *DamageType);
-
-	/* Notify the gamemode we got killed for game state */
+	/* Preform death and Notify the gamemode we got killed for game state */
 	AController* Victim = Controller ? Controller : Cast<AController>(GetOwner());
-	//GetWorld()->GetAuthGameMode<ACerberusGameMode>()->Killed(Attacker, Victim, this, DamageType);
-
 	OnDeath(Victim);
+	
 	return true;
 }
 
 bool ACerberusCharacter::CanDie() const
 {
 	/* Check if character is already dying, destroyed or if we have authority */
-	if (bIsDying ||
-		!IsValid(this) ||
-		!HasAuthority() ||
-		GetWorld()->GetAuthGameMode() == NULL)
-	{
+	if (bIsDying || !IsValid(this) || !HasAuthority() || GetWorld()->GetAuthGameMode() == NULL)
 		return false;
-	}
 	
 	return true;
 }
 
 void ACerberusCharacter::OnDeath(AController* Victim)
 {
-	//if (IsLocallyControlled())
-	//{
-		if (bIsDying)
-			return;
+	if (bIsDying)
+		return;
 
-		FString deathMessage = FString::Printf(TEXT("Is now dying!"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, deathMessage);
+	FString deathMessage = FString::Printf(TEXT("Is now dying!"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, deathMessage);
 		
-		bIsDying = true;
+	bIsDying = true;
 
-		//Disconnect controller from pawn
-		DetachFromControllerPendingDestroy();
+	//Disconnect controller from pawn
+	DetachFromControllerPendingDestroy();
 		
-		//Preform rag-doll physics?
-		SetRagdollPhysics();
+	//Preform rag-doll physics?
+	SetRagdollPhysics();
 
-		//Request Respawn from gamemode
-		//@TODO : Will include some kind of UI to pop up for multiple options on spawn location
-		GetWorld()->GetAuthGameMode<ACerberusGameMode>()->RequestRespawn(Victim);
-
-	//}
+	//Request Respawn from gamemode
+	//@TODO : Will include some kind of UI to pop up for multiple options on spawn location
+	GetWorld()->GetAuthGameMode<ACerberusGameMode>()->ServerRequestRespawn(Victim);
 }
 
 void ACerberusCharacter::SetRagdollPhysics()
@@ -287,7 +263,7 @@ void ACerberusCharacter::StartFire()
 		// StopFire is called when the time with the length of FireRate finishes -- bIsFiringWeapon will be set to false automatically
 		//@TODO : this does not account for automatic firing / Seems to be good for semi-automatic weapons
 		World->GetTimerManager().SetTimer(FiringTimer, this, &ACerberusCharacter::StopFire, FireRate, false);
-		OnFire();
+		ServerOnFire();
 	}
 }
 
@@ -297,7 +273,7 @@ void ACerberusCharacter::StopFire()
 }
 
 //@TODO : Will eventually be removed to be handled by weapon
-void ACerberusCharacter::OnFire_Implementation()
+void ACerberusCharacter::ServerOnFire_Implementation()
 {
 	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
 	FRotator spawnRotation = GetControlRotation();
@@ -306,5 +282,14 @@ void ACerberusCharacter::OnFire_Implementation()
 	spawnParameters.Instigator = GetInstigator();
 	spawnParameters.Owner = this;
 
-	AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
+	GetWorld()->SpawnActor<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
+}
+
+/** Property replication */
+void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//Replicate current health
+	DOREPLIFETIME(ACerberusCharacter, CurrentHealth);
 }

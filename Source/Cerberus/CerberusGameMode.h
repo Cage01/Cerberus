@@ -17,7 +17,7 @@ public:
 	void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
 
 	UFUNCTION(Server, Reliable)
-	void RequestRespawn(AController* Player);
+	void ServerRequestRespawn(AController* Player);
 	
 protected:
 

@@ -98,7 +98,7 @@ protected:
 
 	/** Server function for spawning projectiles. */
 	UFUNCTION(Server, Reliable)
-	void OnFire();
+	void ServerOnFire();
 
 	/** a timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;
