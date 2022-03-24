@@ -29,6 +29,7 @@ MaxParallelActions can be set to whatever configuration would be best for your P
 **Setup project files**
 *TODO - I will create a number of scripts in the future to do a lot of this automatically*
 - Now we must generate the visual studio project files in order to compile and run the project. To do that the first step is to download and install Unreal Engine 5 from the Epic Games client.
+
 **First try**
 - Run `setup.bat` in the root of the project folder. This should hopefully generate all the project files. But you may still have to select the version of the engine to generate with (see below) and set the default application to run .uproject files with (also see below)
 
