@@ -79,7 +79,7 @@ void ACerberusCharacter::OnHealthUpdate()
 {
 	//@TODO : Update progress bars
 	//Client-specific functionality
-	if (IsLocallyControlled())
+	if (IsLocallyControlled() && GetLocalViewingPlayerController() == this->Controller)
 	{
 		FString healthMessage = FString::Printf(TEXT("Health: %f"), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);

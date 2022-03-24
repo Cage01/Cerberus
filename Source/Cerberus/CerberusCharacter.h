@@ -32,6 +32,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="Health")
 	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
 
+	UFUNCTION(BlueprintCallable, Category="Health")
+	FORCEINLINE float GetHealthPercent() const { return CurrentHealth / MaxHealth; }	
+
 	/** Setter for Current Health. Clamps the value between 0 and MaxHealth and calls OnHealthUpdate. Should only be called on the server.*/
 	UFUNCTION(BlueprintCallable, Category="Health")
 	void SetCurrentHealth(float healthValue);
@@ -41,6 +44,7 @@ public:
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 
+	
 protected:
 
 	/** Called for forwards/backward input */
