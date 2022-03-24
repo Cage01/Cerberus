@@ -40,3 +40,6 @@ MaxParallelActions can be set to whatever configuration would be best for your P
 - Right click on the .uproject file and set the default app to the shortcut that was just created and edited.
 - Right click on the .uproject file once again and select **"Generate Project Files"**. It will likely open a small window with a dropdown to select which engine to generate the files with. Be sure to select the version that you have cloned and compiled through GitHub.
 - Once complete open the project .sln in Visual Studio or Rider and compile the project.
+
+
+**At this point you should be able to compile the code in your preferred IDE, and run the program to start up unreal engine and its editor**
