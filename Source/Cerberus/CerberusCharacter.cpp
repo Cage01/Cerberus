@@ -66,6 +66,7 @@ ACerberusCharacter::ACerberusCharacter()
 
 	FireRate = 0.25f;
 	bIsFiringWeapon = false;
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,8 @@ void ACerberusCharacter::OnHealthUpdate()
 {
 	//@TODO : Update progress bars
 	//Client-specific functionality
-	if (IsLocallyControlled() && GetLocalViewingPlayerController() == this->Controller)
+	//&& GetLocalViewingPlayerController() == this->Controller
+	if (IsLocallyControlled() )
 	{
 		FString healthMessage = FString::Printf(TEXT("Health: %f"), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
@@ -89,6 +91,7 @@ void ACerberusCharacter::OnHealthUpdate()
 			FString deathMessage = FString::Printf(TEXT("Player Died"));
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
 		}
+
 	}
 
 	//Server-specific functionality
@@ -102,6 +105,8 @@ void ACerberusCharacter::OnHealthUpdate()
 	{
 		Die();
 	}
+
+
 }
 
 void ACerberusCharacter::SetCurrentHealth(float healthValue)

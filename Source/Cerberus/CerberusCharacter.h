@@ -43,8 +43,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Health")
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-
-	
 protected:
 
 	/** Called for forwards/backward input */
