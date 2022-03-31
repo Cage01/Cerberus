@@ -1,8 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "CerberusCharacter.h"
+#include "Cerberus/Core/Public/Characters/CerberusCharacter.h"
 
-#include "CerberusGameMode.h"
+#include "Cerberus/CerberusGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -11,7 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
-#include "Core/Combat/Projectile.h"
+#include "Cerberus/Dev/Public/Projectile.h"
 
 
 //////////////////////////////////////////////////////////////////////////
