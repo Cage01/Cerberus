@@ -34,9 +34,6 @@ protected:
 	/** Server function for spawning projectiles. */
 	UFUNCTION(Server, Reliable)
 	virtual void ServerOnAttack();
-
-	void PreformHitscan();
-	virtual void SpawnProjectile();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	class UAttackComponent* AttackComponent;
@@ -48,8 +45,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
 	TSubclassOf<class UDamageType> DamageType;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	bool bIsHitscan;
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	bool bIsProjectileWeapon;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float Range;
@@ -58,8 +55,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
 	float Damage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Controller")
+	AController* Player;
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+private:
+	AActor* FocusedActor;
+	void TraceForward();
 };

@@ -16,7 +16,8 @@ AWeaponBase::AWeaponBase()
 	AttackComponent->ReplicatedAttack.BindUObject(this, &AWeaponBase::ServerOnAttack);
 	AddOwnedComponent(AttackComponent);
 
-	
+	//Hopefully get the player/owner of the weapon?
+	Owner = GetOwner()->GetInstigatorController();
 }
 
 // Called when the game starts or when spawned
@@ -30,34 +31,67 @@ void AWeaponBase::BeginPlay()
 
 void AWeaponBase::ServerOnAttack_Implementation()
 {
-	//Hitscan attack type
-	if (!bIsHitscan)
-		SpawnProjectile();
+	//Spawning selected projectile via the attack component
+	if (bIsProjectileWeapon)
+	{
+		FVector spawnLocation = GetActorLocation() + (GetActorRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
+		FRotator spawnRotation = GetActorRotation();
+
+		FActorSpawnParameters spawnParameters;
+		spawnParameters.Instigator = GetInstigator();
+		spawnParameters.Owner = this;
+
+		AttackComponent->FireProjectile<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
+	}
 	else
-		PreformHitscan();
+	{
+		
+	}
 
-}
-
-void AWeaponBase::PreformHitscan()
-{
-	
-}
-
-void AWeaponBase::SpawnProjectile()
-{
-	FVector spawnLocation = GetActorLocation() + (GetActorRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
-	FRotator spawnRotation = GetActorRotation();
-
-	FActorSpawnParameters spawnParameters;
-	spawnParameters.Instigator = GetInstigator();
-	spawnParameters.Owner = this;
-
-	GetWorld()->SpawnActor<AProjectile>(spawnLocation,spawnRotation, spawnParameters);
 }
 
 // Called every frame
 void AWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AWeaponBase::TraceForward()
+{
+	FVector loc;
+	FRotator rot;
+	FHitResult hit;
+
+	Player->GetPlayerViewPoint(loc, rot);
+
+	FVector start = loc;
+	FVector end = start + (rot.Vector() * Range);
+
+	FCollisionQueryParams traceParams;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, traceParams);
+
+	DrawDebugLine(GetWorld(), start, end, FColor::Cyan, false, 2.0f);
+	
+	if (bHit)
+	{
+		DrawDebugBox(GetWorld(), hit.ImpactPoint, FVector(5,5,5), FColor::Red, false, 2.0f);
+
+		AActor* Interactable = hit.GetActor();
+
+		
+		if (Interactable && Interactable != FocusedActor)
+		{
+			FocusedActor = Interactable;
+		} else
+		{
+			FocusedActor = nullptr;
+		}
+
+		//Preform damage
+		if (FocusedActor == Interactable)
+		{
+			
+		}
+	}
 }
 

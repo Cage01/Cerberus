@@ -17,6 +17,10 @@ public:
 	// Sets default values for this component's properties
 	UAttackComponent();
 
+	template <typename T>
+	T FireProjectile(FVector SpawnLocation, FRotator SpawnRotation, FActorSpawnParameters SpawnParameters);
+	void FireHitscan();
+	
 	FReplicatedAttack ReplicatedAttack;
 
 protected:
