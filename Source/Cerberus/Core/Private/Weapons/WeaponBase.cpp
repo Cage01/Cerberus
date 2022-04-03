@@ -41,7 +41,8 @@ void AWeaponBase::ServerOnAttack_Implementation()
 		spawnParameters.Instigator = GetInstigator();
 		spawnParameters.Owner = this;
 
-		AttackComponent->FireProjectile<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
+		
+		//AttackComponent->FireProjectile<AProjectile>(spawnLocation, spawnRotation, spawnParameters);
 	}
 	else
 	{

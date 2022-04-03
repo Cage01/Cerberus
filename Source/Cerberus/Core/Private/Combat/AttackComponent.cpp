@@ -24,6 +24,12 @@ void UAttackComponent::BeginPlay()
 	
 }
 
+template <class T>
+T UAttackComponent::FireProjectile(FVector SpawnLocation, FRotator SpawnRotation, FActorSpawnParameters SpawnParameters)
+{
+	GetWorld()->SpawnActor<T>(SpawnLocation, SpawnRotation, SpawnParameters);
+}
+
 void UAttackComponent::StartAttack()
 {
 	if (!bIsAttacking)

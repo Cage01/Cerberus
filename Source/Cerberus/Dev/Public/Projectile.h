@@ -7,7 +7,7 @@
 #include "Projectile.generated.h"
 
 UCLASS()
-class CERBERUS_API AProjectile : public AActor
+class AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
