@@ -16,8 +16,23 @@ AWeaponBase::AWeaponBase()
 	AttackComponent->ReplicatedAttack.BindUObject(this, &AWeaponBase::ServerOnAttack);
 	AddOwnedComponent(AttackComponent);
 
-	//Hopefully get the player/owner of the weapon?
-	Owner = GetOwner()->GetInstigatorController();
+	//Hopefully get the player/owner of the weapon
+
+}
+
+void AWeaponBase::SetController(AController* Controller)
+{
+	Player = Controller;
+
+	if (GetInstigator())
+	{
+		Player  = GetInstigator()->GetController();
+	}
+		
+	if (GEngine && Player)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Player->GetHumanReadableName());
+	}
 }
 
 // Called when the game starts or when spawned

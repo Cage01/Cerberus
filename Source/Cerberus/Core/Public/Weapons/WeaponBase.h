@@ -27,6 +27,9 @@ public:
 	// Sets default values for this actor's properties
 	AWeaponBase();
 
+	UFUNCTION(BlueprintCallable, Category="Controller")
+	void SetController(AController* Controller);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,14 +57,12 @@ protected:
 	// The damage dealt by this weapon
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
 	float Damage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Controller")
-	AController* Player;
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 private:
+	AController* Player;
 	AActor* FocusedActor;
 	void TraceForward();
 };
