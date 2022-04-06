@@ -1,5 +1,7 @@
 # Cerberus
 
+- First install Unreal Engine 5.0 from the Epic Games client to streamline the process of opening projects and streamlining project file generation
+
 ## **Setup Unreal Engine from source**
 - **[Follow these instructions](https://www.unrealengine.com/en-US/ue4-on-github)** to gain access to the Unreal Engine source code repository on GitHub 
 - Install **[Git](https://git-scm.com/downloads)** and **[Git LFS](https://git-lfs.github.com/)**
@@ -24,21 +26,6 @@
 </Configuration>
 ```
 MaxParallelActions can be set to whatever configuration would be best for your PC. It should depend on the number of cores your CPU has available. I set mine to 6 for the time being and it improves compilation times.
-
-## **Setup project files**
-*TODO - I will create a number of scripts in the future to do a lot of this automatically*
-- Now we must generate the visual studio project files in order to compile and run the project. To do that the first step is to download and install Unreal Engine 5 from the Epic Games client.
-
-**First try**
-- Run `setup.bat` in the root of the project folder. This should hopefully generate all the project files. But you may still have to select the version of the engine to generate with (see below) and set the default application to run .uproject files with (also see below)
-
-**If above didn't work try**
-- Navigate to the new install location of the engine likely at `C:\Program Files (x86)\Epic Games\Launcher\Engine\Binaries\Win64\UnrealVersionSelector.exe` and create a shortcut. 
-- Right click on the new shortcut and select "Properties" inside the "Target" text box add  **-fileassociations** to the end. The whole line should look something like `"C:\Program Files (x86)\Epic Games\Launcher\Engine\Binaries\Win64\UnrealVersionSelector.exe" -fileassociations`
-- We will use this shortcut to associate the .uproject file in the project directory to the Engine code
-- Right click on the .uproject file and set the default app to the shortcut that was just created and edited.
-- Right click on the .uproject file once again and select **"Generate Project Files"**. It will likely open a small window with a dropdown to select which engine to generate the files with. Be sure to select the version that you have cloned and compiled through GitHub.
-- Once complete open the project .sln in Visual Studio or Rider and compile the project.
 
 
 **At this point you should be able to compile the code in your preferred IDE, and run the program to start up unreal engine and its editor**
