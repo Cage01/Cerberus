@@ -1,0 +1,14 @@
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Accolades\LyraAccoladeDefinition.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Accolades\LyraAccoladeHostWidget.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Input\AimAssistTargetComponent.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Input\InputTriggerCombo.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Input\IAimAssistTargetInterface.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Input\AimAssistTargetManagerComponent.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\MessageProcessors\AssistProcessor.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\LyraWorldCollectable.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\MessageProcessors\ElimChainProcessor.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Messages\ControlPointStatusMessage.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\MessageProcessors\ElimStreakProcessor.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\ShooterCoreRuntimeSettings.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Public\Input\AimAssistInputModifier.h
+C:\Git\Cerberus\Plugins\GameFeatures\ShooterCore\Source\ShooterCoreRuntime\Private\TDM_PlayerSpawningManagmentComponent.h
