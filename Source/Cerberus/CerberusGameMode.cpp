@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CerberusGameMode.h"
-#include "CerberusCharacter.h"
+#include "Character/CerberusCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ACerberusGameMode::ACerberusGameMode()
