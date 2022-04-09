@@ -28,4 +28,4 @@
 MaxParallelActions can be set to whatever configuration would be best for your PC. It should depend on the number of cores your CPU has available. I set mine to 6 for the time being and it improves compilation times.
 
 
-**At this point you should be able to compile the code in your preferred IDE, and run the program to start up unreal engine and its editor**
+**At this point you should be able run the Setup.bat file. It will prompt you to select your Unreal Engine source build location and then compile the code automatically.**
