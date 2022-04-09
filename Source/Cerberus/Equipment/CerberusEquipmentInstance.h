@@ -3,42 +3,40 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cerberus/Items/CerberusItemInterface.h"
 #include "GameFramework/Pawn.h"
 #include "UObject/Object.h"
 
 #include "CerberusEquipmentInstance.generated.h"
 
+struct FCerberusEquipmentActorToSpawn;
+
 /**
  * 
  */
 UCLASS(BlueprintType, Blueprintable)
-class CERBERUS_API UCerberusEquipmentInstance : public UObject
+class CERBERUS_API UCerberusEquipmentInstance : public UObject, public ICerberusItemInterface
 {
 	GENERATED_BODY()
 
 public:
 	UCerberusEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void SetInstigator(UObject* InInstigator) override;
+	virtual UObject* GetInstigator_Implementation() const override;
+	virtual APawn* GetPawn_Implementation() const override;
+	virtual APawn* GetTypedPawn_Implementation(TSubclassOf<APawn> PawnType) const override;
+
+	
 	//~UObject interface
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual UWorld* GetWorld() const override final;
 	//~End of UObject interface
-
-	UFUNCTION(BlueprintPure, Category=Equipment)
-	UObject* GetInstigator() const { return Instigator; }
-
-	void SetInstigator(UObject* InInstigator) { Instigator = InInstigator; }
-
-	UFUNCTION(BlueprintPure, Category=Equipment)
-	APawn* GetPawn() const;
-
-	UFUNCTION(BlueprintPure, Category=Equipment, meta=(DeterminesOutputType=PawnType))
-	APawn* GetTypedPawn(TSubclassOf<APawn> PawnType) const;
-
+	
 	UFUNCTION(BlueprintPure, Category=Equipment)
 	TArray<AActor*> GetSpawnedActors() const { return SpawnedActors; }
 
-	//virtual void SpawnEquipmentActors(const TArray<FLyraEquipmentActorToSpawn>& ActorsToSpawn);
+	virtual void SpawnEquipmentActors(const TArray<FCerberusEquipmentActorToSpawn>& ActorsToSpawn);
 	virtual void DestroyEquipmentActors();
 	
 	virtual void OnEquipped();
