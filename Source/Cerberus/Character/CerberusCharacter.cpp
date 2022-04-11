@@ -61,6 +61,10 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	// @TODO: These inputs may become obsolete with the addition of the GameplayAbility and EnhancedInput classes.
+	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &ACerberusCharacter::ToggleInventory);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACerberusCharacter::Interact);
+
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &ACerberusCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ACerberusCharacter::MoveRight);
 
@@ -85,6 +89,16 @@ void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Loc
 void ACerberusCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	StopJumping();
+}
+
+void ACerberusCharacter::ToggleInventory()
+{
+	// Check if inventory UI is open -> Perform correct action.
+}
+
+void ACerberusCharacter::Interact()
+{
+	//Interact with item in the world.
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)

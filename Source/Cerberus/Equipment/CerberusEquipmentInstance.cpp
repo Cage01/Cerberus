@@ -13,52 +13,11 @@ UCerberusEquipmentInstance::UCerberusEquipmentInstance(const FObjectInitializer&
 {
 }
 
-UWorld* UCerberusEquipmentInstance::GetWorld() const
-{
-	if (APawn* OwningPawn = GetPawn())
-	{
-		return OwningPawn->GetWorld();
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
 void UCerberusEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ThisClass, Instigator);
 	DOREPLIFETIME(ThisClass, SpawnedActors);
-}
-
-void UCerberusEquipmentInstance::SetInstigator(UObject* InInstigator)
-{
-	Instigator = InInstigator;
-}
-
-UObject* UCerberusEquipmentInstance::GetInstigator_Implementation() const
-{
-	return Instigator;
-}
-
-APawn* UCerberusEquipmentInstance::GetPawn_Implementation() const
-{
-	return Cast<APawn>(GetOuter());
-}
-
-APawn* UCerberusEquipmentInstance::GetTypedPawn_Implementation(TSubclassOf<APawn> PawnType) const
-{
-	APawn* Result = nullptr;
-	if (UClass* ActualPawnType = PawnType)
-	{
-		if (GetOuter()->IsA(ActualPawnType))
-		{
-			Result = Cast<APawn>(GetOuter());
-		}
-	}
-	return Result;
 }
 
 void UCerberusEquipmentInstance::SpawnEquipmentActors(const TArray<FCerberusEquipmentActorToSpawn>& ActorsToSpawn)
@@ -85,16 +44,25 @@ void UCerberusEquipmentInstance::SpawnEquipmentActors(const TArray<FCerberusEqui
 
 void UCerberusEquipmentInstance::DestroyEquipmentActors()
 {
+	for (AActor* Actor : SpawnedActors)
+	{
+		if (Actor)
+		{
+			Actor->Destroy();
+		}
+	}
 }
 
+/*
+* This function call will be passed to a blueprint implementable event
+* Things like animations will occur here and etc.
+*/
 void UCerberusEquipmentInstance::OnEquipped()
 {
+	K2_OnEquipped();
 }
 
 void UCerberusEquipmentInstance::OnUnequipped()
 {
-}
-
-void UCerberusEquipmentInstance::OnRep_Instigator()
-{
+	K2_OnUnequipped();
 }

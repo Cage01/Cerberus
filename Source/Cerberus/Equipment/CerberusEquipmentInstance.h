@@ -3,36 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cerberus/Items/CerberusItemInterface.h"
-#include "GameFramework/Pawn.h"
-#include "UObject/Object.h"
+#include "Cerberus/Items/CerberusItemBase.h"
 
 #include "CerberusEquipmentInstance.generated.h"
 
 struct FCerberusEquipmentActorToSpawn;
 
 /**
- * 
+ * UCerberusEquipmentInstance
+ *
+ * A piece of equipment spawned and applied to a pawn
  */
 UCLASS(BlueprintType, Blueprintable)
-class CERBERUS_API UCerberusEquipmentInstance : public UObject, public ICerberusItemInterface
+class CERBERUS_API UCerberusEquipmentInstance : public UCerberusItemBase
 {
 	GENERATED_BODY()
 
 public:
 	UCerberusEquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual void SetInstigator(UObject* InInstigator) override;
-	virtual UObject* GetInstigator_Implementation() const override;
-	virtual APawn* GetPawn_Implementation() const override;
-	virtual APawn* GetTypedPawn_Implementation(TSubclassOf<APawn> PawnType) const override;
-
-	
-	//~UObject interface
-	virtual bool IsSupportedForNetworking() const override { return true; }
-	virtual UWorld* GetWorld() const override final;
-	//~End of UObject interface
-	
 	UFUNCTION(BlueprintPure, Category=Equipment)
 	TArray<AActor*> GetSpawnedActors() const { return SpawnedActors; }
 
@@ -50,14 +39,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category=Equipment, meta=(DisplayName="OnUnequipped"))
 	void K2_OnUnequipped();
 
-private:
-	UFUNCTION()
-	void OnRep_Instigator();
 
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_Instigator)
-	UObject* Instigator;
-
 	UPROPERTY(Replicated)
 	TArray<AActor*> SpawnedActors;
 };
