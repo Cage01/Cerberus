@@ -2,8 +2,10 @@
 
 
 #include "CerberusEquipmentDefinition.h"
+#include "CerberusEquipmentInstance.h"
 
 UCerberusEquipmentDefinition::UCerberusEquipmentDefinition(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
+	InstanceType = UCerberusEquipmentInstance::StaticClass();
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cerberus/Items/CerberusItemBase.h"
+#include "Cerberus/Items/CerberusItemInstanceBase.h"
 
 #include "CerberusEquipmentInstance.generated.h"
 
@@ -15,7 +15,7 @@ struct FCerberusEquipmentActorToSpawn;
  * A piece of equipment spawned and applied to a pawn
  */
 UCLASS(BlueprintType, Blueprintable)
-class CERBERUS_API UCerberusEquipmentInstance : public UCerberusItemBase
+class CERBERUS_API UCerberusEquipmentInstance : public UCerberusItemInstanceBase
 {
 	GENERATED_BODY()
 

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CerberusItemBase.h"
+#include "CerberusItemInstanceBase.h"
 
 #include "CerberusUsableItemInstance.generated.h"
 
@@ -16,10 +16,9 @@
 
 
 UCLASS(BlueprintType, Blueprintable)
-class CERBERUS_API UCerberusUsableItemInstance : public UCerberusItemBase
+class CERBERUS_API UCerberusUsableItemInstance : public UCerberusItemInstanceBase /*public UObject, public ICerberusItemInterface*/
 {
 	GENERATED_BODY()
-
 	
 public:
 	UCerberusUsableItemInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -29,10 +28,6 @@ public:
 protected:
 	UFUNCTION(BlueprintImplementableEvent, Category=Item, meta=(DisplayName="OnUse"))
 	void K2_OnUse();
-
-private:
-	UFUNCTION()
-	void OnRep_Instigator();
 
 // @TODO: Do I really want to spawn actors on a usable item?
 private:

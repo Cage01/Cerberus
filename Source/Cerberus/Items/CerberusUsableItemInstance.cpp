@@ -12,7 +12,7 @@ UCerberusUsableItemInstance::UCerberusUsableItemInstance(const FObjectInitialize
 void UCerberusUsableItemInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME(ThisClass, SpawnedActors);
 }
 
@@ -23,8 +23,4 @@ void UCerberusUsableItemInstance::GetLifetimeReplicatedProps(TArray<FLifetimePro
 void UCerberusUsableItemInstance::OnUse()
 {
 	K2_OnUse();
-}
-
-void UCerberusUsableItemInstance::OnRep_Instigator()
-{
 }

@@ -1,16 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CerberusItemBase.h"
+#include "CerberusItemInstanceBase.h"
 #include "Net/UnrealNetwork.h"
 
 
-UCerberusItemBase::UCerberusItemBase(const FObjectInitializer& ObjectInitializer)
+UCerberusItemInstanceBase::UCerberusItemInstanceBase(const FObjectInitializer& ObjectInitializer)
 	:Super (ObjectInitializer)
 {
 }
 
-UWorld* UCerberusItemBase::GetWorld() const
+UWorld* UCerberusItemInstanceBase::GetWorld() const
 {
 	if (APawn* OwningPawn = GetPawn())
 	{
@@ -22,29 +22,29 @@ UWorld* UCerberusItemBase::GetWorld() const
 	}
 }
 
-void UCerberusItemBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UCerberusItemInstanceBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, Instigator);
 }
 
-UObject* UCerberusItemBase::GetInstigator() const
+UObject* UCerberusItemInstanceBase::GetInstigator() const
 {
 	return Instigator;
 }
 
-void UCerberusItemBase::SetInstigator(UObject* InInstigator)
+void UCerberusItemInstanceBase::SetInstigator(UObject* InInstigator)
 {
 	Instigator = InInstigator;
 }
 
-APawn* UCerberusItemBase::GetPawn() const
+APawn* UCerberusItemInstanceBase::GetPawn() const
 {
 	return Cast<APawn>(GetOuter());
 }
 
-APawn* UCerberusItemBase::GetTypedPawn(TSubclassOf<APawn> PawnType) const
+APawn* UCerberusItemInstanceBase::GetTypedPawn(TSubclassOf<APawn> PawnType) const
 {
 	APawn* Result = nullptr;
 	if (UClass* ActualPawnType = PawnType)
@@ -57,6 +57,6 @@ APawn* UCerberusItemBase::GetTypedPawn(TSubclassOf<APawn> PawnType) const
 	return Result;
 }
 
-void UCerberusItemBase::OnRep_Instigator()
+void UCerberusItemInstanceBase::OnRep_Instigator()
 {
 }

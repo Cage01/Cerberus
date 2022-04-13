@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "CerberusItemBase.generated.h"
+#include "CerberusItemInstanceBase.generated.h"
 
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
-class CERBERUS_API UCerberusItemBase : public UObject
+UCLASS(BlueprintType, Blueprintable, Abstract)
+class CERBERUS_API UCerberusItemInstanceBase : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UCerberusItemBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	UCerberusItemInstanceBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	//~UObject interface
 	virtual bool IsSupportedForNetworking() const override { return true; }
