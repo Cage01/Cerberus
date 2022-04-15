@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
+#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
+#include "Cerberus/AbilitySystem/Attributes/CerberusAttributeSet.h"
 #include "CerberusCharacter.generated.h"
 
 UCLASS(config=Game)
-class ACerberusCharacter : public ACharacter
+class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -18,12 +21,20 @@ class ACerberusCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+
+	
 public:
 	ACerberusCharacter();
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= Camera, meta = (AllowPrivateAccess = "true"))
+	UCerberusAbilitySystemComponent* AbilitySystemComponent;
+
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
 

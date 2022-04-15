@@ -13,13 +13,9 @@ UCerberusItemInstanceBase::UCerberusItemInstanceBase(const FObjectInitializer& O
 UWorld* UCerberusItemInstanceBase::GetWorld() const
 {
 	if (APawn* OwningPawn = GetPawn())
-	{
 		return OwningPawn->GetWorld();
-	}
 	else
-	{
 		return nullptr;
-	}
 }
 
 void UCerberusItemInstanceBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

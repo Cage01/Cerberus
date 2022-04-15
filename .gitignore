@@ -75,6 +75,7 @@ DerivedDataCache/*
 
 # Misc
 .idea/
+buildsource.bat
 
 # Packages
 Windows/*

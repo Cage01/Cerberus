@@ -7,7 +7,11 @@
 #include "CerberusItemInstanceBase.generated.h"
 
 /**
- * 
+ * UCerberusInstanceBase
+ *
+ * Base Instance class for all types of items in the project. Whether it be consumables, equipment, weapons or etc.
+ * This base class does not include actor spawns, because not every instance of an item will need to be spawned in the world.
+ * Some may have particle effects, or just general gameplay effects without a visual representation.
  */
 UCLASS(BlueprintType, Blueprintable, Abstract)
 class CERBERUS_API UCerberusItemInstanceBase : public UObject
