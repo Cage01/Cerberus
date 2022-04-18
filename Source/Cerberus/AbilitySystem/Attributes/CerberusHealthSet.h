@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemComponent.h"
 #include "CerberusAttributeSet.h"
 #include "NativeGameplayTags.h"
 #include "CerberusHealthSet.generated.h"
@@ -29,6 +30,7 @@ class CERBERUS_API UCerberusHealthSet : public UCerberusAttributeSet
 public:
 	UCerberusHealthSet();
 
+	
 	ATTRIBUTE_ACCESSORS(UCerberusHealthSet, Health);
 	ATTRIBUTE_ACCESSORS(UCerberusHealthSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UCerberusHealthSet, Healing);

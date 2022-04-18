@@ -60,29 +60,23 @@ ACerberusCharacter::ACerberusCharacter()
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 
-	//Initialize Attributes with Ability System
-	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
-	check(CerberusASC);
-	HealthComponent->InitializeWithAbilitySystem(CerberusASC);
-	
+	// //Initialize Attributes with Ability System
+	// UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
+	// check(CerberusASC);
+	// HealthComponent->InitializeWithAbilitySystem(CerberusASC);
+	//
 		
 }
 
-UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
-{
-	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
-}
-
-
-UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent()
-{
-	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
-}
-
-UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
-{
-	//return AbilitySystemComponent;
-}
+// UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent()
+// {
+// 	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
+// }
+//
+// UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
+// {
+// 	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
+// }
 
 //////////////////////////////////////////////////////////////////////////
 // Input

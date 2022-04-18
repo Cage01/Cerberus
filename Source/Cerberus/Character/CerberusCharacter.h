@@ -11,7 +11,7 @@
 #include "CerberusCharacter.generated.h"
 
 UCLASS(config=Game)
-class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
+class ACerberusCharacter : public ACharacter/*, public IAbilitySystemInterface*/
 {
 	GENERATED_BODY()
 
@@ -27,15 +27,15 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	
 public:
 	ACerberusCharacter();
-	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
+	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
-	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent();
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent();
+	//virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 public:
 	/** Returns CameraBoom subobject **/
