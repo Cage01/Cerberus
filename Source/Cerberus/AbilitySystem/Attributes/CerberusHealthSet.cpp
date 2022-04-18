@@ -28,3 +28,32 @@ void UCerberusHealthSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCerberusHealthSet, MaxHealth, OldValue);
 }
+
+bool UCerberusHealthSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	return Super::PreGameplayEffectExecute(Data);
+}
+
+void UCerberusHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+}
+
+void UCerberusHealthSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	Super::PreAttributeBaseChange(Attribute, NewValue);
+}
+
+void UCerberusHealthSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+}
+
+void UCerberusHealthSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+}
+
+void UCerberusHealthSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+}

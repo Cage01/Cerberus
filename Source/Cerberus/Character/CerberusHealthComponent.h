@@ -3,11 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
-#include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
 #include "Components/GameFrameworkComponent.h"
 #include "CerberusHealthComponent.generated.h"
 
+
+class UCerberusAbilitySystemComponent;
+class UCerberusHealthSet;
+struct FGameplayEffectSpec;
+struct FOnAttributeChangeData;
+
+/*
+ * ECerberusDeathState
+ *
+ *  Defines the current state of death
+ */
 UENUM(BlueprintType)
 enum class ECerberusDeathState : uint8
 {
@@ -16,9 +25,13 @@ enum class ECerberusDeathState : uint8
 	DeathFinished
 };
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+
 class CERBERUS_API UCerberusHealthComponent : public UGameFrameworkComponent
 {
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FCerberusHealth_AttributeChanged,  UCerberusHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCerberusHealth_DeathEvent, AActor*, OwningActor);
+	
 	GENERATED_BODY()
 
 public:
@@ -33,7 +46,7 @@ public:
 	void InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC);
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
-	void UninitialieWithAbilitySystem();
+	void UninitialieFromAbilitySystem();
 	
 	// Returns current health
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
@@ -61,6 +74,20 @@ public:
 
 	// Applies enough damage to kill the owner
 	virtual void DamageSelfDestruct(bool bFellOutOfWorld = false);
+
+public:
+	// Delegate fired when health value has changed
+	UPROPERTY(BlueprintAssignable)
+	FCerberusHealth_AttributeChanged OnHealthChanged;
+	// Delegate fired when max health value has changed
+	UPROPERTY(BlueprintAssignable)
+	FCerberusHealth_AttributeChanged OnMaxHealthChanged;
+	// Delegate fired when death instance has started
+	UPROPERTY(BlueprintAssignable)
+	FCerberusHealth_DeathEvent OnDeathStarted;
+	// Delegate fired when death instance has finished
+	UPROPERTY(BlueprintAssignable)
+	FCerberusHealth_DeathEvent OnDeathFinished;
 	
 protected:
 
@@ -75,6 +102,8 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_DeathState(ECerberusDeathState OldDeathState);
+
+	
 protected:
 	UPROPERTY()
 	UCerberusAbilitySystemComponent* AbilitySystemComponent;

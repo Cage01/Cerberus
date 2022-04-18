@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
-#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "CerberusAttributeSet.generated.h"
+
+
+class UCerberusAbilitySystemComponent;
+struct FGameplayEffectSpec;
 
 /**
  * This macro defines a set of helper functions for accessing and initializing attributes.

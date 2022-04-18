@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "CerberusHealthComponent.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Attributes/CerberusAttributeSet.h"
 #include "CerberusCharacter.generated.h"
@@ -26,16 +27,22 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	
 public:
 	ACerberusCharacter();
+	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= Camera, meta = (AllowPrivateAccess = "true"))
-	UCerberusAbilitySystemComponent* AbilitySystemComponent;
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent();
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
+public:
+	/** Returns CameraBoom subobject **/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/** Returns FollowCamera subobject **/
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	
 protected:
 
 	/** Called for forwards/backward input */
@@ -65,15 +72,29 @@ protected:
 	void ToggleInventory();
 	void Interact();
 
+	// Begins death sequence for the character (disables collision, movement, etc)
+	UFUNCTION()
+	virtual void OnDeathStarted(AActor* OwningActor);
+
+	// Ends the death sequence for the character (detaches controller, destroys pawn, etc)
+	UFUNCTION()
+	virtual void OnDeathFinished(AActor* OwningActor);
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	// void DisableMovementAndCollision();
+	// void DestroyDueToDeath();
+	// void UninitAndDestroy();
+
+	// virtual void OnAbilitySystemInitialized();
+	// virtual void OnAbilitySystemUninitialized();
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Health", meta= (AllowPrivateAccess = "true"))
+	UCerberusHealthComponent* HealthComponent;
+	
 };
 

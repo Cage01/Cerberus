@@ -51,15 +51,37 @@ ACerberusCharacter::ACerberusCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	// Gameplay Abilities
-	AbilitySystemComponent = CreateDefaultSubobject<UCerberusAbilitySystemComponent>("AbilitySystemComponent");
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	// AbilitySystemComponent = CreateDefaultSubobject<UCerberusAbilitySystemComponent>("AbilitySystemComponent");
+	// AbilitySystemComponent->SetIsReplicated(true);
+	// AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+
+	// Setting up Health
+	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
+	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
+
+	//Initialize Attributes with Ability System
+	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
+	check(CerberusASC);
+	HealthComponent->InitializeWithAbilitySystem(CerberusASC);
+	
+		
+}
+
+UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
+{
+	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
 }
 
 
+UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent()
+{
+	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
+}
+
 UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
 {
-	return AbilitySystemComponent;
+	//return AbilitySystemComponent;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,6 +132,14 @@ void ACerberusCharacter::ToggleInventory()
 void ACerberusCharacter::Interact()
 {
 	//Interact with item in the world.
+}
+
+void ACerberusCharacter::OnDeathStarted(AActor* OwningActor)
+{
+}
+
+void ACerberusCharacter::OnDeathFinished(AActor* OwningActor)
+{
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)

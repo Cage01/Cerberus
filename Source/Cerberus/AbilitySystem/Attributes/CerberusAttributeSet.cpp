@@ -2,6 +2,7 @@
 
 
 #include "CerberusAttributeSet.h"
+#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 
 UCerberusAttributeSet::UCerberusAttributeSet()
 {
