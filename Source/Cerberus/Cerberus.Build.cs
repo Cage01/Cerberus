@@ -15,16 +15,18 @@ public class Cerberus : ModuleRules
 				"CoreUObject", 
 				"Engine", 
 				"InputCore", 
-				"HeadMountedDisplay",
-				"ModularGameplay"
+				"GameplayAbilities", 
+				"GameplayTags", 
+				"GameplayTasks",
+				"AIModule",
+				"ModularGameplay",
+				"ModularGameplayActors"
 			});
 		
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"GameplayAbilities", 
-				"GameplayTags", 
-				"GameplayTasks"
+
 			});
 	}
 }
