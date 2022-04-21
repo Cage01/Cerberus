@@ -1,7 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CerberusCharacter.h"
+
+#include "CerberusHealthComponent.h"
+#include "CerberusPawnData.h"
+#include "CerberusPawnExtensionComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -51,10 +56,16 @@ ACerberusCharacter::ACerberusCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	// Gameplay Abilities
-	// AbilitySystemComponent = CreateDefaultSubobject<UCerberusAbilitySystemComponent>("AbilitySystemComponent");
-	// AbilitySystemComponent->SetIsReplicated(true);
-	// AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	AbilitySystemComponent = CreateDefaultSubobject<UCerberusAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
+
+	// Setup Pawn Extension component (Contains AbilitySystemComponent)
+	PawnExtension = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
+	PawnExtension->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
+	PawnExtension->OnAbilitySystemUnitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
+	
 	// Setting up Health
 	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
@@ -68,15 +79,39 @@ ACerberusCharacter::ACerberusCharacter()
 		
 }
 
-// UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent()
-// {
-// 	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
-// }
-//
-// UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
-// {
-// 	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
-// }
+// @TODO: I dont plan on leaving this in the begin play, just for testing purposes
+void ACerberusCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	PawnExtension->InitializeAbilitySystem(AbilitySystemComponent, this);
+}
+
+UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent()
+{
+	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
+}
+
+UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
+{
+	return PawnExtension->GetCerberusAbilitySystemComponent();
+}
+
+void ACerberusCharacter::OnAbilitySystemInitialized()
+{
+	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
+	check(CerberusASC);
+
+	HealthComponent->InitializeWithAbilitySystem(CerberusASC);
+
+	// InitializeGameplayTags();
+}
+
+void ACerberusCharacter::OnAbilitySystemUninitialized()
+{
+	HealthComponent->UninitialieFromAbilitySystem();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -107,6 +142,7 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACerberusCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ACerberusCharacter::TouchStopped);
 }
+
 
 void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {

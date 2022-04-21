@@ -3,15 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
-#include "CerberusHealthComponent.h"
-#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
-#include "Cerberus/AbilitySystem/Attributes/CerberusAttributeSet.h"
+#include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
+class UCerberusHealthComponent;
+class UCerberusPawnExtensionComponent;
+class UCerberusAbilitySystemComponent;
+
 UCLASS(config=Game)
-class ACerberusCharacter : public ACharacter/*, public IAbilitySystemInterface*/
+class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -29,13 +31,15 @@ public:
 	ACerberusCharacter();
 	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
+	virtual void BeginPlay() override;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
 
-	//UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
-	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent();
-	//virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent();
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -89,12 +93,17 @@ protected:
 	// void DestroyDueToDeath();
 	// void UninitAndDestroy();
 
-	// virtual void OnAbilitySystemInitialized();
-	// virtual void OnAbilitySystemUninitialized();
+	virtual void OnAbilitySystemInitialized();
+	virtual void OnAbilitySystemUninitialized();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Health", meta= (AllowPrivateAccess = "true"))
 	UCerberusHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Pawn", meta=(AllowPrivateAccess = "true"))
+	UCerberusPawnExtensionComponent* PawnExtension;
+	
+	UCerberusAbilitySystemComponent* AbilitySystemComponent;
 	
 };
 
