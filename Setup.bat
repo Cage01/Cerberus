@@ -1,22 +1,44 @@
 @echo off
-echo You will be prompted to select your Unreal Engine Source Directory.
-echo ==========
-pause
 
+rem ## Unreal Engine path is unknown, select path and setup environment
+set ProjectConfig=.uepath
+
+if not exist %ProjectConfig% (
+	echo You will be prompted to select your Unreal Engine Source Directory.
+	echo ==========
+	pause
+	goto :LogPath
+)
+
+rem ## Unreal Engine path has already been set, just compile code
+if exist %ProjectConfig% (
+	goto :SetupEnvironment
+)
+
+
+:LogPath
 rem ## Open Folder dialog to select Unreal Engine path
 Title Folder Selection
 call:FolderSelection "%SourcePath%", SourcePath, "Select Folder"
+echo %SourcePath%>%ProjectConfig%
 
-rem ## Update path in the buildsrouce script and run it
-set $source=buildsource.bat
-set $Dest=buildsource.bat
+:SetupEnvironment
+set ProjectPath=%~dp0
+set /p UnrealPath=<%ProjectConfig%
 
-set "search=NULL"
+echo Engine Path - %UnrealPath%
+rem ## Generate project files
+if not exist "%UnrealPath%\UE5.sln" (
+	echo Generating UE5 project files...
+	call "%UnrealPath%\Setup.bat"
+	call "%UnrealPath%\GenerateProjectFiles.bat"
+)
 
-for /f "delims=" %%a in ('powershell -c "(get-content '%$source%') | foreach-object {$_ -replace '%Search%', '%SourcePath%'} | set-content '%$dest%'"') do echo %%a
+rem ## Build Engine source code
+echo Compiling Unreal Engine source code...
+call %UnrealPath%\Engine\Build\BatchFiles\RunUAT.bat BuildEditor
+exit/B 0
 
-call "buildsource.bat"
-EXIT
 
 Rem ---------------------------------------------------------------------------------------------------------
 :FolderSelection <SelectedPath> <folder> <Description>
