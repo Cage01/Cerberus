@@ -42,6 +42,7 @@ void UCerberusHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 
 void UCerberusHealthComponent::InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC)
 {
+	
 	AActor* Owner = GetOwner();
 	check(Owner);
 
@@ -57,14 +58,16 @@ void UCerberusHealthComponent::InitializeWithAbilitySystem(UCerberusAbilitySyste
 		UE_LOG(LogCerberus, Error, TEXT("CerberusHealthComponent: Cannot initialize the AbilitySystemComponent"), *GetNameSafe(Owner));
 		return;
 	}
+
 	
-	HealthSet = AbilitySystemComponent->GetSet<UCerberusHealthSet>();
+	HealthSet = AbilitySystemComponent->AddSet<UCerberusHealthSet>();
 	if (!HealthSet)
 	{
 		UE_LOG(LogCerberus, Error, TEXT("CerberusHealthComponent: Cannot initialize the HealthSet with the AbilitySystemComponent"), *GetNameSafe(Owner));
 		return;
 	}
-
+	
+	
 	// Registering the component to listen for health related attribute changes.
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCerberusHealthSet::GetHealthAttribute()).AddUObject(this, &UCerberusHealthComponent::HandleHealthChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCerberusHealthSet::GetMaxHealthAttribute()).AddUObject(this, &UCerberusHealthComponent::HandleMaxHealthChanged);

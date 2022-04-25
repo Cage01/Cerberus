@@ -3,10 +3,11 @@
 #include "CerberusCharacter.h"
 
 #include "CerberusHealthComponent.h"
-#include "CerberusPawnData.h"
 #include "CerberusPawnExtensionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
+#include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
+#include "Cerberus/Player/CerberusPlayerState.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,7 +17,8 @@
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
 
-ACerberusCharacter::ACerberusCharacter()
+ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -55,12 +57,6 @@ ACerberusCharacter::ACerberusCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// Gameplay Abilities
-	AbilitySystemComponent = CreateDefaultSubobject<UCerberusAbilitySystemComponent>("AbilitySystemComponent");
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
-
-
 	// Setup Pawn Extension component (Contains AbilitySystemComponent)
 	PawnExtension = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
 	PawnExtension->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
@@ -70,13 +66,8 @@ ACerberusCharacter::ACerberusCharacter()
 	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
-
-	// //Initialize Attributes with Ability System
-	// UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
-	// check(CerberusASC);
-	// HealthComponent->InitializeWithAbilitySystem(CerberusASC);
-	//
-		
+	
+	
 }
 
 // @TODO: I dont plan on leaving this in the begin play, just for testing purposes
@@ -84,10 +75,15 @@ void ACerberusCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PawnExtension->InitializeAbilitySystem(AbilitySystemComponent, this);
+	//PawnExtension->InitializeAbilitySystem(AbilitySystemComponent, this);
+
+	// if (PawnExtension->CheckPawnReadyToInitialize())
+	// {
+	// 	PawnExtension->InitializeAbilitySystem(AbilitySystemComponent, this);
+	// }
 }
 
-UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent()
+UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
 {
 	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
 }
@@ -97,14 +93,46 @@ UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
 	return PawnExtension->GetCerberusAbilitySystemComponent();
 }
 
+/* Setup server based functionality */
+void ACerberusCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	PawnExtension->HandleControllerChanged();
+}
+
+void ACerberusCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+
+	PawnExtension->HandleControllerChanged();
+}
+
+/* Setup client based functionality */
+void ACerberusCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// Will check if the pawn is ready to be initialized, and if it is, it will start up the ability system and fire off delegates.
+	PawnExtension->HandlePlayerStateReplicated();
+
+	if (PawnExtension->IsPawnReadyToInitialize())
+	{
+		ACerberusPlayerState* CerberusPS = GetPlayerState<ACerberusPlayerState>();
+		check(CerberusPS);
+
+		PawnExtension->InitializeAbilitySystem(CerberusPS->GetCerberusAbilitySystemComponent(), CerberusPS);
+	}
+
+}
+
 void ACerberusCharacter::OnAbilitySystemInitialized()
 {
 	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
 	check(CerberusASC);
-
-	HealthComponent->InitializeWithAbilitySystem(CerberusASC);
-
-	// InitializeGameplayTags();
+	
+	HealthComponent->InitializeWithAbilitySystem(CerberusASC);	
+	
 }
 
 void ACerberusCharacter::OnAbilitySystemUninitialized()

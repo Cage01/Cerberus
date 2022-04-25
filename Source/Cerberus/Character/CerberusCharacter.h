@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
@@ -28,7 +27,7 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 
 	
 public:
-	ACerberusCharacter();
+	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
 	virtual void BeginPlay() override;
@@ -38,8 +37,13 @@ public:
 	float TurnRateGamepad;
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
-	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent();
+	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	virtual void PossessedBy(AController* NewController) override;
+
+	virtual void OnRep_Controller() override;
+	virtual void OnRep_PlayerState() override;
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -97,13 +101,11 @@ protected:
 	virtual void OnAbilitySystemUninitialized();
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Health", meta= (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Character", meta= (AllowPrivateAccess = "true"))
 	UCerberusHealthComponent* HealthComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Pawn", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Character", meta=(AllowPrivateAccess = "true"))
 	UCerberusPawnExtensionComponent* PawnExtension;
-	
-	UCerberusAbilitySystemComponent* AbilitySystemComponent;
 	
 };
 
