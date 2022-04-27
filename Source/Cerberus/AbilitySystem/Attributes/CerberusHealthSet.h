@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
 #include "CerberusAttributeSet.h"
 #include "NativeGameplayTags.h"
 #include "CerberusHealthSet.generated.h"

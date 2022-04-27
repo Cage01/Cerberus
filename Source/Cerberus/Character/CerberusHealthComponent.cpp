@@ -6,6 +6,7 @@
 #include "Cerberus/CerberusLogChannels.h"
 #include "GameplayEffect.h"
 #include "GameplayEffectExtension.h"
+#include "Cerberus/CerberusGameplayTags.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
 #include "Net/UnrealNetwork.h"
@@ -76,17 +77,11 @@ void UCerberusHealthComponent::InitializeWithAbilitySystem(UCerberusAbilitySyste
 	// TEMP: Reset attributes to default values.  Eventually this will be driven by a spread sheet.
 	AbilitySystemComponent->SetNumericAttributeBase(UCerberusHealthSet::GetHealthAttribute(), HealthSet->GetMaxHealth());
 	
-	// @TODO: These arent set up yet, need to know more about them
+	// Resets the death and dying tags to 0 stacks
 	ClearGameplayTags();
 
 	OnHealthChanged.Broadcast(this, HealthSet->GetHealth(), HealthSet->GetHealth(), nullptr);
 	OnMaxHealthChanged.Broadcast(this, HealthSet->GetMaxHealth(), HealthSet->GetMaxHealth(), nullptr);
-}
-
-
-void UCerberusHealthComponent::ClearGameplayTags()
-{
-	//Need to look up what gameplay tags are used for and apply them here
 }
 
 void UCerberusHealthComponent::UninitialieFromAbilitySystem()
@@ -100,6 +95,17 @@ void UCerberusHealthComponent::UninitialieFromAbilitySystem()
 	
 	HealthSet = nullptr;
 	AbilitySystemComponent = nullptr;
+}
+
+void UCerberusHealthComponent::ClearGameplayTags()
+{
+	if (AbilitySystemComponent)
+	{
+		const FCerberusGameplayTags& GameplayTags = FCerberusGameplayTags::Get();
+
+		AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Death_Dying, 0);
+		AbilitySystemComponent->SetLooseGameplayTagCount(GameplayTags.Status_Death_Dead, 0);
+	}
 }
 
 float UCerberusHealthComponent::GetHealth() const
@@ -141,60 +147,6 @@ ECerberusDeathState UCerberusHealthComponent::GetDeathState() const
 	return DeathState;
 }
 
-void UCerberusHealthComponent::StartDeath()
-{
-	if (DeathState != ECerberusDeathState::NotDead)
-	{
-		return;
-	}
-
-	DeathState = ECerberusDeathState::DeathStarted;
-
-	if (AbilitySystemComponent)
-	{
-		//AbilitySystemComponent->SetLooseGameplayTagCount()
-	}
-
-	AActor* Owner = GetOwner();
-	check(Owner);
-
-	OnDeathStarted.Broadcast(Owner);
-	Owner->ForceNetUpdate();
-}
-
-void UCerberusHealthComponent::FinishDeath()
-{
-	if (DeathState != ECerberusDeathState::DeathStarted)
-	{
-		return;
-	}
-
-	DeathState = ECerberusDeathState::DeathFinished;
-
-	if (AbilitySystemComponent)
-	{
-		//AbilitySystemComponent->SetLooseGameplayTagCount()
-	}
-
-	AActor* Owner = GetOwner();
-	check(Owner);
-	
-	OnDeathFinished.Broadcast(Owner);
-	Owner->ForceNetUpdate();
-}
-
-void UCerberusHealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
-{
-	if ((DeathState == ECerberusDeathState::NotDead) && AbilitySystemComponent)
-	{
-		// @TODO Handle fell out of world death actions.
-	}
-}
-
-
-
-
-
 void UCerberusHealthComponent::HandleHealthChanged(const FOnAttributeChangeData& ChangeData)
 {
 	OnHealthChanged.Broadcast(this, ChangeData.OldValue, ChangeData.NewValue, GetInstigatorFromAttrChangeData(ChangeData));
@@ -205,16 +157,44 @@ void UCerberusHealthComponent::HandleMaxHealthChanged(const FOnAttributeChangeDa
 	OnMaxHealthChanged.Broadcast(this, ChangeData.OldValue, ChangeData.NewValue, GetInstigatorFromAttrChangeData(ChangeData));
 }
 
-void UCerberusHealthComponent::HandleOutOfHealth(AActor* DamageInstigator, AActor* DamageCauser,
-	const FGameplayEffectSpec& DamageEffectSpec, float DamageMagnitude)
+void UCerberusHealthComponent::HandleOutOfHealth(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec& DamageEffectSpec, float DamageMagnitude)
 {
 #if WITH_SERVER_CODE
 	if (AbilitySystemComponent)
 	{
-		// Sending gameplay events and broadcasting death messages.
+		// Send the "GameplayEvent.Death" gameplay event through the owner's ability system.  This can be used to trigger a death gameplay ability.
+		{
+			// Sending gameplay events and broadcasting death messages.
+			FGameplayEventData Payload;
+			Payload.EventTag = FCerberusGameplayTags::Get().GameplayEvent_Death;
+			Payload.Instigator =DamageInstigator;
+			Payload.Target = AbilitySystemComponent->GetAvatarActor();
+			Payload.ContextHandle = DamageEffectSpec.GetContext();
+			Payload.InstigatorTags = *DamageEffectSpec.CapturedSourceTags.GetAggregatedTags();
+			Payload.TargetTags = *DamageEffectSpec.CapturedTargetTags.GetAggregatedTags();
+			Payload.EventMagnitude = DamageMagnitude;
+
+			FScopedPredictionWindow NewScopedWindow(AbilitySystemComponent,true);
+			AbilitySystemComponent->HandleGameplayEvent(Payload.EventTag, &Payload);
+		}
+		// @TODO This may be necessary in the future. Not now
+		// // Send a standardized verb message that other systems can observe
+		// {
+		// 	FLyraVerbMessage Message;
+		// 	Message.Verb = TAG_Lyra_Elimination_Message;
+		// 	Message.Instigator = DamageInstigator;
+		// 	Message.InstigatorTags = *DamageEffectSpec.CapturedSourceTags.GetAggregatedTags();
+		// 	Message.Target = ULyraVerbMessageHelpers::GetPlayerStateFromObject(AbilitySystemComponent->GetAvatarActor());
+		// 	Message.TargetTags = *DamageEffectSpec.CapturedTargetTags.GetAggregatedTags();
+		// 	//@TODO: Fill out context tags, and any non-ability-system source/instigator tags
+		// 	//@TODO: Determine if it's an opposing team kill, self-own, team kill, etc...
+		//
+		// 	UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(GetWorld());
+		// 	MessageSystem.BroadcastMessage(Message.Verb, Message);
+		// }
+		//
+		// //@TODO: assist messages (could compute from damage dealt elsewhere)?
 	}
-
-
 #endif
 	
 }
@@ -246,8 +226,69 @@ void UCerberusHealthComponent::OnRep_DeathState(ECerberusDeathState OldDeathStat
 		{
 			UE_LOG(LogCerberus, Error, TEXT("CerberusHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		}
+	} else if (OldDeathState == ECerberusDeathState::DeathStarted)
+	{
+		if (NewDeathState == ECerberusDeathState::DeathFinished)
+		{
+			FinishDeath();
+		} else
+		{
+			UE_LOG(LogCerberus, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+		}
 	}
 
 	ensureMsgf((DeathState == NewDeathState), TEXT("CerberusHealthComponent: Death transition failed [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
-
 }
+
+void UCerberusHealthComponent::StartDeath()
+{
+	if (DeathState != ECerberusDeathState::NotDead)
+	{
+		return;
+	}
+
+	DeathState = ECerberusDeathState::DeathStarted;
+
+	// @TODO SetLooseGameplayTagCount is not replicated. Should it be? OnRep_DeathState is a function that replicates death out so may not be needed
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->SetLooseGameplayTagCount(FCerberusGameplayTags::Get().Status_Death_Dying, 1);
+	}
+
+	AActor* Owner = GetOwner();
+	check(Owner);
+
+	OnDeathStarted.Broadcast(Owner);
+	Owner->ForceNetUpdate();
+}
+
+void UCerberusHealthComponent::FinishDeath()
+{
+	if (DeathState != ECerberusDeathState::DeathStarted)
+	{
+		return;
+	}
+
+	DeathState = ECerberusDeathState::DeathFinished;
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->SetLooseGameplayTagCount(FCerberusGameplayTags::Get().Status_Death_Dead, 1);
+	}
+
+	AActor* Owner = GetOwner();
+	check(Owner);
+	
+	OnDeathFinished.Broadcast(Owner);
+	Owner->ForceNetUpdate();
+}
+
+void UCerberusHealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
+{
+	if ((DeathState == ECerberusDeathState::NotDead) && AbilitySystemComponent)
+	{
+		// @TODO Handle fell out of world death actions.
+	}
+}
+
+

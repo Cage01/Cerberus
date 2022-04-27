@@ -5,8 +5,10 @@
 #include "CerberusHealthComponent.h"
 #include "CerberusPawnExtensionComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Cerberus/CerberusGameplayTags.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
+#include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Player/CerberusPlayerState.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -70,17 +72,14 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	
 }
 
-// @TODO: I dont plan on leaving this in the begin play, just for testing purposes
-void ACerberusCharacter::BeginPlay()
+ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
 {
-	Super::BeginPlay();
+	return CastChecked<ACerberusPlayerState>(GetPlayerState(), ECastCheckedType::NullAllowed);
+}
 
-	//PawnExtension->InitializeAbilitySystem(AbilitySystemComponent, this);
-
-	// if (PawnExtension->CheckPawnReadyToInitialize())
-	// {
-	// 	PawnExtension->InitializeAbilitySystem(AbilitySystemComponent, this);
-	// }
+ACerberusPlayerController* ACerberusCharacter::GetCerberusPlayerController() const
+{
+	return CastChecked<ACerberusPlayerController>(Controller, ECastCheckedType::NullAllowed);
 }
 
 UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
@@ -140,10 +139,77 @@ void ACerberusCharacter::OnAbilitySystemUninitialized()
 	HealthComponent->UninitialieFromAbilitySystem();
 }
 
+//@TODO The movement ability system isnt set up just yet. Will likely need to come back to it
+void ACerberusCharacter::InitializeGameplayTags()
+{
+	// Movement system related tags - Not necessary just yet
+	if (UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent())
+	{
+		const FCerberusGameplayTags& GameplayTags = FCerberusGameplayTags::Get();
+
+		for (const TPair<uint8, FGameplayTag>& TagMapping : GameplayTags.MovementModeTagMap)
+		{
+			// ...etc
+		}
+	}
+}
+
+void ACerberusCharacter::OnDeathStarted(AActor* OwningActor)
+{
+	DisableMovementAndCollision();
+}
+
+void ACerberusCharacter::OnDeathFinished(AActor* OwningActor)
+{
+	//Calls this function on the next tick
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDeath);
+}
+
+void ACerberusCharacter::DisableMovementAndCollision()
+{
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true);
+	}
+
+	//Disables collision
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	check(CapsuleComp);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	
+	//@TODO Lyra disables movement in the MovementComponent -- Will need to look into
+}
+
+void ACerberusCharacter::DestroyDueToDeath()
+{
+	K2_OnDeathFinished();
+	
+	UninitAndDestroy();
+}
+
+void ACerberusCharacter::UninitAndDestroy()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(0.0f);
+
+		if (UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent())
+		{
+			if (CerberusASC->GetAvatarActor() == this)
+			{
+				PawnExtension->UninitializeAbilitySystem();
+			}
+		}
+	}
+
+	SetActorHiddenInGame(true);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
-
 void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -171,7 +237,6 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindTouch(IE_Released, this, &ACerberusCharacter::TouchStopped);
 }
 
-
 void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	Jump();
@@ -190,14 +255,6 @@ void ACerberusCharacter::ToggleInventory()
 void ACerberusCharacter::Interact()
 {
 	//Interact with item in the world.
-}
-
-void ACerberusCharacter::OnDeathStarted(AActor* OwningActor)
-{
-}
-
-void ACerberusCharacter::OnDeathFinished(AActor* OwningActor)
-{
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)

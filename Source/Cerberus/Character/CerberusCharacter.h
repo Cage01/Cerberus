@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
+class ACerberusPlayerController;
+class ACerberusPlayerState;
 class UCerberusHealthComponent;
 class UCerberusPawnExtensionComponent;
 class UCerberusAbilitySystemComponent;
@@ -30,7 +32,11 @@ public:
 	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	ACerberusPlayerState* GetCerberusPlayerState() const;
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	ACerberusPlayerController* GetCerberusPlayerController() const;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
@@ -80,6 +86,11 @@ protected:
 	void ToggleInventory();
 	void Interact();
 
+protected:
+	// APawn interface
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// End of APawn interface
+
 	// Begins death sequence for the character (disables collision, movement, etc)
 	UFUNCTION()
 	virtual void OnDeathStarted(AActor* OwningActor);
@@ -87,18 +98,18 @@ protected:
 	// Ends the death sequence for the character (detaches controller, destroys pawn, etc)
 	UFUNCTION()
 	virtual void OnDeathFinished(AActor* OwningActor);
+	
+	void InitializeGameplayTags();
 
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
-
-	// void DisableMovementAndCollision();
-	// void DestroyDueToDeath();
-	// void UninitAndDestroy();
+	void DisableMovementAndCollision();
+	void DestroyDueToDeath();
+	void UninitAndDestroy();
 
 	virtual void OnAbilitySystemInitialized();
 	virtual void OnAbilitySystemUninitialized();
+
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnDeathFinished"))
+	void K2_OnDeathFinished();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Character", meta= (AllowPrivateAccess = "true"))
