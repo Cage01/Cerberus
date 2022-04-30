@@ -92,11 +92,31 @@ UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
 	return PawnExtension->GetCerberusAbilitySystemComponent();
 }
 
+void ACerberusCharacter::Reset()
+{
+	DisableMovementAndCollision();
+
+	K2_OnReset();
+
+	UninitAndDestroy();
+}
+
+void ACerberusCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+}
+
 /* Setup server based functionality */
 void ACerberusCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	PawnExtension->HandleControllerChanged();
+}
+
+void ACerberusCharacter::UnPossessed()
+{
+	Super::UnPossessed();
 	PawnExtension->HandleControllerChanged();
 }
 
@@ -152,6 +172,11 @@ void ACerberusCharacter::InitializeGameplayTags()
 			// ...etc
 		}
 	}
+}
+
+void ACerberusCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	HealthComponent->DamageSelfDestruct(true);
 }
 
 void ACerberusCharacter::OnDeathStarted(AActor* OwningActor)
@@ -220,6 +245,8 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	// @TODO: These inputs may become obsolete with the addition of the GameplayAbility and EnhancedInput classes.
 	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &ACerberusCharacter::ToggleInventory);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACerberusCharacter::Interact);
+	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &ACerberusCharacter::StartFireWeapon);
+	PlayerInputComponent->BindAction("FireWeapon", IE_Released, this, &ACerberusCharacter::StopFireWeapon);
 
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &ACerberusCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ACerberusCharacter::MoveRight);
@@ -255,6 +282,16 @@ void ACerberusCharacter::ToggleInventory()
 void ACerberusCharacter::Interact()
 {
 	//Interact with item in the world.
+}
+
+void ACerberusCharacter::StartFireWeapon()
+{
+	//Start firing weapon
+}
+
+void ACerberusCharacter::StopFireWeapon()
+{
+	//Stop firing weapon
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)

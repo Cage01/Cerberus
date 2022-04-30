@@ -3,6 +3,7 @@
 
 #include "CerberusHealthSet.h"
 
+#include "GameplayEffectExtension.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -40,12 +41,34 @@ void UCerberusHealthSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
 
 bool UCerberusHealthSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {
-	return Super::PreGameplayEffectExecute(Data);
+	if (!Super::PreGameplayEffectExecute(Data))
+	{
+		return false;
+	}
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		const bool bIsDamageFromSelfDestruct = Data.EffectSpec.GetDynamicAssetTags().HasTagExact(TAG_Gameplay_DamageSelfDestruct);
+
+		if (Data.Target.HasMatchingGameplayTag(TAG_Gameplay_DamageImmunity) && !bIsDamageFromSelfDestruct)
+		{
+			// Do not take away any health
+			Data.EvaluatedData.Magnitude = 0.0f;
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void UCerberusHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		
+	}
 }
 
 void UCerberusHealthSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const

@@ -7,7 +7,9 @@
 #include "CerberusAbilitySystemComponent.generated.h"
 
 /**
- * 
+ * UCerberusAbilitySystemComponent
+ *
+ * Base ability system component class used by this project
  */
 UCLASS()
 class CERBERUS_API UCerberusAbilitySystemComponent : public UAbilitySystemComponent
@@ -16,5 +18,8 @@ class CERBERUS_API UCerberusAbilitySystemComponent : public UAbilitySystemCompon
 
 public:
 	UCerberusAbilitySystemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	//~UActorComponent interface
+	//virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	//~End of UActorComponent interface
 };

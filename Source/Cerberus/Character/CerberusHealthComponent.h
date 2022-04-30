@@ -95,7 +95,7 @@ protected:
 
 	void ClearGameplayTags();
 
-	// @TODO Do these need to be here? They only send out notifications that values have changed. When the ability set does the same thing.
+	//These functions handle broadcasting messages out to a blueprint that can use them as events
 	virtual void HandleHealthChanged(const FOnAttributeChangeData& ChangeData);
 	virtual void HandleMaxHealthChanged(const FOnAttributeChangeData& ChangeData);
 	virtual void HandleOutOfHealth(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec& DamageEffectSpec, float DamageMagnitude);

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagAssetInterface.h"
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
@@ -13,7 +14,7 @@ class UCerberusHealthComponent;
 class UCerberusPawnExtensionComponent;
 class UCerberusAbilitySystemComponent;
 
-UCLASS(config=Game)
+UCLASS(config=Game, meta=(ShortTooltip="The base character pawn class used by the project."))
 class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
@@ -30,7 +31,6 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	
 public:
 	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	//UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
 	ACerberusPlayerState* GetCerberusPlayerState() const;
@@ -46,10 +46,14 @@ public:
 	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	virtual void PossessedBy(AController* NewController) override;
-
-	virtual void OnRep_Controller() override;
-	virtual void OnRep_PlayerState() override;
+	//~AActor interface
+	// virtual void PreInitializeComponents() override;
+	// virtual void BeginPlay() override;
+	// virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	// virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void Reset() override;
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
+	//~End of AActor interface
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -83,10 +87,22 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	/** Custom Input Functions */
 	void ToggleInventory();
 	void Interact();
+	void StartFireWeapon();
+	void StopFireWeapon();
 
 protected:
+	virtual void OnAbilitySystemInitialized();
+	virtual void OnAbilitySystemUninitialized();
+
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
+	virtual void OnRep_Controller() override;
+	virtual void OnRep_PlayerState() override;
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
@@ -101,12 +117,13 @@ protected:
 	
 	void InitializeGameplayTags();
 
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
+
 	void DisableMovementAndCollision();
 	void DestroyDueToDeath();
 	void UninitAndDestroy();
 
-	virtual void OnAbilitySystemInitialized();
-	virtual void OnAbilitySystemUninitialized();
+
 
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="OnDeathFinished"))
 	void K2_OnDeathFinished();
