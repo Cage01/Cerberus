@@ -43,3 +43,14 @@ Its also worth looking into installing FASTBuild but haven't spent too much time
 
 
 **At this point you should be able run the Setup.bat file. It will prompt you to select your Unreal Engine source build location and then compile the code automatically.**
+
+# Syle Guide
+
+### Blueprints
+| Asset Type | Prefix | Suffix |
+| --- | --- | --- |
+| Blueprint | BP_ | |
+| Gameplay Ability | GA_ | |
+| Gameplay Effect | GE_ | |
+| Ability Set | AbilitySet_ | |
+| Widget UI | W_ | |
