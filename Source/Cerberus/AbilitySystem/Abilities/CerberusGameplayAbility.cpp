@@ -9,6 +9,10 @@
 #include "Cerberus/Character/CerberusCharacter.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemGlobals.h"
+#include "Cerberus/AbilitySystem/CerberusAbilitySourceInterface.h"
+#include "Cerberus/AbilitySystem/CerberusGameplayEffectContext.h"
+#include "Cerberus/Items/CerberusItemInstanceBase.h"
 
 UCerberusGameplayAbility::UCerberusGameplayAbility(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -229,20 +233,86 @@ void UCerberusGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle
 
 FGameplayEffectContextHandle UCerberusGameplayAbility::MakeEffectContext(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo) const
 {
-	return Super::MakeEffectContext(Handle, ActorInfo);
+	FGameplayEffectContextHandle ContextHandle = Super::MakeEffectContext(Handle, ActorInfo);
+
+	FCerberusGameplayEffectContext* EffectContext = FCerberusGameplayEffectContext::ExtractEffectContext(ContextHandle);
+	check(EffectContext);
+
+	AActor* EffectCauser = nullptr;
+	const ICerberusAbilitySourceInterface* AbilitySource = nullptr;
+	float SourceLevel = 0.0f;
+	GetAbilitySource(Handle, ActorInfo, SourceLevel, AbilitySource, EffectCauser);
+
+	UObject* SourceObject = GetSourceObject(Handle, ActorInfo);
+
+	AActor* Instigator = ActorInfo ? ActorInfo->OwnerActor.Get() : nullptr;
+
+	EffectContext->SetAbilitySource(AbilitySource, SourceLevel);
+	EffectContext->AddInstigator(Instigator, EffectCauser);
+	EffectContext->AddSourceObject(SourceObject);
+	
+	return ContextHandle;
 }
 
 void UCerberusGameplayAbility::ApplyAbilityTagsToGameplayEffectSpec(FGameplayEffectSpec& Spec, FGameplayAbilitySpec* AbilitySpec) const
 {
 	Super::ApplyAbilityTagsToGameplayEffectSpec(Spec, AbilitySpec);
+
+	if (const FHitResult* HitResult = Spec.GetContext().GetHitResult())
+	{
+		//@TODO This may not work, the Lyra project has it set to a UPhysicalMaterialWithTags pointer
+		if (const UCerberusItemInstanceBase* ItemWithTags = Cast<const UCerberusItemInstanceBase>(HitResult->GetActor()))
+		{
+			Spec.CapturedTargetTags.GetSpecTags().AppendTags(ItemWithTags->Tags);
+		}
+	}
 }
 
 bool UCerberusGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	return Super::DoesAbilitySatisfyTagRequirements(AbilitySystemComponent, SourceTags, TargetTags,
-	                                                OptionalRelevantTags);
+	bool bBlocked = false;
+	bool bMissing = false;
+
+	UAbilitySystemGlobals& AbilitySystemGlobals = UAbilitySystemGlobals::Get();
+	const FGameplayTag& BlockedTag = AbilitySystemGlobals.ActivateFailTagsBlockedTag;
+	const FGameplayTag& MissingTag = AbilitySystemGlobals.ActivateFailTagsMissingTag;
+
+	// Check if any of the ability tags are currently blocked
+	if (AbilitySystemComponent.AreAbilityTagsBlocked(AbilityTags))
+	{
+		bBlocked = true;
+	}
+
+	const UCerberusAbilitySystemComponent* CerberusASC = Cast<UCerberusAbilitySystemComponent>(&AbilitySystemComponent);
+	static FGameplayTagContainer AllRequiredTags;
+	static FGameplayTagContainer AllBlockedTags;
+
+	AllRequiredTags = ActivationRequiredTags;
+	AllBlockedTags = ActivationBlockedTags;
+
+	if (CerberusASC)
+	{
+		//@TODO Need to finish AbilitySystemComponentCode
+	}
+
+	return false; //tmp
 }
 
 void UCerberusGameplayAbility::OnPawnAvatarSet()
 {
+	K2_OnPawnAvatarSet();
+}
+
+void UCerberusGameplayAbility::GetAbilitySource(FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, float& OutSourceLevel, const ICerberusAbilitySourceInterface*& OutAbilitySource, AActor*& OutEffectCauser) const
+{
+	OutSourceLevel = 0.0f;
+	OutAbilitySource = nullptr;
+	OutEffectCauser = nullptr;
+
+	OutEffectCauser = ActorInfo->AvatarActor.Get();
+
+	// If we were added by something that's an ability info source, use it
+	UObject* SourceObject = GetSourceObject(Handle, ActorInfo);
+	
+	OutAbilitySource = Cast<ICerberusAbilitySourceInterface>(SourceObject);
 }

@@ -10,6 +10,7 @@ class ULyraAbilitySystemComponent;
 class ACerberusCharacter;
 class ACerberusPlayerController;
 class UCerberusAbilityCost;
+class ICerberusAbilitySourceInterface;
 
 
 /**
@@ -150,7 +151,7 @@ protected:
 
 	virtual void OnPawnAvatarSet();
 
-	//virtual void GetAbilitySource(FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, float& OutSourceLevel, const ICerberusAbilitySourceInterface*& OutAbilitySource, AActor*& OutEffectCauser) const;
+	virtual void GetAbilitySource(FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, float& OutSourceLevel, const ICerberusAbilitySourceInterface*& OutAbilitySource, AActor*& OutEffectCauser) const;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName="OnAbilityAdded")
 	void K2_OnAbilityAdded();

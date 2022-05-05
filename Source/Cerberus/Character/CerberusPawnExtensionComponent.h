@@ -25,7 +25,8 @@ class CERBERUS_API UCerberusPawnExtensionComponent : public UCerberusPawnCompone
 public:
 	// Sets default values for this component's properties
 	UCerberusPawnExtensionComponent(const FObjectInitializer& ObjectInitializer);
-
+	
+	// Returns the pawn extension component if one exists on the specified actor.
 	UFUNCTION(BlueprintPure, Category="Cerberus|Pawn")
 	static UCerberusPawnExtensionComponent* FindPawnExtentionComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusPawnExtensionComponent>() : nullptr); }
 

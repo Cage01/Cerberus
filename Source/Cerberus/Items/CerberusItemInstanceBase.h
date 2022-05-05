@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/Object.h"
 #include "CerberusItemInstanceBase.generated.h"
 
@@ -26,17 +27,23 @@ public:
 	virtual UWorld* GetWorld() const override final;
 	//~End of UObject interface
 	
-	UFUNCTION(BlueprintPure, Category=Item)
+	UFUNCTION(BlueprintPure, Category="Cerberus|Item")
 	UObject* GetInstigator() const;
 
 	void SetInstigator(UObject* InInstigator);
 
-	UFUNCTION(BlueprintPure, Category=Item)
+	UFUNCTION(BlueprintPure, Category="Cerberus|Item")
 	APawn* GetPawn() const;
 
-	UFUNCTION(BlueprintPure, Category=Item, meta=(DeterminesOutputType=PawnType))
+	UFUNCTION(BlueprintPure, Category=Item, meta=(DeterminesOutputType="Cerberus|PawnType"))
 	APawn* GetTypedPawn(TSubclassOf<APawn> PawnType) const;
 
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Tags")
+	FGameplayTagContainer Tags;
+
+	
 private:
 	UFUNCTION()
 	void OnRep_Instigator();
@@ -44,6 +51,8 @@ private:
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_Instigator)
 	UObject* Instigator;
+
+
 
 	// @TODO: Do I want this property here? Does having this replicated array and not use it cause performance issues?
 	// UPROPERTY(Replicated)

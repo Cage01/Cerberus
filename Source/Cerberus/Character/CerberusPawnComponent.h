@@ -23,6 +23,11 @@ public:
 };
 
 
+/**
+ * UCerberusPawnComponent
+ *
+ * An actor component that can be used for adding custom behavior to pawns.
+ */
 UCLASS(Blueprintable, Meta = (BlueprintSpawnableComponent))
 class CERBERUS_API UCerberusPawnComponent : public UPawnComponent, public ICerberusReadyInterface
 {
