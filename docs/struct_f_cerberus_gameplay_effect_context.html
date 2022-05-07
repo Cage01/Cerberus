@@ -64,6 +64,9 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="struct_f_cerberus_gameplay_effect_context-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">FCerberusGameplayEffectContext Struct Reference</div></div>
 </div><!--header-->
@@ -80,9 +83,211 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac5a3102bd2dc67fe8280cbcbb953dc0d"><td class="memItemLeft" align="right" valign="top"><a id="ac5a3102bd2dc67fe8280cbcbb953dc0d" name="ac5a3102bd2dc67fe8280cbcbb953dc0d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>FCerberusGameplayEffectContext</b> (AActor *InInstigator, AActor *InEffectCauser)</td></tr>
 <tr class="separator:ac5a3102bd2dc67fe8280cbcbb953dc0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6643ec8a174e7cf8874d93bfe5b74d92"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#a6643ec8a174e7cf8874d93bfe5b74d92">SetAbilitySource</a> (const <a class="el" href="class_i_cerberus_ability_source_interface.html">ICerberusAbilitySourceInterface</a> *InObject, float InSourceLevel)</td></tr>
+<tr class="separator:a6643ec8a174e7cf8874d93bfe5b74d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23930b37d5de4d8bd1c004b3a5c87627"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_i_cerberus_ability_source_interface.html">ICerberusAbilitySourceInterface</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#a23930b37d5de4d8bd1c004b3a5c87627">GetAbilitySource</a> () const</td></tr>
+<tr class="separator:a23930b37d5de4d8bd1c004b3a5c87627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a026abae66dfe3d1c11f121a78aea06c3"><td class="memItemLeft" align="right" valign="top"><a id="a026abae66dfe3d1c11f121a78aea06c3" name="a026abae66dfe3d1c11f121a78aea06c3"></a>
+virtual FGameplayEffectContext *&#160;</td><td class="memItemRight" valign="bottom"><b>Duplicate</b> () const override</td></tr>
+<tr class="separator:a026abae66dfe3d1c11f121a78aea06c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ff8fb1e6a2dbe52ea8083d830fec896"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#a7ff8fb1e6a2dbe52ea8083d830fec896">NetSerialize</a> (FArchive &amp;Ar, UPackageMap *Map, bool &amp;bOutSuccess) override</td></tr>
+<tr class="separator:a7ff8fb1e6a2dbe52ea8083d830fec896"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ac97e4128d72d112bd7637d0c653ddc"><td class="memItemLeft" align="right" valign="top">const UPhysicalMaterial *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#a1ac97e4128d72d112bd7637d0c653ddc">GetPhysicalMaterial</a> () const</td></tr>
+<tr class="separator:a1ac97e4128d72d112bd7637d0c653ddc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a3473342674a520e71275ed158dea55a4"><td class="memItemLeft" align="right" valign="top">static CERBERUS_API <a class="el" href="struct_f_cerberus_gameplay_effect_context.html">FCerberusGameplayEffectContext</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#a3473342674a520e71275ed158dea55a4">ExtractEffectContext</a> (struct FGameplayEffectContextHandle Handle)</td></tr>
+<tr class="separator:a3473342674a520e71275ed158dea55a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a1a05cee73b3ab10d62eb57da00462f13"><td class="memItemLeft" align="right" valign="top">int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#a1a05cee73b3ab10d62eb57da00462f13">CartridgeID</a> = -1</td></tr>
+<tr class="separator:a1a05cee73b3ab10d62eb57da00462f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:ab39fe73e7bcf27ef913d3a44b46b0832"><td class="memItemLeft" align="right" valign="top">TWeakObjectPtr&lt; const UObject &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html#ab39fe73e7bcf27ef913d3a44b46b0832">AbilitySourceObject</a></td></tr>
+<tr class="separator:ab39fe73e7bcf27ef913d3a44b46b0832"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/<a class="el" href="_f_cerberus_gameplay_effect_context_8h_source.html">FCerberusGameplayEffectContext.h</a></li>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a3473342674a520e71275ed158dea55a4" name="a3473342674a520e71275ed158dea55a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3473342674a520e71275ed158dea55a4">&#9670;&nbsp;</a></span>ExtractEffectContext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_f_cerberus_gameplay_effect_context.html">FCerberusGameplayEffectContext</a> * FCerberusGameplayEffectContext::ExtractEffectContext </td>
+          <td>(</td>
+          <td class="paramtype">struct FGameplayEffectContextHandle&#160;</td>
+          <td class="paramname"><em>Handle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Returns the wrapped FLyraGameplayEffectContext from the handle, or nullptr if it doesn't exist or is the wrong type </p>
+
+</div>
+</div>
+<a id="a23930b37d5de4d8bd1c004b3a5c87627" name="a23930b37d5de4d8bd1c004b3a5c87627"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23930b37d5de4d8bd1c004b3a5c87627">&#9670;&nbsp;</a></span>GetAbilitySource()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="class_i_cerberus_ability_source_interface.html">ICerberusAbilitySourceInterface</a> * FCerberusGameplayEffectContext::GetAbilitySource </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Returns the ability source interface associated with the source object. Only valid on the authority </p>
+
+</div>
+</div>
+<a id="a1ac97e4128d72d112bd7637d0c653ddc" name="a1ac97e4128d72d112bd7637d0c653ddc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ac97e4128d72d112bd7637d0c653ddc">&#9670;&nbsp;</a></span>GetPhysicalMaterial()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const UPhysicalMaterial * FCerberusGameplayEffectContext::GetPhysicalMaterial </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Returns the physical material from the hit result if there is one </p>
+
+</div>
+</div>
+<a id="a7ff8fb1e6a2dbe52ea8083d830fec896" name="a7ff8fb1e6a2dbe52ea8083d830fec896"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ff8fb1e6a2dbe52ea8083d830fec896">&#9670;&nbsp;</a></span>NetSerialize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool FCerberusGameplayEffectContext::NetSerialize </td>
+          <td>(</td>
+          <td class="paramtype">FArchive &amp;&#160;</td>
+          <td class="paramname"><em>Ar</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UPackageMap *&#160;</td>
+          <td class="paramname"><em>Map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool &amp;&#160;</td>
+          <td class="paramname"><em>bOutSuccess</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Overridden to serialize new fields </p>
+
+</div>
+</div>
+<a id="a6643ec8a174e7cf8874d93bfe5b74d92" name="a6643ec8a174e7cf8874d93bfe5b74d92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6643ec8a174e7cf8874d93bfe5b74d92">&#9670;&nbsp;</a></span>SetAbilitySource()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void FCerberusGameplayEffectContext::SetAbilitySource </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_i_cerberus_ability_source_interface.html">ICerberusAbilitySourceInterface</a> *&#160;</td>
+          <td class="paramname"><em>InObject</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>InSourceLevel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Sets the object used as the ability source </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="ab39fe73e7bcf27ef913d3a44b46b0832" name="ab39fe73e7bcf27ef913d3a44b46b0832"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab39fe73e7bcf27ef913d3a44b46b0832">&#9670;&nbsp;</a></span>AbilitySourceObject</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TWeakObjectPtr&lt;const UObject&gt; FCerberusGameplayEffectContext::AbilitySourceObject</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Ability Source object (should implement ILyraAbilitySourceInterface). NOT replicated currently </p>
+
+</div>
+</div>
+<a id="a1a05cee73b3ab10d62eb57da00462f13" name="a1a05cee73b3ab10d62eb57da00462f13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a05cee73b3ab10d62eb57da00462f13">&#9670;&nbsp;</a></span>CartridgeID</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int32 FCerberusGameplayEffectContext::CartridgeID = -1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >ID to allow the identification of multiple bullets that were a part of the same cartridge </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following files:<ul>
+<li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/<a class="el" href="_cerberus_gameplay_effect_context_8h_source.html">CerberusGameplayEffectContext.h</a></li>
+<li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/CerberusGameplayEffectContext.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

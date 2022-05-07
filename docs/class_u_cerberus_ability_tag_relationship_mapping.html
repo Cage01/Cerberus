@@ -63,6 +63,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="class_u_cerberus_ability_tag_relationship_mapping-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">UCerberusAbilityTagRelationshipMapping Class Reference</div></div>
 </div><!--header-->
@@ -75,9 +76,119 @@ Inheritance diagram for UCerberusAbilityTagRelationshipMapping:</div>
  <div class="center">
   <img src="class_u_cerberus_ability_tag_relationship_mapping.png" alt=""/>
  </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a40e438ee8b94e25fbbfe70f78944f342"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html#a40e438ee8b94e25fbbfe70f78944f342">GetAbilityTagsToBlockAndCancel</a> (const FGameplayTagContainer &amp;AbilityTags, FGameplayTagContainer *OutTagsToBlock, FGameplayTagContainer *OutTagsToCancel) const</td></tr>
+<tr class="separator:a40e438ee8b94e25fbbfe70f78944f342"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68484c64d373eb4420a9b138d210ab3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html#a68484c64d373eb4420a9b138d210ab3d">GetRequiredAndBlockedActivationTags</a> (const FGameplayTagContainer &amp;AbilityTags, FGameplayTagContainer *OutActivationRequired, FGameplayTagContainer *OutActivationBlocked) const</td></tr>
+<tr class="separator:a68484c64d373eb4420a9b138d210ab3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca7c4ab9f5e778de2361f2c07d7b8c28"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html#aca7c4ab9f5e778de2361f2c07d7b8c28">IsAbilityCancelledByTag</a> (const FGameplayTagContainer &amp;AbilityTags, const FGameplayTag &amp;ActionTag) const</td></tr>
+<tr class="separator:aca7c4ab9f5e778de2361f2c07d7b8c28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Mapping of how ability tags block or cancel other abilities </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a40e438ee8b94e25fbbfe70f78944f342" name="a40e438ee8b94e25fbbfe70f78944f342"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40e438ee8b94e25fbbfe70f78944f342">&#9670;&nbsp;</a></span>GetAbilityTagsToBlockAndCancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilityTagRelationshipMapping::GetAbilityTagsToBlockAndCancel </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>AbilityTags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayTagContainer *&#160;</td>
+          <td class="paramname"><em>OutTagsToBlock</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayTagContainer *&#160;</td>
+          <td class="paramname"><em>OutTagsToCancel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Given a set of ability tags, parse the tag relationship and fill out tags to block and cancel </p>
+
+</div>
+</div>
+<a id="a68484c64d373eb4420a9b138d210ab3d" name="a68484c64d373eb4420a9b138d210ab3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68484c64d373eb4420a9b138d210ab3d">&#9670;&nbsp;</a></span>GetRequiredAndBlockedActivationTags()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilityTagRelationshipMapping::GetRequiredAndBlockedActivationTags </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>AbilityTags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayTagContainer *&#160;</td>
+          <td class="paramname"><em>OutActivationRequired</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayTagContainer *&#160;</td>
+          <td class="paramname"><em>OutActivationBlocked</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Given a set of ability tags, add additional required and blocking tags </p>
+
+</div>
+</div>
+<a id="aca7c4ab9f5e778de2361f2c07d7b8c28" name="aca7c4ab9f5e778de2361f2c07d7b8c28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca7c4ab9f5e778de2361f2c07d7b8c28">&#9670;&nbsp;</a></span>IsAbilityCancelledByTag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool UCerberusAbilityTagRelationshipMapping::IsAbilityCancelledByTag </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>AbilityTags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const FGameplayTag &amp;&#160;</td>
+          <td class="paramname"><em>ActionTag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Returns true if the specified ability tags are canceled by the passed in action tag </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/<a class="el" href="_cerberus_ability_tag_relationship_mapping_8h_source.html">CerberusAbilityTagRelationshipMapping.h</a></li>
 <li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/CerberusAbilityTagRelationshipMapping.cpp</li>
 </ul>

@@ -81,8 +81,7 @@ $(function() {
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">class </span>AActor;</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">struct </span>FGameplayTagContainer;</div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">class </span>UPhysicalMaterial;</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment"></span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">/** Base interface for anything acting as a ability calculation source */</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>UINTERFACE()</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="class_u_cerberus_ability_source_interface.html">   16</a></span>class <a class="code hl_class" href="class_u_cerberus_ability_source_interface.html">UCerberusAbilitySourceInterface</a> : public UInterface</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>{</div>
@@ -95,15 +94,7 @@ $(function() {
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    GENERATED_IINTERFACE_BODY()</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="comment">/**</span></div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">     * Compute the multiplier for effect falloff with distance</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">     * </span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">     * @param Distance          Distance from source to target for ability calculations (distance bullet traveled for a gun, etc...)</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">     * @param SourceTags        Aggregated Tags from the source</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">     * @param TargetTags        Aggregated Tags currently on the target</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">     * </span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">     * @return Multiplier to apply to the base attribute value due to distance</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">     */</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keyword">virtual</span> <span class="keywordtype">float</span> GetDistanceAttenuation(<span class="keywordtype">float</span> Distance, <span class="keyword">const</span> FGameplayTagContainer* SourceTags = <span class="keyword">nullptr</span>, <span class="keyword">const</span> FGameplayTagContainer* TargetTags = <span class="keyword">nullptr</span>) <span class="keyword">const</span> = 0;</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">virtual</span> <span class="keywordtype">float</span> GetPhysicalMaterialAttenuation(<span class="keyword">const</span> UPhysicalMaterial* PhysicalMaterial, <span class="keyword">const</span> FGameplayTagContainer* SourceTags = <span class="keyword">nullptr</span>, <span class="keyword">const</span> FGameplayTagContainer* TargetTags = <span class="keyword">nullptr</span>) <span class="keyword">const</span> = 0;</div>

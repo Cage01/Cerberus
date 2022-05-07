@@ -63,7 +63,10 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="class_u_cerberus_ability_system_component-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">UCerberusAbilitySystemComponent Class Reference</div></div>
 </div><!--header-->
@@ -77,16 +80,247 @@ Inheritance diagram for UCerberusAbilitySystemComponent:</div>
   <img src="class_u_cerberus_ability_system_component.png" alt=""/>
  </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:afac48d19c4f4571bf9e3dde5951c430a"><td class="memItemLeft" align="right" valign="top"><a id="afac48d19c4f4571bf9e3dde5951c430a" name="afac48d19c4f4571bf9e3dde5951c430a"></a>
+typedef TFunction&lt; bool(const UCerberusGameplayAbility *CerberusAbility, FGameplayAbilitySpecHandle Handle)&gt;&#160;</td><td class="memItemRight" valign="bottom"><b>TShouldCancelAbilityFunc</b></td></tr>
+<tr class="separator:afac48d19c4f4571bf9e3dde5951c430a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ade8c36547e183467f143916c11374949"><td class="memItemLeft" align="right" valign="top"><a id="ade8c36547e183467f143916c11374949" name="ade8c36547e183467f143916c11374949"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>UCerberusAbilitySystemComponent</b> (const FObjectInitializer &amp;ObjectInitializer=FObjectInitializer::Get())</td></tr>
 <tr class="separator:ade8c36547e183467f143916c11374949"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7fa792563acb25b3b50b34b796e62ef"><td class="memItemLeft" align="right" valign="top"><a id="ab7fa792563acb25b3b50b34b796e62ef" name="ab7fa792563acb25b3b50b34b796e62ef"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndPlay</b> (const EEndPlayReason::Type EndPlayReason) override</td></tr>
+<tr class="separator:ab7fa792563acb25b3b50b34b796e62ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67fe2d906dfffa233f7664316f82ff53"><td class="memItemLeft" align="right" valign="top"><a id="a67fe2d906dfffa233f7664316f82ff53" name="a67fe2d906dfffa233f7664316f82ff53"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InitAbilityActorInfo</b> (AActor *InOwnerActor, AActor *InAvatarActor) override</td></tr>
+<tr class="separator:a67fe2d906dfffa233f7664316f82ff53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a879fe2f4a2235648b027d2288ead252c"><td class="memItemLeft" align="right" valign="top"><a id="a879fe2f4a2235648b027d2288ead252c" name="a879fe2f4a2235648b027d2288ead252c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CancelAbilitiesByFunc</b> (TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)</td></tr>
+<tr class="separator:a879fe2f4a2235648b027d2288ead252c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae638147d8b6ed3b6f9a88851f4e9b5ed"><td class="memItemLeft" align="right" valign="top"><a id="ae638147d8b6ed3b6f9a88851f4e9b5ed" name="ae638147d8b6ed3b6f9a88851f4e9b5ed"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CancelInputActivatedAbilities</b> (bool bReplicateCancelAbility)</td></tr>
+<tr class="separator:ae638147d8b6ed3b6f9a88851f4e9b5ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a762b53c7698f380c4c5dafc106c7dd25"><td class="memItemLeft" align="right" valign="top"><a id="a762b53c7698f380c4c5dafc106c7dd25" name="a762b53c7698f380c4c5dafc106c7dd25"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AbilityInputTagPressed</b> (const FGameplayTag &amp;InputTag)</td></tr>
+<tr class="separator:a762b53c7698f380c4c5dafc106c7dd25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79adbeb8ee8eedc727ba2fc3c677be06"><td class="memItemLeft" align="right" valign="top"><a id="a79adbeb8ee8eedc727ba2fc3c677be06" name="a79adbeb8ee8eedc727ba2fc3c677be06"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AbilityInputTagReleased</b> (const FGameplayTag &amp;InputTag)</td></tr>
+<tr class="separator:a79adbeb8ee8eedc727ba2fc3c677be06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7eb0ba2570e79e18a35ca973eafce0f8"><td class="memItemLeft" align="right" valign="top"><a id="a7eb0ba2570e79e18a35ca973eafce0f8" name="a7eb0ba2570e79e18a35ca973eafce0f8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessAbilityInput</b> (float DeltaTime)</td></tr>
+<tr class="separator:a7eb0ba2570e79e18a35ca973eafce0f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc23c656a604167739f1b40c23c95387"><td class="memItemLeft" align="right" valign="top"><a id="afc23c656a604167739f1b40c23c95387" name="afc23c656a604167739f1b40c23c95387"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearAbilityInput</b> ()</td></tr>
+<tr class="separator:afc23c656a604167739f1b40c23c95387"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e155af8bd143d5e5b715a90f1d3e334"><td class="memItemLeft" align="right" valign="top"><a id="a9e155af8bd143d5e5b715a90f1d3e334" name="a9e155af8bd143d5e5b715a90f1d3e334"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsActivationGroupBlocked</b> (ECerberusAbilityActivationGroup Group) const</td></tr>
+<tr class="separator:a9e155af8bd143d5e5b715a90f1d3e334"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7662cc794bd7896c9255af6b5d72ec5d"><td class="memItemLeft" align="right" valign="top"><a id="a7662cc794bd7896c9255af6b5d72ec5d" name="a7662cc794bd7896c9255af6b5d72ec5d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddAbilityToActivationGroup</b> (ECerberusAbilityActivationGroup Group, UCerberusGameplayAbility *CerberusAbility)</td></tr>
+<tr class="separator:a7662cc794bd7896c9255af6b5d72ec5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b674f7b2984c66bc32e32f46d8ef35c"><td class="memItemLeft" align="right" valign="top"><a id="a0b674f7b2984c66bc32e32f46d8ef35c" name="a0b674f7b2984c66bc32e32f46d8ef35c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveAbilityFromActivationGroup</b> (ECerberusAbilityActivationGroup Group, UCerberusGameplayAbility *CerberusAbility)</td></tr>
+<tr class="separator:a0b674f7b2984c66bc32e32f46d8ef35c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a54ad70329d744e9b04dbf75dd7a453"><td class="memItemLeft" align="right" valign="top"><a id="a4a54ad70329d744e9b04dbf75dd7a453" name="a4a54ad70329d744e9b04dbf75dd7a453"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CancelActivationGroupAbilities</b> (ECerberusAbilityActivationGroup Group, UCerberusGameplayAbility *IgnoreCerberusAbility, bool bReplicateCancelAbility)</td></tr>
+<tr class="separator:a4a54ad70329d744e9b04dbf75dd7a453"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34ccc1c30b3b98852d2d3adf0435d4c2"><td class="memItemLeft" align="right" valign="top"><a id="a34ccc1c30b3b98852d2d3adf0435d4c2" name="a34ccc1c30b3b98852d2d3adf0435d4c2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDynamicTagGameplayEffect</b> (const FGameplayTag &amp;Tag)</td></tr>
+<tr class="separator:a34ccc1c30b3b98852d2d3adf0435d4c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fd7e5f7eea2a0039f7538573ed266ec"><td class="memItemLeft" align="right" valign="top"><a id="a8fd7e5f7eea2a0039f7538573ed266ec" name="a8fd7e5f7eea2a0039f7538573ed266ec"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveDynamicTagGameplayEffect</b> (const FGameplayTag &amp;Tag)</td></tr>
+<tr class="separator:a8fd7e5f7eea2a0039f7538573ed266ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8195f4b0e2721f7942dc1527333f587c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a8195f4b0e2721f7942dc1527333f587c">GetAbilityTargetData</a> (const FGameplayAbilitySpecHandle AbilityHandle, FGameplayAbilityActivationInfo ActivationInfo, FGameplayAbilityTargetDataHandle &amp;OutTargetDataHandle)</td></tr>
+<tr class="separator:a8195f4b0e2721f7942dc1527333f587c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a188ab1c401c20791566e4baef06d6725"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a188ab1c401c20791566e4baef06d6725">SetTagRelationshipMapping</a> (<a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a> *NewMapping)</td></tr>
+<tr class="separator:a188ab1c401c20791566e4baef06d6725"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad34c9d84ce81a5dac371d23b5de35bf7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#ad34c9d84ce81a5dac371d23b5de35bf7">GetAdditionalActivationTagRequirements</a> (const FGameplayTagContainer &amp;AbilityTags, FGameplayTagContainer &amp;OutActivationRequired, FGameplayTagContainer &amp;OutActivationBlocked) const</td></tr>
+<tr class="separator:ad34c9d84ce81a5dac371d23b5de35bf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:ad4a221a7386e1bb69f2bd8cb4a72a121"><td class="memItemLeft" align="right" valign="top"><a id="ad4a221a7386e1bb69f2bd8cb4a72a121" name="ad4a221a7386e1bb69f2bd8cb4a72a121"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>TryActivateAbilitiesOnSpawn</b> ()</td></tr>
+<tr class="separator:ad4a221a7386e1bb69f2bd8cb4a72a121"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c492edfe9421b6d8a91763dd34b1f75"><td class="memItemLeft" align="right" valign="top"><a id="a0c492edfe9421b6d8a91763dd34b1f75" name="a0c492edfe9421b6d8a91763dd34b1f75"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AbilitySpecInputPressed</b> (FGameplayAbilitySpec &amp;Spec) override</td></tr>
+<tr class="separator:a0c492edfe9421b6d8a91763dd34b1f75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addbb28c0cbbe79547c84c4c2b3702233"><td class="memItemLeft" align="right" valign="top"><a id="addbb28c0cbbe79547c84c4c2b3702233" name="addbb28c0cbbe79547c84c4c2b3702233"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AbilitySpecInputReleased</b> (FGameplayAbilitySpec &amp;Spec) override</td></tr>
+<tr class="separator:addbb28c0cbbe79547c84c4c2b3702233"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a931e9e090248f699c43a66724c63d171"><td class="memItemLeft" align="right" valign="top"><a id="a931e9e090248f699c43a66724c63d171" name="a931e9e090248f699c43a66724c63d171"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NotifyAbilityActivated</b> (const FGameplayAbilitySpecHandle Handle, UGameplayAbility *Ability) override</td></tr>
+<tr class="separator:a931e9e090248f699c43a66724c63d171"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5270c903b90b7ff2be59e61e84f1b731"><td class="memItemLeft" align="right" valign="top"><a id="a5270c903b90b7ff2be59e61e84f1b731" name="a5270c903b90b7ff2be59e61e84f1b731"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NotifyAbilityFailed</b> (const FGameplayAbilitySpecHandle Handle, UGameplayAbility *Ability, const FGameplayTagContainer &amp;FailureReason) override</td></tr>
+<tr class="separator:a5270c903b90b7ff2be59e61e84f1b731"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6fb1bc08f9088712cb7b61a138d1917"><td class="memItemLeft" align="right" valign="top"><a id="af6fb1bc08f9088712cb7b61a138d1917" name="af6fb1bc08f9088712cb7b61a138d1917"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NotifyAbilityEnded</b> (FGameplayAbilitySpecHandle Handle, UGameplayAbility *Ability, bool bWasCancelled) override</td></tr>
+<tr class="separator:af6fb1bc08f9088712cb7b61a138d1917"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01f0b65a8c318319bd5e2d085f7ce8e7"><td class="memItemLeft" align="right" valign="top"><a id="a01f0b65a8c318319bd5e2d085f7ce8e7" name="a01f0b65a8c318319bd5e2d085f7ce8e7"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ApplyAbilityBlockAndCancelTags</b> (const FGameplayTagContainer &amp;AbilityTags, UGameplayAbility *RequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer &amp;BlockTags, bool bExecuteCancelTags, const FGameplayTagContainer &amp;CancelTags) override</td></tr>
+<tr class="separator:a01f0b65a8c318319bd5e2d085f7ce8e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92f5e2e1d02a767758932100283f8985"><td class="memItemLeft" align="right" valign="top"><a id="a92f5e2e1d02a767758932100283f8985" name="a92f5e2e1d02a767758932100283f8985"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>HandleChangeAbilityCanBeCanceled</b> (const FGameplayTagContainer &amp;AbilityTags, UGameplayAbility *RequestingAbility, bool bCanBeCanceled) override</td></tr>
+<tr class="separator:a92f5e2e1d02a767758932100283f8985"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2a4fba49450bf035fe6e5e682b0286a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#ac2a4fba49450bf035fe6e5e682b0286a">ClientNotifyAbilityFailed</a> (const UGameplayAbility *Ability, const FGameplayTagContainer &amp;FailureReason)</td></tr>
+<tr class="separator:ac2a4fba49450bf035fe6e5e682b0286a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6669e6ef0e8f4df3830506738f1609f2"><td class="memItemLeft" align="right" valign="top"><a id="a6669e6ef0e8f4df3830506738f1609f2" name="a6669e6ef0e8f4df3830506738f1609f2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>HandleAbilityFailed</b> (const UGameplayAbility *Ability, const FGameplayTagContainer &amp;FailureReason)</td></tr>
+<tr class="separator:a6669e6ef0e8f4df3830506738f1609f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"><td class="memItemLeft" align="right" valign="top"><a id="a7abbb9c41fc4ad6af7d3a0d5f0cbabbb" name="a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"></a>
+<a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>TagRelationshipMapping</b></td></tr>
+<tr class="separator:a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a698b974ff0b03062612067d1c68a205c"><td class="memItemLeft" align="right" valign="top"><a id="a698b974ff0b03062612067d1c68a205c" name="a698b974ff0b03062612067d1c68a205c"></a>
+TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputPressedSpecHandles</b></td></tr>
+<tr class="separator:a698b974ff0b03062612067d1c68a205c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53e07ad8a6da7f48bbc1193f4696f577"><td class="memItemLeft" align="right" valign="top"><a id="a53e07ad8a6da7f48bbc1193f4696f577" name="a53e07ad8a6da7f48bbc1193f4696f577"></a>
+TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputReleasedSpecHandles</b></td></tr>
+<tr class="separator:a53e07ad8a6da7f48bbc1193f4696f577"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4796e1ee8e261bd7d88aa039b40c2f6"><td class="memItemLeft" align="right" valign="top"><a id="ab4796e1ee8e261bd7d88aa039b40c2f6" name="ab4796e1ee8e261bd7d88aa039b40c2f6"></a>
+TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputHeldSpecHandles</b></td></tr>
+<tr class="separator:ab4796e1ee8e261bd7d88aa039b40c2f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac12556757a3e0c2f0906c734a4586239"><td class="memItemLeft" align="right" valign="top"><a id="ac12556757a3e0c2f0906c734a4586239" name="ac12556757a3e0c2f0906c734a4586239"></a>
+int32&#160;</td><td class="memItemRight" valign="bottom"><b>ActivationGroupCounts</b> [(uint8) ECerberusAbilityActivationGroup::MAX]</td></tr>
+<tr class="separator:ac12556757a3e0c2f0906c734a4586239"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p ><a class="el" href="class_u_cerberus_ability_system_component.html">UCerberusAbilitySystemComponent</a></p>
 <p >Base ability system component class used by this project </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac2a4fba49450bf035fe6e5e682b0286a" name="ac2a4fba49450bf035fe6e5e682b0286a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2a4fba49450bf035fe6e5e682b0286a">&#9670;&nbsp;</a></span>ClientNotifyAbilityFailed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::ClientNotifyAbilityFailed </td>
+          <td>(</td>
+          <td class="paramtype">const UGameplayAbility *&#160;</td>
+          <td class="paramname"><em>Ability</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>FailureReason</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Notify client that an ability failed to activate </p>
+
+</div>
+</div>
+<a id="a8195f4b0e2721f7942dc1527333f587c" name="a8195f4b0e2721f7942dc1527333f587c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8195f4b0e2721f7942dc1527333f587c">&#9670;&nbsp;</a></span>GetAbilityTargetData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::GetAbilityTargetData </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayAbilitySpecHandle&#160;</td>
+          <td class="paramname"><em>AbilityHandle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayAbilityActivationInfo&#160;</td>
+          <td class="paramname"><em>ActivationInfo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayAbilityTargetDataHandle &amp;&#160;</td>
+          <td class="paramname"><em>OutTargetDataHandle</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Gets the ability target data associated with the given ability handle and activation info </p>
+
+</div>
+</div>
+<a id="ad34c9d84ce81a5dac371d23b5de35bf7" name="ad34c9d84ce81a5dac371d23b5de35bf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad34c9d84ce81a5dac371d23b5de35bf7">&#9670;&nbsp;</a></span>GetAdditionalActivationTagRequirements()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::GetAdditionalActivationTagRequirements </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>AbilityTags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>OutActivationRequired</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FGameplayTagContainer &amp;&#160;</td>
+          <td class="paramname"><em>OutActivationBlocked</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Looks at ability tags and gathers additional required and blocking tags </p>
+
+</div>
+</div>
+<a id="a188ab1c401c20791566e4baef06d6725" name="a188ab1c401c20791566e4baef06d6725"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a188ab1c401c20791566e4baef06d6725">&#9670;&nbsp;</a></span>SetTagRelationshipMapping()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::SetTagRelationshipMapping </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a> *&#160;</td>
+          <td class="paramname"><em>NewMapping</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Sets the current tag relationship mapping, if null it will clear it out </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/<a class="el" href="_cerberus_ability_system_component_8h_source.html">CerberusAbilitySystemComponent.h</a></li>
 <li>C:/Git/Cerberus/Source/Cerberus/AbilitySystem/CerberusAbilitySystemComponent.cpp</li>
 </ul>

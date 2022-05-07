@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['turnrategamepad_0',['TurnRateGamepad',['../class_a_cerberus_character.html#a51b5ce4de5f60385b2dda3da78594084',1,'ACerberusCharacter']]]
+  ['cartridgeid_0',['CartridgeID',['../struct_f_cerberus_gameplay_effect_context.html#a1a05cee73b3ab10d62eb57da00462f13',1,'FCerberusGameplayEffectContext']]]
 ];

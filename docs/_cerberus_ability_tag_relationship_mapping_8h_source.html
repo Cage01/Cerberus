@@ -73,45 +73,46 @@ $(function() {
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &quot;GameplayTagContainer.h&quot;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;UObject/ObjectMacros.h&quot;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;CerberusAbilityTagRelationshipMapping.generated.h&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"></span> </div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">/** Struct that defines the relationship between different ability tags */</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>USTRUCT()</div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno"><a class="line" href="struct_f_cerberus_ability_tag_relationship.html">    8</a></span>struct <a class="code hl_struct" href="struct_f_cerberus_ability_tag_relationship.html">FCerberusAbilityTagRelationship</a></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>{</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>    GENERATED_BODY()</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>    <span class="comment">/** The tag that this container relationship is about. Single tag, but abilities can have multiple of these */</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>    </div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>    UPROPERTY(EditAnywhere, Category = Ability, meta=(Categories = <span class="stringliteral">&quot;Gameplay.Action&quot;</span>))</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="struct_f_cerberus_ability_tag_relationship.html#a0854011653c0575ceafcc662190850d2">   14</a></span>    FGameplayTag AbilityTag;</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment"></span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">    /** The other ability tags that will be blocked by any ability using this tag */</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    UPROPERTY(EditAnywhere, Category = Ability)</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="struct_f_cerberus_ability_tag_relationship.html#a721fa797e1d0acebfbbe7592e7249a6b">   18</a></span>    FGameplayTagContainer AbilityTagsToBlock;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"></span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">    /** The other ability tags that will be canceled by any ability using this tag */</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    UPROPERTY(EditAnywhere, Category = Ability)</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="struct_f_cerberus_ability_tag_relationship.html#a85ed1e810cee8dcdca2ad07bf3c124d2">   22</a></span>    FGameplayTagContainer AbilityTagsToCancel;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment"></span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">    /** If an ability has the tag, this is implicitly added to the activation required tags of the ability */</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    UPROPERTY(EditAnywhere, Category = Ability)</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="struct_f_cerberus_ability_tag_relationship.html#a4d1e6439c37b2f950ab8fc45e7013151">   26</a></span>    FGameplayTagContainer ActivationRequiredTags;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment"></span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">    /** If an ability has the tag, this is implicitly added to the activation blocked tags of the ability */</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    UPROPERTY(EditAnywhere, Category = Ability)</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="struct_f_cerberus_ability_tag_relationship.html#ae46ebf79d153d909f2b420dabcd37410">   30</a></span>    FGameplayTagContainer ActivationBlockedTags;</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>};</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment"></span> </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">/** Mapping of how ability tags block or cancel other abilities */</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>UCLASS()</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="class_u_cerberus_ability_tag_relationship_mapping.html">   35</a></span>class <a class="code hl_class" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a> : public UDataAsset</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>{</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    GENERATED_BODY()</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <a class="code hl_class" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a>();</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>};</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    UPROPERTY(EditAnywhere, Category = Ability, meta=(TitleProperty=<span class="stringliteral">&quot;AbilityTag&quot;</span>))</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    TArray&lt;FCerberusAbilityTagRelationship&gt; AbilityTagRelationships;</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">void</span> GetAbilityTagsToBlockAndCancel(<span class="keyword">const</span> FGameplayTagContainer&amp; AbilityTags, FGameplayTagContainer* OutTagsToBlock, FGameplayTagContainer* OutTagsToCancel) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">void</span> GetRequiredAndBlockedActivationTags(<span class="keyword">const</span> FGameplayTagContainer&amp; AbilityTags, FGameplayTagContainer* OutActivationRequired, FGameplayTagContainer* OutActivationBlocked) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">bool</span> IsAbilityCancelledByTag(<span class="keyword">const</span> FGameplayTagContainer&amp; AbilityTags, <span class="keyword">const</span> FGameplayTag&amp; ActionTag) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>};</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="ttc" id="aclass_u_cerberus_ability_tag_relationship_mapping_html"><div class="ttname"><a href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a></div><div class="ttdef"><b>Definition:</b> CerberusAbilityTagRelationshipMapping.h:36</div></div>
 <div class="ttc" id="astruct_f_cerberus_ability_tag_relationship_html"><div class="ttname"><a href="struct_f_cerberus_ability_tag_relationship.html">FCerberusAbilityTagRelationship</a></div><div class="ttdef"><b>Definition:</b> CerberusAbilityTagRelationshipMapping.h:9</div></div>
 </div><!-- fragment --></div><!-- contents -->
