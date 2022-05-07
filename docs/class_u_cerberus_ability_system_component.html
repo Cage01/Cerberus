@@ -94,8 +94,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab7fa792563acb25b3b50b34b796e62ef"><td class="memItemLeft" align="right" valign="top"><a id="ab7fa792563acb25b3b50b34b796e62ef" name="ab7fa792563acb25b3b50b34b796e62ef"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndPlay</b> (const EEndPlayReason::Type EndPlayReason) override</td></tr>
 <tr class="separator:ab7fa792563acb25b3b50b34b796e62ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67fe2d906dfffa233f7664316f82ff53"><td class="memItemLeft" align="right" valign="top"><a id="a67fe2d906dfffa233f7664316f82ff53" name="a67fe2d906dfffa233f7664316f82ff53"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InitAbilityActorInfo</b> (AActor *InOwnerActor, AActor *InAvatarActor) override</td></tr>
+<tr class="memitem:a67fe2d906dfffa233f7664316f82ff53"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a67fe2d906dfffa233f7664316f82ff53">InitAbilityActorInfo</a> (AActor *InOwnerActor, AActor *InAvatarActor) override</td></tr>
 <tr class="separator:a67fe2d906dfffa233f7664316f82ff53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a879fe2f4a2235648b027d2288ead252c"><td class="memItemLeft" align="right" valign="top"><a id="a879fe2f4a2235648b027d2288ead252c" name="a879fe2f4a2235648b027d2288ead252c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CancelAbilitiesByFunc</b> (TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)</td></tr>
@@ -127,11 +126,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveAbilityFromActi
 <tr class="memitem:a4a54ad70329d744e9b04dbf75dd7a453"><td class="memItemLeft" align="right" valign="top"><a id="a4a54ad70329d744e9b04dbf75dd7a453" name="a4a54ad70329d744e9b04dbf75dd7a453"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CancelActivationGroupAbilities</b> (ECerberusAbilityActivationGroup Group, UCerberusGameplayAbility *IgnoreCerberusAbility, bool bReplicateCancelAbility)</td></tr>
 <tr class="separator:a4a54ad70329d744e9b04dbf75dd7a453"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34ccc1c30b3b98852d2d3adf0435d4c2"><td class="memItemLeft" align="right" valign="top"><a id="a34ccc1c30b3b98852d2d3adf0435d4c2" name="a34ccc1c30b3b98852d2d3adf0435d4c2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDynamicTagGameplayEffect</b> (const FGameplayTag &amp;Tag)</td></tr>
+<tr class="memitem:a34ccc1c30b3b98852d2d3adf0435d4c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a34ccc1c30b3b98852d2d3adf0435d4c2">AddDynamicTagGameplayEffect</a> (const FGameplayTag &amp;Tag)</td></tr>
 <tr class="separator:a34ccc1c30b3b98852d2d3adf0435d4c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8fd7e5f7eea2a0039f7538573ed266ec"><td class="memItemLeft" align="right" valign="top"><a id="a8fd7e5f7eea2a0039f7538573ed266ec" name="a8fd7e5f7eea2a0039f7538573ed266ec"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveDynamicTagGameplayEffect</b> (const FGameplayTag &amp;Tag)</td></tr>
+<tr class="memitem:a8fd7e5f7eea2a0039f7538573ed266ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a8fd7e5f7eea2a0039f7538573ed266ec">RemoveDynamicTagGameplayEffect</a> (const FGameplayTag &amp;Tag)</td></tr>
 <tr class="separator:a8fd7e5f7eea2a0039f7538573ed266ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8195f4b0e2721f7942dc1527333f587c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a8195f4b0e2721f7942dc1527333f587c">GetAbilityTargetData</a> (const FGameplayAbilitySpecHandle AbilityHandle, FGameplayAbilityActivationInfo ActivationInfo, FGameplayAbilityTargetDataHandle &amp;OutTargetDataHandle)</td></tr>
 <tr class="separator:a8195f4b0e2721f7942dc1527333f587c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,26 +171,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>HandleAbilityFailed</
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"><td class="memItemLeft" align="right" valign="top"><a id="a7abbb9c41fc4ad6af7d3a0d5f0cbabbb" name="a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"></a>
-<a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>TagRelationshipMapping</b></td></tr>
+<tr class="memitem:a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a7abbb9c41fc4ad6af7d3a0d5f0cbabbb">TagRelationshipMapping</a></td></tr>
 <tr class="separator:a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a698b974ff0b03062612067d1c68a205c"><td class="memItemLeft" align="right" valign="top"><a id="a698b974ff0b03062612067d1c68a205c" name="a698b974ff0b03062612067d1c68a205c"></a>
-TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputPressedSpecHandles</b></td></tr>
+<tr class="memitem:a698b974ff0b03062612067d1c68a205c"><td class="memItemLeft" align="right" valign="top">TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a698b974ff0b03062612067d1c68a205c">InputPressedSpecHandles</a></td></tr>
 <tr class="separator:a698b974ff0b03062612067d1c68a205c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53e07ad8a6da7f48bbc1193f4696f577"><td class="memItemLeft" align="right" valign="top"><a id="a53e07ad8a6da7f48bbc1193f4696f577" name="a53e07ad8a6da7f48bbc1193f4696f577"></a>
-TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputReleasedSpecHandles</b></td></tr>
+<tr class="memitem:a53e07ad8a6da7f48bbc1193f4696f577"><td class="memItemLeft" align="right" valign="top">TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#a53e07ad8a6da7f48bbc1193f4696f577">InputReleasedSpecHandles</a></td></tr>
 <tr class="separator:a53e07ad8a6da7f48bbc1193f4696f577"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4796e1ee8e261bd7d88aa039b40c2f6"><td class="memItemLeft" align="right" valign="top"><a id="ab4796e1ee8e261bd7d88aa039b40c2f6" name="ab4796e1ee8e261bd7d88aa039b40c2f6"></a>
-TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>InputHeldSpecHandles</b></td></tr>
+<tr class="memitem:ab4796e1ee8e261bd7d88aa039b40c2f6"><td class="memItemLeft" align="right" valign="top">TArray&lt; FGameplayAbilitySpecHandle &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#ab4796e1ee8e261bd7d88aa039b40c2f6">InputHeldSpecHandles</a></td></tr>
 <tr class="separator:ab4796e1ee8e261bd7d88aa039b40c2f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac12556757a3e0c2f0906c734a4586239"><td class="memItemLeft" align="right" valign="top"><a id="ac12556757a3e0c2f0906c734a4586239" name="ac12556757a3e0c2f0906c734a4586239"></a>
-int32&#160;</td><td class="memItemRight" valign="bottom"><b>ActivationGroupCounts</b> [(uint8) ECerberusAbilityActivationGroup::MAX]</td></tr>
+<tr class="memitem:ac12556757a3e0c2f0906c734a4586239"><td class="memItemLeft" align="right" valign="top">int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_u_cerberus_ability_system_component.html#ac12556757a3e0c2f0906c734a4586239">ActivationGroupCounts</a> [(uint8) ECerberusAbilityActivationGroup::MAX]</td></tr>
 <tr class="separator:ac12556757a3e0c2f0906c734a4586239"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p ><a class="el" href="class_u_cerberus_ability_system_component.html">UCerberusAbilitySystemComponent</a></p>
 <p >Base ability system component class used by this project </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a34ccc1c30b3b98852d2d3adf0435d4c2" name="a34ccc1c30b3b98852d2d3adf0435d4c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34ccc1c30b3b98852d2d3adf0435d4c2">&#9670;&nbsp;</a></span>AddDynamicTagGameplayEffect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::AddDynamicTagGameplayEffect </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayTag &amp;&#160;</td>
+          <td class="paramname"><em>Tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Uses a gameplay effect to add the specified dynamic granted tag </p>
+
+</div>
+</div>
 <a id="ac2a4fba49450bf035fe6e5e682b0286a" name="ac2a4fba49450bf035fe6e5e682b0286a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac2a4fba49450bf035fe6e5e682b0286a">&#9670;&nbsp;</a></span>ClientNotifyAbilityFailed()</h2>
 
@@ -301,6 +312,62 @@ int32&#160;</td><td class="memItemRight" valign="bottom"><b>ActivationGroupCount
 
 </div>
 </div>
+<a id="a67fe2d906dfffa233f7664316f82ff53" name="a67fe2d906dfffa233f7664316f82ff53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67fe2d906dfffa233f7664316f82ff53">&#9670;&nbsp;</a></span>InitAbilityActorInfo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::InitAbilityActorInfo </td>
+          <td>(</td>
+          <td class="paramtype">AActor *&#160;</td>
+          <td class="paramname"><em>InOwnerActor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">AActor *&#160;</td>
+          <td class="paramname"><em>InAvatarActor</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Should activate during a player pawn reset </p>
+
+</div>
+</div>
+<a id="a8fd7e5f7eea2a0039f7538573ed266ec" name="a8fd7e5f7eea2a0039f7538573ed266ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fd7e5f7eea2a0039f7538573ed266ec">&#9670;&nbsp;</a></span>RemoveDynamicTagGameplayEffect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void UCerberusAbilitySystemComponent::RemoveDynamicTagGameplayEffect </td>
+          <td>(</td>
+          <td class="paramtype">const FGameplayTag &amp;&#160;</td>
+          <td class="paramname"><em>Tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Removes all active instances of the gameplay effect that was used to add the specified dynamic granted tag. </p>
+
+</div>
+</div>
 <a id="a188ab1c401c20791566e4baef06d6725" name="a188ab1c401c20791566e4baef06d6725"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a188ab1c401c20791566e4baef06d6725">&#9670;&nbsp;</a></span>SetTagRelationshipMapping()</h2>
 
@@ -317,6 +384,122 @@ int32&#160;</td><td class="memItemRight" valign="bottom"><b>ActivationGroupCount
       </table>
 </div><div class="memdoc">
 <p >Sets the current tag relationship mapping, if null it will clear it out </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="ac12556757a3e0c2f0906c734a4586239" name="ac12556757a3e0c2f0906c734a4586239"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac12556757a3e0c2f0906c734a4586239">&#9670;&nbsp;</a></span>ActivationGroupCounts</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int32 UCerberusAbilitySystemComponent::ActivationGroupCounts[(uint8) ECerberusAbilityActivationGroup::MAX]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Number of abilities running in each activation group. </p>
+
+</div>
+</div>
+<a id="ab4796e1ee8e261bd7d88aa039b40c2f6" name="ab4796e1ee8e261bd7d88aa039b40c2f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab4796e1ee8e261bd7d88aa039b40c2f6">&#9670;&nbsp;</a></span>InputHeldSpecHandles</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TArray&lt;FGameplayAbilitySpecHandle&gt; UCerberusAbilitySystemComponent::InputHeldSpecHandles</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Handles to abilities that have their input held. </p>
+
+</div>
+</div>
+<a id="a698b974ff0b03062612067d1c68a205c" name="a698b974ff0b03062612067d1c68a205c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a698b974ff0b03062612067d1c68a205c">&#9670;&nbsp;</a></span>InputPressedSpecHandles</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TArray&lt;FGameplayAbilitySpecHandle&gt; UCerberusAbilitySystemComponent::InputPressedSpecHandles</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Handles to abilities that had their input pressed this frame. </p>
+
+</div>
+</div>
+<a id="a53e07ad8a6da7f48bbc1193f4696f577" name="a53e07ad8a6da7f48bbc1193f4696f577"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53e07ad8a6da7f48bbc1193f4696f577">&#9670;&nbsp;</a></span>InputReleasedSpecHandles</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TArray&lt;FGameplayAbilitySpecHandle&gt; UCerberusAbilitySystemComponent::InputReleasedSpecHandles</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >Handles to abilities that had their input released this frame. </p>
+
+</div>
+</div>
+<a id="a7abbb9c41fc4ad6af7d3a0d5f0cbabbb" name="a7abbb9c41fc4ad6af7d3a0d5f0cbabbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7abbb9c41fc4ad6af7d3a0d5f0cbabbb">&#9670;&nbsp;</a></span>TagRelationshipMapping</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_u_cerberus_ability_tag_relationship_mapping.html">UCerberusAbilityTagRelationshipMapping</a>* UCerberusAbilitySystemComponent::TagRelationshipMapping</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p >If set, this table is used to look up tag relationships for activate and cancel </p>
 
 </div>
 </div>

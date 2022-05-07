@@ -5,5 +5,6 @@ var searchData=
   ['abilitytagstoblock_2',['AbilityTagsToBlock',['../struct_f_cerberus_ability_tag_relationship.html#a721fa797e1d0acebfbbe7592e7249a6b',1,'FCerberusAbilityTagRelationship']]],
   ['abilitytagstocancel_3',['AbilityTagsToCancel',['../struct_f_cerberus_ability_tag_relationship.html#a85ed1e810cee8dcdca2ad07bf3c124d2',1,'FCerberusAbilityTagRelationship']]],
   ['activationblockedtags_4',['ActivationBlockedTags',['../struct_f_cerberus_ability_tag_relationship.html#ae46ebf79d153d909f2b420dabcd37410',1,'FCerberusAbilityTagRelationship']]],
-  ['activationrequiredtags_5',['ActivationRequiredTags',['../struct_f_cerberus_ability_tag_relationship.html#a4d1e6439c37b2f950ab8fc45e7013151',1,'FCerberusAbilityTagRelationship']]]
+  ['activationgroupcounts_5',['ActivationGroupCounts',['../class_u_cerberus_ability_system_component.html#ac12556757a3e0c2f0906c734a4586239',1,'UCerberusAbilitySystemComponent']]],
+  ['activationrequiredtags_6',['ActivationRequiredTags',['../struct_f_cerberus_ability_tag_relationship.html#a4d1e6439c37b2f950ab8fc45e7013151',1,'FCerberusAbilityTagRelationship']]]
 ];
