@@ -32,6 +32,7 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//~End of UActorComponent interface
 
+	/** Should activate during a player pawn reset */
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
 
 	typedef TFunction<bool(const UCerberusGameplayAbility* CerberusAbility, FGameplayAbilitySpecHandle Handle)> TShouldCancelAbilityFunc;
@@ -50,12 +51,15 @@ public:
 	void RemoveAbilityFromActivationGroup(ECerberusAbilityActivationGroup Group, UCerberusGameplayAbility* CerberusAbility);
 	void CancelActivationGroupAbilities(ECerberusAbilityActivationGroup Group, UCerberusGameplayAbility* IgnoreCerberusAbility, bool bReplicateCancelAbility);
 
-	// Uses a gameplay effect to add the specified dynamic granted tag
+	/** Uses a gameplay effect to add the specified dynamic granted tag */
 	void AddDynamicTagGameplayEffect(const FGameplayTag& Tag);
 
-	// Removes all active instances of the gameplay effect that was used to add the specified dynamic granted tag.
+	/** Removes all active instances of the gameplay effect that was used to add the specified dynamic granted tag. */
 	void RemoveDynamicTagGameplayEffect(const FGameplayTag& Tag);
-
+	
+	/** Gets the ability target data associated with the given ability handle and activation info */
+	void GetAbilityTargetData(const FGameplayAbilitySpecHandle AbilityHandle, FGameplayAbilityActivationInfo ActivationInfo, FGameplayAbilityTargetDataHandle& OutTargetDataHandle);
+	
 	/** Sets the current tag relationship mapping, if null it will clear it out */
 	void SetTagRelationshipMapping(UCerberusAbilityTagRelationshipMapping* NewMapping);
 
@@ -81,20 +85,20 @@ protected:
 	void HandleAbilityFailed(const UGameplayAbility* Ability, const FGameplayTagContainer& FailureReason);
 
 protected:
-	// If set, this table is used to look up tag relationships for activate and cancel
+	/** If set, this table is used to look up tag relationships for activate and cancel */
 	UPROPERTY()
 	UCerberusAbilityTagRelationshipMapping* TagRelationshipMapping;
 
-	// Handles to abilities that had their input pressed this frame.
+	/** Handles to abilities that had their input pressed this frame. */
 	TArray<FGameplayAbilitySpecHandle> InputPressedSpecHandles;
 
-	// Handles to abilities that had their input released this frame.
+	/** Handles to abilities that had their input released this frame. */
 	TArray<FGameplayAbilitySpecHandle> InputReleasedSpecHandles;
 
-	// Handles to abilities that have their input held.
+	/** Handles to abilities that have their input held. */
 	TArray<FGameplayAbilitySpecHandle> InputHeldSpecHandles;
 
-	// Number of abilities running in each activation group.
+	/** Number of abilities running in each activation group. */
 	int32 ActivationGroupCounts[(uint8)ECerberusAbilityActivationGroup::MAX];
 	
 };
