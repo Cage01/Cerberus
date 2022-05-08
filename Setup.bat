@@ -30,8 +30,8 @@ echo Engine Path - %UnrealPath%
 rem ## Generate project files
 if not exist "%UnrealPath%\UE5.sln" (
 	echo Generating UE5 project files...
-	call "%UnrealPath%\Setup.bat"
-	call "%UnrealPath%\GenerateProjectFiles.bat"
+	call %UnrealPath%\Setup.bat
+	call %UnrealPath%\GenerateProjectFiles.bat
 )
 
 rem ## Build Engine source code
