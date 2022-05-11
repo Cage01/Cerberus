@@ -10,6 +10,7 @@
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
+#include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySourceInterface.h"
 #include "Cerberus/AbilitySystem/CerberusGameplayEffectContext.h"
 #include "Cerberus/Items/CerberusItemInstanceBase.h"
@@ -73,6 +74,19 @@ ACerberusCharacter* UCerberusGameplayAbility::GetCerberusCharacterFromActorInfo(
 	return (CurrentActorInfo ? Cast<ACerberusCharacter>(CurrentActorInfo->AvatarActor.Get()) : nullptr);
 }
 
+void UCerberusGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
+{
+	// bool bSimpleFailureFound = false;
+	// for (FGameplayTag Reason : FailedReason)
+	// {
+	// 	if (!bSimpleFailureFound)
+	// 	{
+	// 		
+	// 	}
+	// }
+}
+
+
 bool UCerberusGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid())
@@ -87,43 +101,28 @@ bool UCerberusGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHand
 	{
 		return false;
 	}
-
-	//if (CerberusASC->IsAct)
-
-	return false;
-}
-
-
-void UCerberusGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) const
-{
 	
-}
+	if (CerberusASC->IsActivationGroupBlocked(ActivationGroup))
+	{
+		if (OptionalRelevantTags)
+		{
+			OptionalRelevantTags->AddTag(GameplayTags.Ability_ActivateFail_ActivationGroup);
+		}
+		return false;
+	}
 
-bool UCerberusGameplayAbility::CanChangeActivationGroup(ECerberusAbilityActivationGroup NewGroup) const
-{
-	return false;
-}
-
-bool UCerberusGameplayAbility::ChangeActivationGroup(ECerberusAbilityActivationGroup NewGroup) const
-{
-	return false;
-}
-
-void UCerberusGameplayAbility::NativeOnAbilityFailedToActivate(const FGameplayTagContainer& FailedReason) const
-{
-	// bool bSimpleFailureFound = false;
-	// for (FGameplayTag Reason : FailedReason)
-	// {
-	// 	if (!bSimpleFailureFound)
-	// 	{
-	// 		
-	// 	}
-	// }
+	return true;
 }
 
 
 void UCerberusGameplayAbility::SetCanBeCanceled(bool bCanBeCanceled)
 {
+	if (!bCanBeCanceled && (ActivationGroup == ECerberusAbilityActivationGroup::Exclusive_Replaceable))
+	{
+		UE_LOG(LogCerberusAbilitySystem, Error, TEXT("SetCanBeCanceled: Ability [%s] can not block canceling because its activation group is replaceable."), *GetName());
+		return;
+	}
+	
 	Super::SetCanBeCanceled(bCanBeCanceled);
 }
 
@@ -268,8 +267,11 @@ void UCerberusGameplayAbility::ApplyAbilityTagsToGameplayEffectSpec(FGameplayEff
 	}
 }
 
+/** This function has a super in GameplayAbility, and a lot of the cost from that is copied over onto here. So I dont fully understand its use, but thats how its set up */
 bool UCerberusGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
+	// Specialized version to handle death exclusion and AbilityTags expansion via AS
+	
 	bool bBlocked = false;
 	bool bMissing = false;
 
@@ -290,12 +292,88 @@ bool UCerberusGameplayAbility::DoesAbilitySatisfyTagRequirements(const UAbilityS
 	AllRequiredTags = ActivationRequiredTags;
 	AllBlockedTags = ActivationBlockedTags;
 
+	// Expand our ability tags to add additional required/blocked tags
 	if (CerberusASC)
 	{
-		//@TODO Need to finish AbilitySystemComponentCode
+		CerberusASC->GetAdditionalActivationTagRequirements(AbilityTags, AllRequiredTags, AllBlockedTags);
 	}
 
-	return false; //tmp
+	// Check to see the required/blocked tags for this ability
+	if (AllBlockedTags.Num() || AllRequiredTags.Num())
+	{
+		static FGameplayTagContainer AbilitySystemComponentTags;
+
+		AbilitySystemComponentTags.Reset();
+		AbilitySystemComponent.GetOwnedGameplayTags(AbilitySystemComponentTags);
+
+		if (AbilitySystemComponentTags.HasAny(AllBlockedTags))
+		{
+			const FCerberusGameplayTags& GameplayTags = FCerberusGameplayTags::Get();
+			if (OptionalRelevantTags && AbilitySystemComponentTags.HasTag(GameplayTags.Status_Death))
+			{
+				// If player is dead and was rejected due to blocking tags, give that feedback
+				OptionalRelevantTags->AddTag(GameplayTags.Ability_ActivateFail_IsDead);
+			}
+
+			bBlocked = true;
+		}
+
+		if (!AbilitySystemComponentTags.HasAll(AllRequiredTags))
+		{
+			bMissing = true;
+		}
+	}
+
+	if (SourceTags != nullptr)
+	{
+		if (SourceBlockedTags.Num() || SourceRequiredTags.Num())
+		{
+			if (SourceTags->HasAny(SourceBlockedTags))
+			{
+				bBlocked = true;
+			}
+
+			if (!SourceTags->HasAll(SourceRequiredTags))
+			{
+				bMissing = true;
+			}
+		}
+	}
+
+	if (TargetTags != nullptr)
+	{
+		if (TargetBlockedTags.Num() || TargetRequiredTags.Num())
+		{
+			if (TargetTags->HasAny(TargetBlockedTags))
+			{
+				bBlocked = true;
+			}
+
+			if (!TargetTags->HasAll(TargetRequiredTags))
+			{
+				bMissing = true;
+			}
+		}
+	}
+
+	if (bBlocked)
+	{
+		if (OptionalRelevantTags && BlockedTag.IsValid())
+		{
+			OptionalRelevantTags->AddTag(BlockedTag);
+		}
+		return false;
+	}
+	if (bMissing)
+	{
+		if (OptionalRelevantTags && MissingTag.IsValid())
+		{
+			OptionalRelevantTags->AddTag(MissingTag);
+		}
+		return false;
+	}
+
+	return true;
 }
 
 void UCerberusGameplayAbility::OnPawnAvatarSet()
@@ -315,4 +393,81 @@ void UCerberusGameplayAbility::GetAbilitySource(FGameplayAbilitySpecHandle Handl
 	UObject* SourceObject = GetSourceObject(Handle, ActorInfo);
 	
 	OutAbilitySource = Cast<ICerberusAbilitySourceInterface>(SourceObject);
+}
+
+
+void UCerberusGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) const
+{
+	const bool bIsPredicting = (Spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting);
+
+	// Try to activate if activation policy is on spawn
+	if (ActorInfo && !Spec.IsActive() && !bIsPredicting && (ActivationPolicy == ECerberusAbilityActivationPolicy::OnSpawn))
+	{
+		UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+		const AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+
+		// If avatar actor is torn off or about to die, dont try to activate until we get the new one
+		if (ASC && !AvatarActor->GetTearOff() && (AvatarActor->GetLifeSpan() <= 0.0f))
+		{
+			const bool bIsLocalExecution = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalOnly);
+			const bool bIsServerExecution = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerOnly) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerInitiated);
+
+			const bool bClientShouldActivate = ActorInfo->IsLocallyControlled() && bIsLocalExecution;
+			const bool bServerShouldActivate = ActorInfo->IsNetAuthority() && bIsServerExecution;
+
+			if (bClientShouldActivate || bServerShouldActivate)
+			{
+				ASC->TryActivateAbility(Spec.Handle);
+			}
+		}
+	}
+}
+
+bool UCerberusGameplayAbility::CanChangeActivationGroup(ECerberusAbilityActivationGroup NewGroup) const
+{
+	if (!IsInstantiated() || !IsActive())
+		return false;
+
+	if (ActivationGroup == NewGroup)
+		return true;
+
+	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponentFromActorInfo();
+	check(CerberusASC);
+
+	if ((ActivationGroup != ECerberusAbilityActivationGroup::Exclusive_Blocking) && CerberusASC->IsActivationGroupBlocked(NewGroup))
+	{
+		// This ability can't change groups if it's blocked (unless it is the one doing the blocking).
+		return false;
+	}
+
+	if ((NewGroup == ECerberusAbilityActivationGroup::Exclusive_Replaceable) && !CanBeCanceled())
+	{
+		// This ability can't become replaceable if it can't be canceled.
+		return false;
+	}
+
+	return true;
+}
+
+bool UCerberusGameplayAbility::ChangeActivationGroup(ECerberusAbilityActivationGroup NewGroup)
+{
+	ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN(ChangeActivationGroup, false);
+
+	if (!CanChangeActivationGroup(NewGroup))
+	{
+		return false;
+	}
+
+	if (ActivationGroup != NewGroup)
+	{
+		UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponentFromActorInfo();
+		check(CerberusASC);
+		
+		CerberusASC->RemoveAbilityFromActivationGroup(ActivationGroup, this);
+		CerberusASC->AddAbilityToActivationGroup(NewGroup, this);
+
+		ActivationGroup = NewGroup;
+	}
+
+	return true;
 }

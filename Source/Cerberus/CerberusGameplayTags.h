@@ -22,6 +22,7 @@ public:
 
 	FGameplayTag Ability_ActivateFail_IsDead;
 	FGameplayTag Ability_ActivateFail_Networking;
+	FGameplayTag Ability_ActivateFail_ActivationGroup;
 	
 	FGameplayTag GameplayEvent_Death;
 	FGameplayTag GameplayEvent_Reset;

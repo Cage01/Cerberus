@@ -75,8 +75,8 @@ public:
  *
  * The base gameplay ability class used by the project.
  */
-UCLASS(Abstract, HideCategories=(Input), meta=(ShortTooltip= "The base ability class used by the project"))
-class CERBERUS_API UCerberusGameplayAbility : public UGameplayAbility
+UCLASS(Abstract, HideCategories=Input, meta=(ShortTooltip= "The base ability class used by the project"))
+class UCerberusGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	friend class UCerberusAbilitySystemComponent;
@@ -107,7 +107,7 @@ public:
 
 	// Tries to change the activation group. Returns true if it successfully changed.
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category="Cerberus|Ability", meta=(ExpandBoolAsExecs = "ReturnValue"))
-	bool ChangeActivationGroup(ECerberusAbilityActivationGroup NewGroup) const;
+	bool ChangeActivationGroup(ECerberusAbilityActivationGroup NewGroup);
 
 	//@TODO I think I may want this functionality, because I wanted the camera to zoom out further when weapon is sheathed 
 	// // Tries to change the activation group.  Returns true if it successfully changed.

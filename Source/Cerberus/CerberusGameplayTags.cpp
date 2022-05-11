@@ -18,8 +18,10 @@ void FCerberusGameplayTags::InitializeNativeTags()
 void FCerberusGameplayTags::AddAllTags(UGameplayTagsManager* Manager)
 {
 	AddTag(Ability_ActivateFail_IsDead, "Ability.ActivateFail.IsDead", "Ability failed to activate because its owner is dead.");
-	AddTag(Ability_ActivateFail_Networking, "Ability.ActivateFail.IsDead", "Ability failed to activate because it is on cool down.");
+	AddTag(Ability_ActivateFail_Networking, "Ability.ActivateFail.Networking", "Ability failed to activate because it did not pass the network checks.");
+	AddTag(Ability_ActivateFail_ActivationGroup, "Ability.ActivateFail.ActivationGroup", "Ability failed to activate because of its activation group.");
 
+	
 	AddTag(GameplayEvent_Death, "GameplayEvent.Death", "Event that fires on death. This event only fires on the server.");
 	AddTag(GameplayEvent_Reset, "GameplayEvent.Reset", "Event that fires once a player reset is executed");
 	AddTag(GameplayEvent_RequestReset, "GameplayEvent.RequestReset", "Event to request a player's pawn to be instantly replaced with a new one at a valid spawn location.");
