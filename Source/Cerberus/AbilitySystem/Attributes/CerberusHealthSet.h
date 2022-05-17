@@ -22,7 +22,7 @@ struct FGameplayEffectModCallbackData;
  *  Attribute examples include: health, shields, and resistances.
  */
 UCLASS(BlueprintType)
-class CERBERUS_API UCerberusHealthSet : public UCerberusAttributeSet
+class UCerberusHealthSet : public UCerberusAttributeSet
 {
 	GENERATED_BODY()
 

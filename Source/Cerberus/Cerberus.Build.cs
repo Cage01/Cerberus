@@ -12,6 +12,7 @@ public class Cerberus : ModuleRules
 			new string[]
 			{
 				"Core", 
+				"CoreOnline",
 				"CoreUObject", 
 				"Engine", 
 				"InputCore", 
@@ -26,7 +27,7 @@ public class Cerberus : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-
+				"NetCore"
 			});
 	}
 }

@@ -104,7 +104,7 @@ protected:
  * Non-mutable data asset used to grant gameplay abilities and gameplay effects.
  */
 UCLASS(BlueprintType, Const)
-class CERBERUS_API UCerberusAbilitySet : public UPrimaryDataAsset
+class UCerberusAbilitySet : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
