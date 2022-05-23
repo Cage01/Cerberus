@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "CerberusEquipmentDefinition.generated.h"
 
+class UCerberusAbilitySet;
 class UCerberusEquipmentInstance;
 
 USTRUCT()
@@ -47,9 +48,9 @@ public:
 	 * Apparently the Ability sets refer to things like firing, reloading, and auto reload. Which has base functionality in c++ code
 	 * and has edited defaults for specific things like weapons.
 	 */
-	// Gameplay ability sets to grant when this is equipped
-	// UPROPERTY(EditDefaultsOnly, Category=Equipment)
-	// TArray<TObjectPtr<const ULyraAbilitySet>> AbilitySetsToGrant;
+	//Gameplay ability sets to grant when this is equipped
+	UPROPERTY(EditDefaultsOnly, Category=Equipment)
+	TArray<TObjectPtr<const UCerberusAbilitySet>> AbilitySetsToGrant;
 
 	// Actors to spawn on the pawn when this is equipped
 	UPROPERTY(EditDefaultsOnly, Category=Equipment)

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Cerberus/Equipment/CerberusEquipmentInstance.h"
-#include "UObject/Object.h"
 #include "CerberberusWeaponInstance.generated.h"
 
 /**
@@ -24,4 +23,20 @@ public:
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
 	//~End of UCerberusEquipmentInstance interface
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateFiringTime();
+
+	UFUNCTION(BlueprintPure)
+	float GetTimeSinceLastInteractedWith() const;
+
+protected:
+	// Choose the best layer from EquippedAnimSet or UneuippedAnimSet based on the specified gameplay tags
+	UFUNCTION(BlueprintCallable, BlueprintPure=false, Category=Animation)
+	TSubclassOf<UAnimInstance> PickBestAnimLayer(bool bEquipped, const FGameplayTagContainer& CosmeticTags) const;
+
+	
+private:
+	double TimeLastEquipped = 0.0;
+	double TimeLastFired = 0.0;
 };

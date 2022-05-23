@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "CerberusUsableItemDefinition.generated.h"
 
+class UCerberusAbilitySet;
 class UCerberusUsableItemInstance;
 
 /**
@@ -25,8 +26,8 @@ public:
 	 * and has edited defaults for specific things like weapons.
 	 */
 	// Gameplay ability sets to grant when this is equipped
-	// UPROPERTY(EditDefaultsOnly, Category=Equipment)
-	// TArray<TObjectPtr<const ULyraAbilitySet>> AbilitySetsToGrant;
+	UPROPERTY(EditDefaultsOnly, Category=Equipment)
+	TArray<TObjectPtr<const UCerberusAbilitySet>> AbilitySetsToGrant;
 
 	
 	// Class to spawn

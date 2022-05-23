@@ -27,6 +27,8 @@ public class Cerberus : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"Slate",
+				"SlateCore",
 				"NetCore"
 			});
 	}
