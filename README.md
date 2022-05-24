@@ -42,9 +42,10 @@ My current BuildConfiguration.xml file looks like this:
 Its also worth looking into installing FASTBuild but haven't spent too much time looking into that yet.
 
 
-**At this point you should be able run the Setup.bat file. It will prompt you to select your Unreal Engine source build location and then compile the code automatically.**
+**When opening the project for the first time be sure to change the net mode to "Client" As a lot of functionality wont be functional if the game isnt playing in a multiplayer state**
 
 # Syle Guide
+
 
 ### Blueprints
 | Asset Type | Prefix | Suffix |
