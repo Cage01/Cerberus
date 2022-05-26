@@ -1,6 +1,5 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{7A14514B-42B4-DF77-FA0A-9E82F31245C3}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -52,6 +51,10 @@
 		},
 		{
 			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "Water",
 			"Enabled": true
 		}
 	]
