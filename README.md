@@ -47,11 +47,15 @@ Its also worth looking into installing FASTBuild but haven't spent too much time
 # Syle Guide
 
 
-### Blueprints
 | Asset Type | Prefix | Suffix |
 | --- | --- | --- |
 | Blueprint | BP_ | |
 | Gameplay Ability | GA_ | |
 | Gameplay Effect | GE_ | |
+| UI Elements | UI_ | |
+| Widget Item Definition | WID_ | |
+| Item Definition | ID | |
 | Ability Set | AbilitySet_ | |
-| Widget UI | W_ | |
+| Cerberus Action Set | CAS_ | |
+| Input Action | IA_ | |
+
