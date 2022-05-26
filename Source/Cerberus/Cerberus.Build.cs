@@ -15,13 +15,14 @@ public class Cerberus : ModuleRules
 				"CoreOnline",
 				"CoreUObject", 
 				"Engine", 
-				"InputCore", 
+				"InputCore",
 				"GameplayAbilities", 
 				"GameplayTags", 
 				"GameplayTasks",
 				"AIModule",
 				"ModularGameplay",
-				"ModularGameplayActors"
+				"ModularGameplayActors",
+				"GameFeatures"
 			});
 		
 		PrivateDependencyModuleNames.AddRange(

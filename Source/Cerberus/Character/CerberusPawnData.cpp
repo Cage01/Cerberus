@@ -7,5 +7,5 @@
 UCerberusPawnData::UCerberusPawnData(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-
+	PawnClass = nullptr;
 }
