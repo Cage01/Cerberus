@@ -1,8 +1,5 @@
 @echo off
 
-rem ## Run post-checkout hook
-git config filter.removeEA.clean "sed '/EngineAssociation/d'"
-
 rem ## Unreal Engine path is unknown, select path and setup environment
 set ProjectConfig=.uepath
 
