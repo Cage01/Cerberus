@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Category": "",
 	"Description": "",
-	"EngineAssociation": "{7A14514B-42B4-DF77-FA0A-9E82F31245C3}"
+	"EngineAssociation": "5.0",
 	"Modules": [
 		{
 			"Name": "Cerberus",
