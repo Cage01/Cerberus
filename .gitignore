@@ -76,6 +76,7 @@ DerivedDataCache/*
 # Misc
 .idea/
 .uepath
+*.zip
 
 # Packages
 Windows/*
