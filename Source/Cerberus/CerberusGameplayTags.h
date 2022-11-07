@@ -28,12 +28,16 @@ public:
 	FGameplayTag GameplayEvent_Reset;
 	FGameplayTag GameplayEvent_RequestReset;
 
+
 	FGameplayTag SetByCaller_Damage;
 	FGameplayTag SetByCaller_Heal;
 
 	FGameplayTag Status_Death;
 	FGameplayTag Status_Death_Dying;
 	FGameplayTag Status_Death_Dead;
+	FGameplayTag Status_Pvp;
+
+	
 
 	// Movement tags may become useful because I may move inputs and actions to GAS
 	TMap<uint8, FGameplayTag> MovementModeTagMap;

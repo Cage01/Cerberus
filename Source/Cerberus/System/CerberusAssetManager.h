@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CerberusGameData.h"
+#include "Cerberus/Character/CerberusPawnData.h"
 #include "Engine/AssetManager.h"
 #include "CerberusAssetManager.generated.h"
 
@@ -28,17 +30,62 @@ public:
 
 	/** Returns the AssetManager singleton object. */
 	static UCerberusAssetManager& Get();
-	UObject* SynchronousLoadAsset(const FSoftObjectPath& AssetPath);
+
 	void AddLoadedAsset(const UObject* Asset);
-	bool ShouldLogAssetLoads();
+	
 
 	/** Returns the subclass referenced by a TSoftClassPtr.  This will synchronously load the asset if it's not already loaded. */
 	template<typename AssetType>
 	static AssetType* GetAsset(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
 
 	template<typename AssetType>
-	static TSubclassOf<AssetType> GetSubclassOf(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
+	static TSubclassOf<AssetType> GetSubclass(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
 
+	// Logs all assets currently loaded and tracked by the asset manager.
+	static void DumpLoadedAssets();
+
+	const UCerberusGameData& GetGameData();
+	const UCerberusPawnData* GetDefaultPawnData() const;
+
+
+protected:
+	static UObject* SynchronousLoadAsset(const FSoftObjectPath& AssetPath);
+	static bool ShouldLogAssetLoads();
+	
+	// Global game data asset to use.
+	UPROPERTY(Config)
+	TSoftObjectPtr<UCerberusGameData> CerberusGameDataPath;
+
+	// Pawn data used when spawning player pawns if there isn't one set on the player state.
+	UPROPERTY(Config)
+	TSoftObjectPtr<UCerberusPawnData> DefaultPawnData;
+
+	// Loaded version of the game data
+	UPROPERTY(Transient)
+	TMap<UClass*, UPrimaryDataAsset*> GameDataMap;
+	
+	// 	//~UAssetManager interface
+	// 	virtual void StartInitialLoading() override;
+	// #if WITH_EDITOR
+	// 	virtual void PreBeginPIE(bool bStartSimulate) override;
+	// #endif
+	// 	//~End of UAssetManager interface
+
+	UPrimaryDataAsset* LoadGameDataOfClass(TSubclassOf<UPrimaryDataAsset> DataClass, const TSoftObjectPtr<UPrimaryDataAsset>& DataClassPath, FPrimaryAssetType PrimaryAssetType);
+
+	
+	template <typename GameDataClass>
+	const GameDataClass& GetOrLoadTypedGameData(const TSoftObjectPtr<GameDataClass>& DataPath)
+		{
+			if (const UPrimaryDataAsset* const * pResult = GameDataMap.Find(GameDataClass::StaticClass()))
+			{
+				return *CastChecked<GameDataClass>(*pResult);
+			}
+
+			// Does a blocking load if needed
+			return *CastChecked<const GameDataClass>(LoadGameDataOfClass(GameDataClass::StaticClass(), DataPath, GameDataClass::StaticClass()->GetFName()));
+		}
+	
 private:
 	
 	// Assets loaded and tracked by the asset manager.
@@ -76,7 +123,7 @@ AssetType* UCerberusAssetManager::GetAsset(const TSoftObjectPtr<AssetType>& Asse
 }
 
 template <typename AssetType>
-TSubclassOf<AssetType> UCerberusAssetManager::GetSubclassOf(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory)
+TSubclassOf<AssetType> UCerberusAssetManager::GetSubclass(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory)
 {
 	TSubclassOf<AssetType> LoadedSubclass;
 

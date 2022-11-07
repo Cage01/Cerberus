@@ -3,12 +3,14 @@
 
 #include "CerberusGameData.h"
 
+#include "CerberusAssetManager.h"
+
 UCerberusGameData::UCerberusGameData()
 {
 	
 }
 
-// const UCerberusGameData& UCerberusGameData::Get()
-// {
-// 	//Return asset
-// }
+const UCerberusGameData& UCerberusGameData::UCerberusGameData::Get()
+{
+	return UCerberusAssetManager::Get().GetGameData();
+}

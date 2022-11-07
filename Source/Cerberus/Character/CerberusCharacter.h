@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
+#include "Cerberus/Inventory/Items/CerberusItem.h"
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
@@ -27,7 +28,9 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-
+	/** Follow camera */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
+	class UCerberusInventoryComponent* Inventory;
 	
 public:
 	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -46,6 +49,8 @@ public:
 	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Inventory|Items")
+	void UseItem(UCerberusItem* Item);
 	//~AActor interface
 	// virtual void PreInitializeComponents() override;
 	// virtual void BeginPlay() override;

@@ -20,7 +20,7 @@ class CERBERUS_API UCerberusGameData : public UPrimaryDataAsset
 public:
 	UCerberusGameData();
 
-	//static const UCerberusGameData& Get();
+	static const UCerberusGameData& Get();
 
 public:
 	// Gameplay effect used to apply damage.  Uses SetByCaller for the damage magnitude.

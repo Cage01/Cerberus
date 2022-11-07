@@ -28,10 +28,12 @@ void FCerberusGameplayTags::AddAllTags(UGameplayTagsManager* Manager)
 
 	AddTag(SetByCaller_Damage, "SetByCaller.Damage", "SetByCaller tag used by damage gameplay events");
 	AddTag(SetByCaller_Heal, "SetByCaller.Heal", "SetByCaller tag used by healing gameplay events");
-
+	
+	
 	AddTag(Status_Death, "Status.Death", "Target has the death status");
 	AddTag(Status_Death_Dying, "Status.Death.Dying", "Target has begun the death process");
 	AddTag(Status_Death_Dead, "Status.Death.Dead", "Target has finished the death process");
+	AddTag(Status_Pvp, "Status.Pvp", "Target is able to attack and be attacked by other players");
 }
 
 void FCerberusGameplayTags::AddTag(FGameplayTag& OutTag, const ANSICHAR* TagName, const ANSICHAR* TagComment)

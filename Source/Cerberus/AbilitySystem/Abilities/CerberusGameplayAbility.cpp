@@ -13,7 +13,6 @@
 #include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySourceInterface.h"
 #include "Cerberus/AbilitySystem/CerberusGameplayEffectContext.h"
-#include "Cerberus/Items/CerberusItemInstanceBase.h"
 
 UCerberusGameplayAbility::UCerberusGameplayAbility(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -259,11 +258,11 @@ void UCerberusGameplayAbility::ApplyAbilityTagsToGameplayEffectSpec(FGameplayEff
 
 	if (const FHitResult* HitResult = Spec.GetContext().GetHitResult())
 	{
-		//@TODO This may not work, the Lyra project has it set to a UPhysicalMaterialWithTags pointer
-		if (const UCerberusItemInstanceBase* ItemWithTags = Cast<const UCerberusItemInstanceBase>(HitResult->GetActor()))
-		{
-			Spec.CapturedTargetTags.GetSpecTags().AppendTags(ItemWithTags->Tags);
-		}
+		// //@TODO This may not work, the Lyra project has it set to a UPhysicalMaterialWithTags pointer
+		// if (const UCerberusItemInstanceBase* ItemWithTags = Cast<const UCerberusItemInstanceBase>(HitResult->GetActor()))
+		// {
+		// 	Spec.CapturedTargetTags.GetSpecTags().AppendTags(ItemWithTags->Tags);
+		// }
 	}
 }
 

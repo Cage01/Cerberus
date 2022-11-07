@@ -8,6 +8,7 @@
 #include "Cerberus/CerberusGameplayTags.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
+#include "Cerberus/Inventory/Items/CerberusInventoryComponent.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Player/CerberusPlayerState.h"
 #include "Components/CapsuleComponent.h"
@@ -15,6 +16,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Cerberus/Inventory/Items/CerberusItem.h"
+#include "Cerberus/Inventory/Items/CerberusInventoryComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
@@ -69,7 +72,8 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 	
-	
+	Inventory = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
+	Inventory->Capacity = 20;
 }
 
 ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
@@ -292,6 +296,16 @@ void ACerberusCharacter::StartFireWeapon()
 void ACerberusCharacter::StopFireWeapon()
 {
 	//Stop firing weapon
+}
+
+void ACerberusCharacter::UseItem(UCerberusItem* Item)
+{
+	if (Item)
+	{
+		Item->Use(this);
+		Item->OnUse(this); //BP Event
+	}
+
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)

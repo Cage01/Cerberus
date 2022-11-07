@@ -19,7 +19,6 @@ UCerberusHealthComponent::UCerberusHealthComponent(const FObjectInitializer& Obj
 	PrimaryComponentTick.bCanEverTick = false;
 
 	SetIsReplicatedByDefault(true);
-
 	AbilitySystemComponent = nullptr;
 	HealthSet = nullptr;
 	DeathState = ECerberusDeathState::NotDead;
