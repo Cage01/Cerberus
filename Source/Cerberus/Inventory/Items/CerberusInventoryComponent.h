@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CerberusInventorySlot.h"
 
 #include "CerberusItem.h"
 #include "Components/ActorComponent.h"
@@ -26,10 +25,10 @@ public:
 	bool RemoveItem(UCerberusItem* Item, int Count);
 
 	UPROPERTY(EditDefaultsOnly, Instanced)
-	TArray<UCerberusInventorySlot*> DefaultItems;
+	TArray<UCerberusItem*> DefaultItems;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cerberus|Inventory|Items")
-	TArray<UCerberusInventorySlot*> Items;
+	TArray<UCerberusItem*> Items;
 
 	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Inventory")
 	int32 Capacity;

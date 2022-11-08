@@ -15,9 +15,9 @@ void UCerberusInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	for (const UCerberusInventorySlot* slot : DefaultItems)
+	for (UCerberusItem* Item : DefaultItems)
 	{
-		AddItem(slot->Item, slot->Size);
+		AddItem(Item, Item->CurrentStackSize);
 	}
 	
 }
@@ -28,27 +28,24 @@ TPair<bool, int> UCerberusInventoryComponent::AddItem(UCerberusItem* Item, int C
 	if (!Item)
 		return TPair<bool, int>{false, Count};
 	
-	Item->OwningInventory = this;
-	Item->World = GetWorld();
-	
 	for (int i = 0; i < Items.Num(); i++)
 	{
 		
-		if (Items[i]->Item == Item)
+		if (Items[i] == Item)
 		{
-			const int currentCount = Items[i]->Size;
-			if ( currentCount < Item->StackSize)
+			const int currentCount = Items[i]->CurrentStackSize;
+			if ( currentCount < Items[i]->MaxStackSize)
 			{
 				//Will add as much to a stack as possible before max is reached
-				const int remaining = Item->StackSize - currentCount;
+				const int remaining = Items[i]->MaxStackSize - currentCount;
 				const int newCount = Count - remaining;
 
 				if (newCount == 0)
 				{
-					Items[i]->Item += Count;
+					Items[i]->CurrentStackSize += Count;
 					break;
 				}
-				Items[i]->Size += (Count - newCount);
+				Items[i]->CurrentStackSize += (Count - newCount);
 				Count = newCount;
 			}
 		}
@@ -69,14 +66,12 @@ TPair<bool, int> UCerberusInventoryComponent::NewItem(UCerberusItem* Item, int C
 {
 	if (Capacity > Items.Num())
 	{
-		UCerberusInventorySlot* slot = NewObject<UCerberusInventorySlot>();
-		slot->Item = Item;
-		slot->Size = std::min(Count, Item->StackSize);
-		Items.Add(slot);
+		Item->CurrentStackSize = std::min(Count, Item->MaxStackSize);
+		Items.Add(Item);
 
-		if (slot->Size < Count)
+		if (Item->CurrentStackSize < Count)
 		{
-			const int newCount = Count - slot->Size;
+			const int newCount = Count - Item->CurrentStackSize;
 			if (Count > 0)
 				return NewItem(Item, newCount);
 		}
@@ -96,9 +91,9 @@ bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item, int32 Count)
 	for (int i = 0; i < Items.Num(); i++)
 	{
 		
-		if (Items[i]->Item == Item)
+		if (Items[i] == Item)
 		{
-			const int remaining = Items[i]->Size - Count;
+			const int remaining = Items[i]->CurrentStackSize - Count;
 			if (remaining <= 0)
 			{
 				Items.RemoveAt(i);
@@ -110,7 +105,7 @@ bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item, int32 Count)
 				}
 			} else
 			{
-				Items[i]->Size = remaining;
+				Items[i]->CurrentStackSize = remaining;
 				return true;
 			}
 		}

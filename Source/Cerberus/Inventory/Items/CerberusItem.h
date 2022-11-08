@@ -51,7 +51,11 @@ public:
 	float Weight;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Item")
-	int StackSize;
+	int MaxStackSize;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Item")
+	int CurrentStackSize;
+
 
 	/**The inventory that owns this item*/
 	UPROPERTY()

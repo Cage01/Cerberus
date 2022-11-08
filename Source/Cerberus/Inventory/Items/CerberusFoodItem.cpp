@@ -11,23 +11,23 @@
 
 void UCerberusFoodItem::Use(ACerberusCharacter* Character)
 {
-	Super::Use(Character);
-
-	if (Character)
-	{
-		UCerberusAbilitySystemComponent* CerberusASC = Character->GetCerberusAbilitySystemComponent();
-		check(CerberusASC)
-
-		TSubclassOf<UGameplayEffect> HealGE = UCerberusAssetManager::GetSubclass(UCerberusGameData::Get().HealGameplayEffect_SetByCaller);
-		FGameplayEffectSpecHandle SpecHandle = CerberusASC->MakeOutgoingSpec(HealGE, 1.0f, CerberusASC->MakeEffectContext());
-
-		float HealAmount = 10.0f;
-		if (SpecHandle.IsValid())
-		{
-			SpecHandle.Data->SetSetByCallerMagnitude(FCerberusGameplayTags::Get().SetByCaller_Heal, HealAmount);
-			CerberusASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		}		
-	}
+	//Super::Use(Character);
+	//
+	// if (Character)
+	// {
+	// 	UCerberusAbilitySystemComponent* CerberusASC = Character->GetCerberusAbilitySystemComponent();
+	// 	check(CerberusASC)
+	//
+	// 	TSubclassOf<UGameplayEffect> HealGE = UCerberusGameData::Get().HealGameplayEffect_SetByCaller);
+	// 	FGameplayEffectSpecHandle SpecHandle = CerberusASC->MakeOutgoingSpec(HealGE, 1.0f, CerberusASC->MakeEffectContext());
+	// 	
+	// 	float HealAmount = 10.0f;
+	// 	if (SpecHandle.IsValid())
+	// 	{
+	// 		SpecHandle.Data->SetSetByCallerMagnitude(FCerberusGameplayTags::Get().SetByCaller_Heal, HealAmount);
+	// 		CerberusASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	// 	}		
+	// }
 	
 	
 }
