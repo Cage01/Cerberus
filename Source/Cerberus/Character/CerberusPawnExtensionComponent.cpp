@@ -1,50 +1,25 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CerberusPawnExtensionComponent.h"
 
 #include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Controller.h"
 #include "Net/UnrealNetwork.h"
-
 
 UCerberusPawnExtensionComponent::UCerberusPawnExtensionComponent(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 	PrimaryComponentTick.bCanEverTick = false;
-	
+
 	SetIsReplicatedByDefault(true);
 
-	PawnData = nullptr;
+	//PawnData = nullptr;
 	AbilitySystemComponent = nullptr;
 	bPawnReadyToInitialize = false;
-}
-
-void UCerberusPawnExtensionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UCerberusPawnExtensionComponent, PawnData);
-}
-
-void UCerberusPawnExtensionComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	const APawn* Pawn = GetPawn<APawn>();
-	ensureAlwaysMsgf((Pawn != nullptr), TEXT("CerberusPawnExtensionComponent on [%s] can only be added to Pawn actors."), *GetNameSafe(GetOwner()));
-
-	TArray<UActorComponent*> PawnExtensionComponents;
-	Pawn->GetComponents(UCerberusPawnExtensionComponent::StaticClass(), PawnExtensionComponents);
-	ensureAlwaysMsgf((PawnExtensionComponents.Num() == 1), TEXT("Only one CerberusPawnExtensionComponent should exist on [%s]."), *GetNameSafe(GetOwner()));
-
-}
-
-
-void UCerberusPawnExtensionComponent::OnRep_PawnData()
-{
-	CheckPawnReadyToInitialize();
 }
 
 void UCerberusPawnExtensionComponent::InitializeAbilitySystem(UCerberusAbilitySystemComponent* InASC, AActor* InOwnerActor)
@@ -52,20 +27,24 @@ void UCerberusPawnExtensionComponent::InitializeAbilitySystem(UCerberusAbilitySy
 	check(InASC);
 	check(InOwnerActor);
 
-	// If the ability system hasn't changed just return
 	if (AbilitySystemComponent == InASC)
-		return; 
+	{
+		// The ability system component hasn't changed.
+		return;
+	}
 
-	// If it has changed, clean up the old ability system
 	if (AbilitySystemComponent)
-		UninitializeAbilitySystem(); 
+	{
+		// Clean up the old ability system component.
+		UninitializeAbilitySystem();
+	}
 
 	APawn* Pawn = GetPawnChecked<APawn>();
 	AActor* ExistingAvatar = InASC->GetAvatarActor();
 
 	UE_LOG(LogCerberus, Verbose, TEXT("Setting up ASC [%s] on pawn [%s] owner [%s], existing [%s] "), *GetNameSafe(InASC), *GetNameSafe(Pawn), *GetNameSafe(InOwnerActor), *GetNameSafe(ExistingAvatar));
 
-	if ((ExistingAvatar != nullptr) && ExistingAvatar != Pawn)
+	if ((ExistingAvatar != nullptr) && (ExistingAvatar != Pawn))
 	{
 		UE_LOG(LogCerberus, Log, TEXT("Existing avatar (authority=%d)"), ExistingAvatar->HasAuthority() ? 1 : 0);
 
@@ -73,7 +52,7 @@ void UCerberusPawnExtensionComponent::InitializeAbilitySystem(UCerberusAbilitySy
 		// This can happen on clients if they're lagged: their new pawn is spawned + possessed before the dead one is removed
 		ensure(!ExistingAvatar->HasAuthority());
 
-		if (UCerberusPawnExtensionComponent* OtherExtensionComponent = FindPawnExtentionComponent(ExistingAvatar))
+		if (UCerberusPawnExtensionComponent* OtherExtensionComponent = FindPawnExtensionComponent(ExistingAvatar))
 		{
 			OtherExtensionComponent->UninitializeAbilitySystem();
 		}
@@ -82,9 +61,9 @@ void UCerberusPawnExtensionComponent::InitializeAbilitySystem(UCerberusAbilitySy
 	AbilitySystemComponent = InASC;
 	AbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, Pawn);
 
-	// if(ensure(PawnData))
+	// if (ensure(PawnData))
 	// {
-	// 	// InASC->SetTagRelationshipMapping(PawnData->TagRelationshipMapping);
+	// 	InASC->SetTagRelationshipMapping(PawnData->TagRelationshipMapping);
 	// }
 
 	OnAbilitySystemInitialized.Broadcast();
@@ -97,6 +76,7 @@ void UCerberusPawnExtensionComponent::UninitializeAbilitySystem()
 		return;
 	}
 
+	// Uninitialize the ASC if we're still the avatar actor (otherwise another pawn already did it when they became the avatar actor)
 	if (AbilitySystemComponent->GetAvatarActor() == GetOwner())
 	{
 		AbilitySystemComponent->CancelAbilities(nullptr, nullptr);
@@ -109,6 +89,7 @@ void UCerberusPawnExtensionComponent::UninitializeAbilitySystem()
 		}
 		else
 		{
+			// If the ASC doesn't have a valid owner, we need to clear *all* actor info, not just the avatar pairing
 			AbilitySystemComponent->ClearActorInfo();
 		}
 
@@ -141,6 +122,11 @@ void UCerberusPawnExtensionComponent::HandlePlayerStateReplicated()
 	CheckPawnReadyToInitialize();
 }
 
+void UCerberusPawnExtensionComponent::SetupPlayerInputComponent()
+{
+	CheckPawnReadyToInitialize();
+}
+
 bool UCerberusPawnExtensionComponent::CheckPawnReadyToInitialize()
 {
 	if (bPawnReadyToInitialize)
@@ -148,12 +134,12 @@ bool UCerberusPawnExtensionComponent::CheckPawnReadyToInitialize()
 		return true;
 	}
 
-	//Check Pawn data
+	// Pawn data is required.
 	// if (!PawnData)
 	// {
 	// 	return false;
 	// }
-	
+
 	APawn* Pawn = GetPawnChecked<APawn>();
 
 	const bool bHasAuthority = Pawn->HasAuthority();
@@ -161,25 +147,25 @@ bool UCerberusPawnExtensionComponent::CheckPawnReadyToInitialize()
 
 	if (bHasAuthority || bIsLocallyControlled)
 	{
-		// Check for being possessed by a controller
+		// Check for being possessed by a controller.
 		if (!GetController<AController>())
 		{
 			return false;
 		}
 	}
 
-	// Allow pawn components to have requirements
+	// Allow pawn components to have requirements.
 	TArray<UActorComponent*> InteractableComponents = Pawn->GetComponentsByInterface(UCerberusReadyInterface::StaticClass());
-	for (UActorComponent* Component : InteractableComponents)
+	for (UActorComponent* InteractableComponent : InteractableComponents)
 	{
-		const ICerberusReadyInterface* Ready = CastChecked<ICerberusReadyInterface>(Component);
+		const ICerberusReadyInterface* Ready = CastChecked<ICerberusReadyInterface>(InteractableComponent);
 		if (!Ready->IsPawnComponentReadyToInitialize())
 		{
 			return false;
 		}
 	}
 
-	//Pawn is ready to initialize
+	// Pawn is ready to initialize.
 	bPawnReadyToInitialize = true;
 	OnPawnReadyToInitialize.Broadcast();
 	BP_OnPawnReadyToInitialize.Broadcast();
@@ -194,7 +180,7 @@ void UCerberusPawnExtensionComponent::OnPawnReadyToInitialize_RegisterAndCall(FS
 		OnPawnReadyToInitialize.Add(Delegate);
 	}
 
-	if(bPawnReadyToInitialize)
+	if (bPawnReadyToInitialize)
 	{
 		Delegate.Execute();
 	}
@@ -213,7 +199,7 @@ void UCerberusPawnExtensionComponent::OnAbilitySystemInitialized_RegisterAndCall
 	}
 }
 
-void UCerberusPawnExtensionComponent::OnAbilitySystemUnitialized_Register(FSimpleMulticastDelegate::FDelegate Delegate)
+void UCerberusPawnExtensionComponent::OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate Delegate)
 {
 	if (!OnAbilitySystemUninitialized.IsBoundToObject(Delegate.GetUObject()))
 	{
@@ -221,4 +207,19 @@ void UCerberusPawnExtensionComponent::OnAbilitySystemUnitialized_Register(FSimpl
 	}
 }
 
+void UCerberusPawnExtensionComponent::OnRegister()
+{
+	Super::OnRegister();
+	
+	const APawn* Pawn = GetPawn<APawn>();
+	ensureAlwaysMsgf((Pawn != nullptr), TEXT("LyraPawnExtensionComponent on [%s] can only be added to Pawn actors."), *GetNameSafe(GetOwner()));
 
+	TArray<UActorComponent*> PawnExtensionComponents;
+	Pawn->GetComponents(UCerberusPawnExtensionComponent::StaticClass(), PawnExtensionComponents);
+	ensureAlwaysMsgf((PawnExtensionComponents.Num() == 1), TEXT("Only one LyraPawnExtensionComponent should exist on [%s]."), *GetNameSafe(GetOwner()));
+
+}
+
+// void UCerberusPawnExtensionComponent::OnRep_PawnData()
+// {
+// }

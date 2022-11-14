@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "CerberusPlayerState.h"
+#include "GameplayTagContainer.h"
 #include "ModularPlayerController.h"
 #include "CerberusPlayerController.generated.h"
 
+class UCerberusAbilitySystemComponent;
 /**
  * ACerberusPlayerController
  *
@@ -25,6 +27,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
 	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
-
-	
 };

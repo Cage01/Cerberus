@@ -47,8 +47,10 @@ class CERBERUS_API UCerberusAttributeSet : public UAttributeSet
 public:
 
  UCerberusAttributeSet();
+
+ virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
  
  UWorld* GetWorld() const override;
-
  UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
+ 
 };

@@ -8,6 +8,11 @@ UCerberusAttributeSet::UCerberusAttributeSet()
 {
 }
 
+void UCerberusAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
 UWorld* UCerberusAttributeSet::GetWorld() const
 {
 	/*

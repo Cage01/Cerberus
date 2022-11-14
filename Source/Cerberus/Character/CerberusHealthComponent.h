@@ -1,21 +1,25 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
 #include "Components/GameFrameworkComponent.h"
 #include "CerberusHealthComponent.generated.h"
 
-
-class UCerberusAbilitySystemComponent;
-class UCerberusHealthSet;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
+class UCerberusAbilitySystemComponent;
 
-/*
- * ECerberusDeathState
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCerberusHealth_DeathEvent, AActor*, OwningActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FCerberusHealth_AttributeChanged, UCerberusHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
+
+
+/**
+ * ELyraDeathState
  *
- *  Defines the current state of death
+ *	Defines current state of death.
  */
 UENUM(BlueprintType)
 enum class ECerberusDeathState : uint8
@@ -25,77 +29,85 @@ enum class ECerberusDeathState : uint8
 	DeathFinished
 };
 
-UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 
+
+/**
+ * ULyraHealthComponent
+ *
+ *	An actor component used to handle anything related to health.
+ */
+UCLASS(Blueprintable, Meta=(BlueprintSpawnableComponent))
 class CERBERUS_API UCerberusHealthComponent : public UGameFrameworkComponent
 {
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FCerberusHealth_AttributeChanged,  UCerberusHealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCerberusHealth_DeathEvent, AActor*, OwningActor);
-	
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
+
 	UCerberusHealthComponent(const FObjectInitializer& ObjectInitializer);
 
-	// Returns the health component if one exists on the specified actor
-	UFUNCTION(BlueprintPure, Category="Cerberus|Health")
+	// Returns the health component if one exists on the specified actor.
+	UFUNCTION(BlueprintPure, Category = "Lyra|Health")
 	static UCerberusHealthComponent* FindHealthComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusHealthComponent>() : nullptr); }
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
+	// Initialize the component using an ability system component.
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
 	void InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC);
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
-	void UninitialieFromAbilitySystem();
-	
-	// Returns current health
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
+	// Uninitialize the component, clearing any references to the ability system.
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	void UninitializeFromAbilitySystem();
+
+	// Returns the current health value.
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
 	float GetHealth() const;
 
-	// Returns the maximum health value
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
+	// Returns the current maximum health value.
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
 	float GetMaxHealth() const;
 
-	// Returns current health between 0.0 and 1.0
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
+	// Returns the current health in the range [0.0, 1.0].
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
 	float GetHealthNormalized() const;
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Health")
-	ECerberusDeathState GetDeathState() const;
+	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	ECerberusDeathState GetDeathState() const { return DeathState; }
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = TEXT_FALSE, Category="Cerberus|Health", Meta = (ExpandBoolAsExecs = "ReturnValue"))
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Lyra|Health", Meta = (ExpandBoolAsExecs = "ReturnValue"))
 	bool IsDeadOrDying() const { return (DeathState > ECerberusDeathState::NotDead); }
 
-	// Starts the death sequence for the owner
+	// Begins the death sequence for the owner.
 	virtual void StartDeath();
 
-	// Ends the death sequence for the owner
+	// Ends the death sequence for the owner.
 	virtual void FinishDeath();
 
-	// Applies enough damage to kill the owner
+	// Applies enough damage to kill the owner.
 	virtual void DamageSelfDestruct(bool bFellOutOfWorld = false);
 
 public:
-	// Delegate fired when health value has changed
+
+	// Delegate fired when the health value has changed.
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_AttributeChanged OnHealthChanged;
-	// Delegate fired when max health value has changed
+
+	// Delegate fired when the max health value has changed.
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_AttributeChanged OnMaxHealthChanged;
-	// Delegate fired when death instance has started
+
+	// Delegate fired when the death sequence has started.
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_DeathEvent OnDeathStarted;
-	// Delegate fired when death instance has finished
+
+	// Delegate fired when the death sequence has finished.
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_DeathEvent OnDeathFinished;
-	
+
 protected:
 
 	virtual void OnUnregister() override;
 
 	void ClearGameplayTags();
 
-	//These functions handle broadcasting messages out to a blueprint that can use them as events
 	virtual void HandleHealthChanged(const FOnAttributeChangeData& ChangeData);
 	virtual void HandleMaxHealthChanged(const FOnAttributeChangeData& ChangeData);
 	virtual void HandleOutOfHealth(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec& DamageEffectSpec, float DamageMagnitude);
@@ -103,14 +115,17 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_DeathState(ECerberusDeathState OldDeathState);
 
-	
 protected:
+
+	// Ability system used by this component.
 	UPROPERTY()
 	UCerberusAbilitySystemComponent* AbilitySystemComponent;
 
+	// Health set used by this component.
 	UPROPERTY()
 	const UCerberusHealthSet* HealthSet;
 
+	// Replicated state used to handle dying.
 	UPROPERTY(ReplicatedUsing = OnRep_DeathState)
 	ECerberusDeathState DeathState;
 };

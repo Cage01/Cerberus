@@ -2,13 +2,16 @@
 
 #include "CerberusCharacter.h"
 
-#include "CerberusHealthComponent.h"
+// #include "CerberusHealthComponent.h"
+// #include "CerberusPawnExtensionComponent.h"
 #include "CerberusPawnExtensionComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Cerberus/Cerberus.h"
 #include "Cerberus/CerberusGameplayTags.h"
+#include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
-#include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
-#include "Cerberus/Inventory/Items/CerberusInventoryComponent.h"
+#include "Cerberus/AbilitySystem/Abilities/CerberusGameplayAbility.h"
+#include "Cerberus/Inventory/CerberusInventoryComponent.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Player/CerberusPlayerState.h"
 #include "Components/CapsuleComponent.h"
@@ -17,7 +20,6 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
-#include "Cerberus/Inventory/Items/CerberusInventoryComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
@@ -62,30 +64,23 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// Setup Pawn Extension component (Contains AbilitySystemComponent)
-	PawnExtension = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
-	PawnExtension->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
-	PawnExtension->OnAbilitySystemUnitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
+	PawnExtensionComponent = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
+	PawnExtensionComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
+	PawnExtensionComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
 	
-	// Setting up Health
 	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
-	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
-	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
-	
-	Inventory = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
-	Inventory->Capacity = 20;
+	// HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
+	// HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
+
+	// Initializing Inventory
+	InventoryComponent = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
+	InventoryComponent->Capacity = 20;
 }
 
 ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
 {
 	return CastChecked<ACerberusPlayerState>(GetPlayerState(), ECastCheckedType::NullAllowed);
 }
-
-ACerberusPlayerController* ACerberusCharacter::GetCerberusPlayerController() const
-{
-	return CastChecked<ACerberusPlayerController>(Controller, ECastCheckedType::NullAllowed);
-}
-
 UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
 {
 	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
@@ -93,18 +88,74 @@ UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemCom
 
 UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
 {
-	return PawnExtension->GetCerberusAbilitySystemComponent();
+	return PawnExtensionComponent->GetCerberusAbilitySystemComponent();
 }
 
-void ACerberusCharacter::Reset()
+
+void ACerberusCharacter::InitializeAttributes()
 {
-	DisableMovementAndCollision();
+	if (GetCerberusAbilitySystemComponent() && DefaultAttributeEffect)
+	{
+		FGameplayEffectContextHandle EffectContext = GetCerberusAbilitySystemComponent()->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
 
-	K2_OnReset();
-
-	UninitAndDestroy();
+		FGameplayEffectSpecHandle SpecHandle = GetCerberusAbilitySystemComponent()->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
+		if (SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle GEHandle = GetCerberusAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			if (!GEHandle.WasSuccessfullyApplied())
+				UE_LOG(LogCerberusAbilitySystem, Error, TEXT("ACerberusCharacter: Gameplay effect was not sucessfully applied"))
+		}
+	}
 }
 
+void ACerberusCharacter::GiveAbilities()
+{
+	if (HasAuthority() && GetCerberusAbilitySystemComponent() && !DefaultAbilities.IsEmpty())
+	{
+		for (TSubclassOf<UCerberusGameplayAbility>& Ability : DefaultAbilities)
+		{
+			GetCerberusAbilitySystemComponent()->GiveAbility(
+				FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->AbilityInputID), this));
+		}
+		
+	}
+}
+
+void ACerberusCharacter::SetupBinds()
+{
+	if (GetCerberusAbilitySystemComponent() && InputComponent)
+	{
+		const FGameplayAbilityInputBinds Binds("Confirm", "Cancel", "ECerberusAbilityInputID",
+			static_cast<int32>(ECerberusAbilityInputID::Confirm), static_cast<int32>(ECerberusAbilityInputID::Cancel));
+
+		GetCerberusAbilitySystemComponent()->BindAbilityActivationToInputComponent(InputComponent, Binds);
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// Replication
+
+void ACerberusCharacter::UseItem_Implementation(UCerberusItem* Item)
+{
+	if (Item)
+	{
+
+		Item->Use(this);
+		Item->OnUse(this); //BP Event
+	}
+}
+
+void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+/**
+ * @brief 
+ * @param ChangedPropertyTracker 
+ */
 void ACerberusCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
 {
 	Super::PreReplication(ChangedPropertyTracker);
@@ -115,20 +166,16 @@ void ACerberusCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	PawnExtension->HandleControllerChanged();
+	PawnExtensionComponent->HandleControllerChanged();
+	InitializeAbilitySystem();
+	
 }
 
 void ACerberusCharacter::UnPossessed()
 {
 	Super::UnPossessed();
-	PawnExtension->HandleControllerChanged();
-}
 
-void ACerberusCharacter::OnRep_Controller()
-{
-	Super::OnRep_Controller();
-
-	PawnExtension->HandleControllerChanged();
+	PawnExtensionComponent->HandleControllerChanged();
 }
 
 /* Setup client based functionality */
@@ -136,104 +183,55 @@ void ACerberusCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// Will check if the pawn is ready to be initialized, and if it is, it will start up the ability system and fire off delegates.
-	PawnExtension->HandlePlayerStateReplicated();
+	PawnExtensionComponent->HandlePlayerStateReplicated();
+	InitializeAbilitySystem();
+}
 
-	if (PawnExtension->IsPawnReadyToInitialize())
+void ACerberusCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+	// Needed in case the PC wasn't valid when we Init-ed the ASC.
+	if (ACerberusPlayerState* PS = GetCerberusPlayerState())
 	{
-		ACerberusPlayerState* CerberusPS = GetPlayerState<ACerberusPlayerState>();
-		check(CerberusPS);
-
-		PawnExtension->InitializeAbilitySystem(CerberusPS->GetCerberusAbilitySystemComponent(), CerberusPS);
+		PS->GetCerberusAbilitySystemComponent()->RefreshAbilityActorInfo();
 	}
+}
 
+
+void ACerberusCharacter::InitializeAbilitySystem()
+{
+	if (PawnExtensionComponent->IsPawnReadyToInitialize())
+	{
+		ACerberusPlayerState* CerberusPS = GetCerberusPlayerState();
+		check(CerberusPS)
+
+		PawnExtensionComponent->InitializeAbilitySystem(CerberusPS->GetCerberusAbilitySystemComponent(), CerberusPS);
+		
+	}
 }
 
 void ACerberusCharacter::OnAbilitySystemInitialized()
 {
 	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
 	check(CerberusASC);
-	
-	HealthComponent->InitializeWithAbilitySystem(CerberusASC);	
-	
+
+	HealthComponent->InitializeWithAbilitySystem(CerberusASC);
+	InventoryComponent->InitializeWithAbilitySystem(CerberusASC);
+
+	InitializeAttributes();
+
+	if (HasAuthority())
+	{
+		GiveAbilities();
+
+		UE_LOG(LogCerberusAbilitySystem, Log, TEXT("Character was given abilities by the %s"), *GetClientServerContextString());
+	}
 }
 
 void ACerberusCharacter::OnAbilitySystemUninitialized()
 {
-	HealthComponent->UninitialieFromAbilitySystem();
-}
-
-//@TODO The movement ability system isnt set up just yet. Will likely need to come back to it
-void ACerberusCharacter::InitializeGameplayTags()
-{
-	// Movement system related tags - Not necessary just yet
-	if (UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent())
-	{
-		const FCerberusGameplayTags& GameplayTags = FCerberusGameplayTags::Get();
-
-		for (const TPair<uint8, FGameplayTag>& TagMapping : GameplayTags.MovementModeTagMap)
-		{
-			// ...etc
-		}
-	}
-}
-
-void ACerberusCharacter::FellOutOfWorld(const UDamageType& dmgType)
-{
-	HealthComponent->DamageSelfDestruct(true);
-}
-
-void ACerberusCharacter::OnDeathStarted(AActor* OwningActor)
-{
-	DisableMovementAndCollision();
-}
-
-void ACerberusCharacter::OnDeathFinished(AActor* OwningActor)
-{
-	//Calls this function on the next tick
-	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDeath);
-}
-
-void ACerberusCharacter::DisableMovementAndCollision()
-{
-	if (Controller)
-	{
-		Controller->SetIgnoreMoveInput(true);
-	}
-
-	//Disables collision
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	check(CapsuleComp);
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	
-	//@TODO Lyra disables movement in the MovementComponent -- Will need to look into
-}
-
-void ACerberusCharacter::DestroyDueToDeath()
-{
-	K2_OnDeathFinished();
-	
-	UninitAndDestroy();
-}
-
-void ACerberusCharacter::UninitAndDestroy()
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		DetachFromControllerPendingDestroy();
-		SetLifeSpan(0.0f);
-
-		if (UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent())
-		{
-			if (CerberusASC->GetAvatarActor() == this)
-			{
-				PawnExtension->UninitializeAbilitySystem();
-			}
-		}
-	}
-
-	SetActorHiddenInGame(true);
+	HealthComponent->UninitializeFromAbilitySystem();
+	InventoryComponent->UninitialieFromAbilitySystem();
 }
 
 
@@ -245,12 +243,6 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	// @TODO: These inputs may become obsolete with the addition of the GameplayAbility and EnhancedInput classes.
-	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &ACerberusCharacter::ToggleInventory);
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACerberusCharacter::Interact);
-	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &ACerberusCharacter::StartFireWeapon);
-	PlayerInputComponent->BindAction("FireWeapon", IE_Released, this, &ACerberusCharacter::StopFireWeapon);
 
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &ACerberusCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ACerberusCharacter::MoveRight);
@@ -266,6 +258,8 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACerberusCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ACerberusCharacter::TouchStopped);
+
+	SetupBinds();
 }
 
 void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
@@ -276,36 +270,6 @@ void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Loc
 void ACerberusCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	StopJumping();
-}
-
-void ACerberusCharacter::ToggleInventory()
-{
-	// Check if inventory UI is open -> Perform correct action.
-}
-
-void ACerberusCharacter::Interact()
-{
-	//Interact with item in the world.
-}
-
-void ACerberusCharacter::StartFireWeapon()
-{
-	//Start firing weapon
-}
-
-void ACerberusCharacter::StopFireWeapon()
-{
-	//Stop firing weapon
-}
-
-void ACerberusCharacter::UseItem(UCerberusItem* Item)
-{
-	if (Item)
-	{
-		Item->Use(this);
-		Item->OnUse(this); //BP Event
-	}
-
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)
