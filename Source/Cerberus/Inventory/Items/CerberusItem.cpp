@@ -17,7 +17,16 @@ UCerberusInventoryComponent* UCerberusItem::GetInventory() const
 	return OwningInventory;
 }
 
-	
+bool UCerberusItem::ShouldShowInInventory() const
+{
+	return true;
+}
+
+void UCerberusItem::OnRep_Quantity()
+{
+}
+
+
 void UCerberusItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

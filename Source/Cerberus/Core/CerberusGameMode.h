@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ModularGameMode.h"
-#include "CerberusWorldGameMode.generated.h"
+#include "CerberusGameMode.generated.h"
 
 /**
  *  Post login event, triggered when a player joins the game as well as after non-seamless ServerTravel
@@ -14,7 +14,7 @@
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModeCombinedPostLogin, AGameModeBase* /*GameMode*/, AController* /*NewPlayer*/);
 
 UCLASS(Config = Game, meta=(ShortTooltip="The base game mode class used by this project"))
-class ACerberusWorldGameMode : public AModularGameModeBase
+class ACerberusWorldGameMode : public AModularGameMode
 {
   GENERATED_BODY()
 

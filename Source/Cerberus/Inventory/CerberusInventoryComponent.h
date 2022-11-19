@@ -23,7 +23,7 @@ public:
 	// Sets default values for this component's properties
 	UCerberusInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
-	// Returns the health component if one exists on the specified actor.
+	// Returns the Inventory component if one exists on the specified actor.
 	UFUNCTION(BlueprintPure, Category = "Cerberus|Inventory")
 	static UCerberusInventoryComponent* FindInventoryComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusInventoryComponent>() : nullptr); }
 

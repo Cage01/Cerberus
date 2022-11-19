@@ -7,16 +7,40 @@
 #include "GameplayTagAssetInterface.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
 #include <GameplayEffectTypes.h>
-#include "CerberusHealthComponent.h"
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
+#include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
+USTRUCT()
+struct FInteractionData
+{
+	GENERATED_BODY()
+
+	FInteractionData()
+	{
+		ViewedInteractionComponent = nullptr;
+		LastInteractionCheckTime = 0.f;
+		bInteractHeld = false;
+	}
+	
+	//The current interactable we're viewing if there is one
+	UPROPERTY()
+	UCerberusInteractionComponent* ViewedInteractionComponent;
+
+	//The time when we last checked for an interactable
+	UPROPERTY()
+	float LastInteractionCheckTime;
+
+	UPROPERTY()
+	bool bInteractHeld;
+};
+
+class UCerberusHealthComponent;
 class UCerberusInventoryComponent;
 class UCerberusGameplayAbility;
 class ACerberusPlayerController;
 class ACerberusPlayerState;
-//class UCerberusHealthComponent;
 class UCerberusPawnExtensionComponent;
 class UCerberusAbilitySystemComponent;
 
@@ -45,13 +69,19 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
 	UCerberusPawnExtensionComponent* PawnExtensionComponent;
 
-	// /** GAS AbilitySystemComponent */
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
-	// UCerberusAbilitySystemComponent* AbilitySystemComponent;
-
-	//TODO: Move health to its own component like before
-	// UPROPERTY()
-	// const UCerberusHealthSet* Health;
+	/** Skeletal Mesh setup for equipment **/
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* HelmetMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* ChestMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* ArmsMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* LegsMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* BackpackMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* SpecialEquipMesh;
 
 	
 public:
@@ -67,6 +97,10 @@ public:
 	//TODO: Probably want to move this to another location?
 	UPROPERTY(BlueprintReadWrite, Category="Cerberus|Character")
 	FGameplayTagContainer GameplayTags;
+
+	//TODO: Make this into an ability with GAS?
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category="Cerberus|Character|Inventory")
+	void UseItem(UCerberusItem* Item);
 	
 	/**
 	 * @brief Initializes a default set of attributes for the character to have
@@ -86,10 +120,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Cerberus|Character")
 	TArray<TSubclassOf<UCerberusGameplayAbility>> DefaultAbilities;
-
-	//TODO: Make this into an ability with GAS?
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category="Cerberus|Inventory")
-	void UseItem(UCerberusItem* Item);
 	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
@@ -105,10 +135,53 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	
 	
 protected:
+	virtual void Tick(float DeltaSeconds) override;
+
+	// Setting up character interaction 
+	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Character|Interaction")
+	float InteractionCheckFrequency;
+
+	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Character|Interaction")
+	float InteractionCheckDistance;
 	
+	void PreformInteractionCheck();
+
+	void FoundNewInteractable(UCerberusInteractionComponent* Interactable);
+	void CouldntFileInteractable();
+
+	void BeginInteract();
+	void EndInteract();
+
+	UFUNCTION(Server, Reliable)
+	void ServerBeginInteract();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEndInteract();
 	
+	void Interact();
+
+	// Information about the current state of the players interaction
+	UPROPERTY()
+	FInteractionData InteractionData;
+
+	// Helper function to make getting the interactable faster
+	FORCEINLINE UCerberusInteractionComponent* GetInteractable() const { return InteractionData.ViewedInteractionComponent; }
+
+	FTimerHandle TimerHandle_Interact;
+
+public:
+
+	// True if we're interacting with an item that has an interaction time (Something that requires you to hold the button rather than press)
+	bool IsInteracting() const;
+	
+	// Get the time we interact with the current interactable
+	float GetRemainingInteractTime() const;
+
+protected:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 

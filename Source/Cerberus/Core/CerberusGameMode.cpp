@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CerberusWorldGameMode.h"
+#include "CerberusGameMode.h"
 
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Player/CerberusPlayerState.h"

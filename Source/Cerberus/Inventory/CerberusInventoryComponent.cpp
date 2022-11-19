@@ -103,14 +103,18 @@ bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item)
 
 void UCerberusInventoryComponent::RemoveAllItems()
 {
-	// AActor* lOwner = GetOwner();
-	// checkf(lOwner != nullptr, TEXT("Invalid Inventory Owner"));
-	// checkf(lOwner->HasAuthority(), TEXT("Called without Authority!"));
+	AActor* lOwner = GetOwner();
+	checkf(lOwner != nullptr, TEXT("Invalid Inventory Owner"));
+	checkf(lOwner->HasAuthority(), TEXT("Called without Authority!"));
 
+	
+	for (int i = 0; i < Items.Num(); i++)
 	for (UCerberusItem* Item : Items)
 	{
-		RemoveItem(Item);
+		if (IsValid(Item))
+			Item->Destroy();
 	}
+	
 	Items.Empty();
 }
 

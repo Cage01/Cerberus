@@ -2,8 +2,6 @@
 
 #include "CerberusCharacter.h"
 
-// #include "CerberusHealthComponent.h"
-// #include "CerberusPawnExtensionComponent.h"
 #include "CerberusPawnExtensionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Cerberus/Cerberus.h"
@@ -20,6 +18,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
+#include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
@@ -64,10 +63,34 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
+
+	
+	// Equipment skeletal mesh setup
+	HelmetMesh = CreateDefaultSubobject<USkeletalMeshComponent>("HelmetMesh");
+	HelmetMesh->SetupAttachment(GetMesh());
+	
+	ChestMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ChestMesh");
+	ChestMesh->SetupAttachment(GetMesh());
+	
+	ArmsMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ArmsMesh");
+	ArmsMesh->SetupAttachment(GetMesh());
+	
+	LegsMesh = CreateDefaultSubobject<USkeletalMeshComponent>("LegsMesh");
+	LegsMesh->SetupAttachment(GetMesh());
+	
+	BackpackMesh = CreateDefaultSubobject<USkeletalMeshComponent>("BackpackMesh");
+	BackpackMesh->SetupAttachment(GetMesh());
+	
+	SpecialEquipMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SpecialEquipMesh");
+	SpecialEquipMesh->SetupAttachment(GetMesh());
+
+	
+	// Initializing Pawn Extension Component which has nice utility with AbilitySystem
 	PawnExtensionComponent = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
 	PawnExtensionComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
 	PawnExtensionComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
-	
+
+	// Initializing Health and other states related to health
 	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
 	// HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	// HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
@@ -75,6 +98,9 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	// Initializing Inventory
 	InventoryComponent = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
 	InventoryComponent->Capacity = 20;
+
+	InteractionCheckFrequency = 0.2f;
+	InteractionCheckDistance = 1000.f;
 }
 
 ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
@@ -235,6 +261,163 @@ void ACerberusCharacter::OnAbilitySystemUninitialized()
 }
 
 
+void ACerberusCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	//Optimizing interaction, Server wont check for interactables unless one is being interacted with
+	const bool IsInteractingOnServer = (HasAuthority() && IsInteracting());
+	if ((!HasAuthority() || IsInteractingOnServer) && GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) >= InteractionCheckFrequency)
+	{
+		PreformInteractionCheck();
+	}
+
+	
+}
+
+void ACerberusCharacter::PreformInteractionCheck()
+{
+	if (GetController() == nullptr)
+		return;
+
+	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
+	FVector EyesLoc;
+	FRotator EyesRot;
+	
+	//GetController()->GetPlayerViewPoint(EyesLoc, EyesRot);
+	GetController()->GetActorEyesViewPoint(EyesLoc, EyesRot);
+	
+	FVector TraceStart = EyesLoc;
+	FVector TraceEnd = (EyesRot.Vector() * InteractionCheckDistance) + TraceStart;
+	FHitResult TraceHit;
+
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	
+	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		// Check if we hit an interactable object
+		if (TraceHit.GetActor())
+		{
+			if (UCerberusInteractionComponent* InteractionComponent = UCerberusInteractionComponent::FindInteractionComponent(TraceHit.GetActor()))
+			{
+				float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+				if (InteractionComponent != GetInteractable() && Distance <= InteractionComponent->InteractionDistance)
+				{
+					FoundNewInteractable(InteractionComponent);
+				}
+				return;
+			}
+		}
+	}
+	
+	CouldntFileInteractable();
+}
+
+void ACerberusCharacter::FoundNewInteractable(UCerberusInteractionComponent* Interactable)
+{
+	EndInteract();
+
+	if (UCerberusInteractionComponent* OldInteractable = GetInteractable())
+	{
+		OldInteractable->EndFocus(this);
+	}
+	
+	InteractionData.ViewedInteractionComponent = Interactable;
+	Interactable->BeginFocus(this);
+}
+
+void ACerberusCharacter::CouldntFileInteractable()
+{
+	// Clear out interaction timer if its active
+	if (GetWorldTimerManager().IsTimerActive(TimerHandle_Interact))
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interact);
+	
+	if(UCerberusInteractionComponent* Interactable = GetInteractable())
+	{
+		Interactable->EndFocus(this);
+
+		if (InteractionData.bInteractHeld)
+			EndInteract();
+	}
+
+	InteractionData.ViewedInteractionComponent = nullptr;
+}
+
+void ACerberusCharacter::BeginInteract()
+{
+	if (!HasAuthority())
+		ServerBeginInteract();
+
+	
+	InteractionData.bInteractHeld = true;
+
+	if (UCerberusInteractionComponent* Interactable = GetInteractable())
+	{
+		Interactable->BeginInteract(this);
+
+		if(FMath::IsNearlyZero(Interactable->InteractionTime))
+		{
+			Interact();
+		}
+		else
+		{
+			GetWorldTimerManager().SetTimer(TimerHandle_Interact, this, &ACerberusCharacter::Interact, Interactable->InteractionTime, false);
+		}
+	}
+}
+
+void ACerberusCharacter::EndInteract()
+{
+	if (!HasAuthority())
+		ServerEndInteract();
+
+	
+	InteractionData.bInteractHeld = false;
+
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interact);
+
+	if (UCerberusInteractionComponent* Interactable = GetInteractable())
+	{
+		Interactable->EndInteract(this);
+	}
+}
+
+
+void ACerberusCharacter::ServerEndInteract_Implementation()
+{
+	BeginInteract();
+}
+
+void ACerberusCharacter::ServerBeginInteract_Implementation()
+{
+	EndInteract();
+}
+
+void ACerberusCharacter::Interact()
+{
+	GetWorldTimerManager().ClearTimer((TimerHandle_Interact));
+
+	if (UCerberusInteractionComponent* Interactable = GetInteractable())
+	{
+		Interactable->Interact(this);
+	}
+}
+
+bool ACerberusCharacter::IsInteracting() const
+{
+	return GetWorldTimerManager().IsTimerActive(TimerHandle_Interact);
+}
+
+float ACerberusCharacter::GetRemainingInteractTime() const
+{
+	return GetWorldTimerManager().GetTimerRemaining(TimerHandle_Interact);
+}
+
+
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -255,21 +438,11 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &ACerberusCharacter::LookUpAtRate);
 
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACerberusCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ACerberusCharacter::TouchStopped);
-
+	// Set up interaction
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACerberusCharacter::BeginInteract);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ACerberusCharacter::EndInteract);
+	
 	SetupBinds();
-}
-
-void ACerberusCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	Jump();
-}
-
-void ACerberusCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	StopJumping();
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)
@@ -283,6 +456,8 @@ void ACerberusCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
+
+
 
 void ACerberusCharacter::MoveForward(float Value)
 {
