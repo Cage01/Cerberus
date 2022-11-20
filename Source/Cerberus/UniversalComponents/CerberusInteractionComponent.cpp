@@ -31,6 +31,7 @@ void UCerberusInteractionComponent::RefreshWidget()
 		// Make sure the widget is initialized, and that we are displaying the right values
 		if (UCerberusInteractionWidget* InteractionWidget = Cast<UCerberusInteractionWidget>(GetUserWidgetObject()))
 		{
+			// Update the UI, will fire a BP event
 			InteractionWidget->UpdateInteractionWidget(this);
 		}
 	}

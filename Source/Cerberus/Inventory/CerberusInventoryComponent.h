@@ -27,7 +27,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Cerberus|Inventory")
 	static UCerberusInventoryComponent* FindInventoryComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusInventoryComponent>() : nullptr); }
 
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+	//virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
 	UCerberusItem* AddItem(TSubclassOf<UCerberusItem> ItemClass);

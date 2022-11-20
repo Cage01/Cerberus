@@ -31,5 +31,5 @@ void UCerberusItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 		
-	DOREPLIFETIME_CONDITION(UCerberusItem, OwningInventory, COND_InitialOnly);
+	//DOREPLIFETIME_CONDITION(UCerberusItem, OwningInventory, COND_InitialOnly);
 }

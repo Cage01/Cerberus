@@ -90,7 +90,7 @@ public:
 protected:
 	int ID;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	UCerberusInventoryComponent* OwningInventory;
 
 	UFUNCTION()

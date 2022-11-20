@@ -19,6 +19,9 @@ UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitialize
 
 	// Component must be replicate to replicate its subobjects
 	SetIsReplicatedByDefault(true);
+
+	// New method of SubObject replication in 5.1
+	bReplicateUsingRegisteredSubObjectList = true;
 }
 
 
@@ -29,12 +32,6 @@ void UCerberusInventoryComponent::OnRep_ItemsUpdated() const
 
 void UCerberusInventoryComponent::OnUnregister()
 {
-	const AActor* lOwner = GetOwner();
-	if (lOwner && lOwner->HasAuthority())
-	{
-		RemoveAllItems();
-	}
-	
 	Super::OnUnregister();
 }
 
@@ -43,15 +40,29 @@ void UCerberusInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCerberusInventoryComponent, Items, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCerberusInventoryComponent, DefaultItems, COND_None, REPNOTIFY_Always);
 }
 
-bool UCerberusInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
-	FReplicationFlags* RepFlags)
-{
-	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-	bWroteSomething |= Channel->ReplicateSubobjectList(Items, *Bunch, *RepFlags);
-	return bWroteSomething;
-}
+// bool UCerberusInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
+// 	FReplicationFlags* RepFlags)
+// {
+// 	check(Channel)
+// 	check(Bunch)
+// 	check(RepFlags)
+//
+// 	// bool bWroteSomething = false;
+// 	//
+// 	// for (UCerberusItem* Item : Items)
+// 	// {
+// 	// 	bWroteSomething |= ReplicateSubobjects(Channel, Bunch, RepFlags);
+// 	// 	bWroteSomething |= Channel->ReplicateSubobject(Item, Bunch, RepFlags);
+// 	// 	AddReplicatedSubObject(Item, COND_None);
+// 	// }
+// 	//
+// 	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+// 	bWroteSomething |= Channel->ReplicateSubobjectList(Items, *Bunch, *RepFlags);
+// 	return bWroteSomething;
+// }
 
 UCerberusItem* UCerberusInventoryComponent::AddItem(TSubclassOf<UCerberusItem> ItemClass)
 {
@@ -69,6 +80,9 @@ UCerberusItem* UCerberusInventoryComponent::AddItem(TSubclassOf<UCerberusItem> I
 		NewItem->OwningInventory = this;
 		NewItem->ID = Items.Num();
 		Items.Add(NewItem);
+
+		//Replicate object
+		AddReplicatedSubObject(NewItem);
 
 		OnItemAdded.Broadcast(this, NewItem, NewItem->ID);
 		return NewItem;
@@ -91,6 +105,9 @@ bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item)
 		const int32 RemovedIndex = Items.Remove(Item);
 		if (RemovedIndex != INDEX_NONE)
 		{
+			//Removing item from replication
+			RemoveReplicatedSubObject(Item);
+			
 			Item->Destroy();
 			OnItemRemoved.Broadcast(this, Item, RemovedIndex);
 			return true;
@@ -112,7 +129,13 @@ void UCerberusInventoryComponent::RemoveAllItems()
 	for (UCerberusItem* Item : Items)
 	{
 		if (IsValid(Item))
+		{
+			//Removing item from replication
+			RemoveReplicatedSubObject(Item);
+			
 			Item->Destroy();
+		}
+			
 	}
 	
 	Items.Empty();
@@ -153,4 +176,10 @@ void UCerberusInventoryComponent::InitializeWithAbilitySystem(UCerberusAbilitySy
 void UCerberusInventoryComponent::UninitialieFromAbilitySystem()
 {
 	AbilitySystemComponent = nullptr;
+
+	const AActor* lOwner = GetOwner();
+	if (lOwner && lOwner->HasAuthority())
+	{
+		RemoveAllItems();
+	}
 }
