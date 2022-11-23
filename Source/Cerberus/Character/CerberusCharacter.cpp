@@ -271,8 +271,6 @@ void ACerberusCharacter::Tick(float DeltaSeconds)
 	{
 		PreformInteractionCheck();
 	}
-
-	
 }
 
 void ACerberusCharacter::PreformInteractionCheck()
@@ -284,17 +282,25 @@ void ACerberusCharacter::PreformInteractionCheck()
 	FVector EyesLoc;
 	FRotator EyesRot;
 	
-	//GetController()->GetPlayerViewPoint(EyesLoc, EyesRot);
-	GetController()->GetActorEyesViewPoint(EyesLoc, EyesRot);
-	
-	FVector TraceStart = EyesLoc;
+	EyesLoc = FollowCamera->GetComponentLocation();
+	EyesRot = FollowCamera->GetComponentRotation();
+
+	// Get the distance between the character and the camera
+	float ActorDistance = FVector::Dist(EyesLoc, GetActorLocation());
+
+	// Start the line trace where the characters location but aligns to the crosshair
+	FVector TraceStart = (EyesRot.Vector() * ActorDistance) + EyesLoc;
 	FVector TraceEnd = (EyesRot.Vector() * InteractionCheckDistance) + TraceStart;
 	FHitResult TraceHit;
 
-
+	
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
+	// Debug
+	// const FName TraceTag("MyTraceTag");
+	// GetWorld()->DebugDrawTraceTag = TraceTag;
+	// QueryParams.TraceTag = TraceTag;
 	
 	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 	{
