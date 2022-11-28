@@ -22,7 +22,8 @@ public class Cerberus : ModuleRules
 				"AIModule",
 				"ModularGameplay",
 				"ModularGameplayActors",
-				"GameFeatures"
+				"GameFeatures",
+				"UMG"
 			});
 		
 		PrivateDependencyModuleNames.AddRange(

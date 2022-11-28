@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Engine.h"
 
 UENUM(BlueprintType)
 enum class ECerberusAbilityInputID : uint8
