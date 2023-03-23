@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FCerberusHealth_AttributeChanged, 
 
 
 /**
- * ELyraDeathState
+ * ECerberusDeathState
  *
  *	Defines current state of death.
  */
@@ -32,7 +32,7 @@ enum class ECerberusDeathState : uint8
 
 
 /**
- * ULyraHealthComponent
+ * UCerberusHealthComponent
  *
  *	An actor component used to handle anything related to health.
  */
@@ -46,33 +46,33 @@ public:
 	UCerberusHealthComponent(const FObjectInitializer& ObjectInitializer);
 
 	// Returns the health component if one exists on the specified actor.
-	UFUNCTION(BlueprintPure, Category = "Lyra|Health")
+	UFUNCTION(BlueprintPure, Category = "Cerberus|Health")
 	static UCerberusHealthComponent* FindHealthComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusHealthComponent>() : nullptr); }
 
 	// Initialize the component using an ability system component.
-	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	void InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC);
 
 	// Uninitialize the component, clearing any references to the ability system.
-	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	void UninitializeFromAbilitySystem();
 
 	// Returns the current health value.
-	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	float GetHealth() const;
 
 	// Returns the current maximum health value.
-	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	float GetMaxHealth() const;
 
 	// Returns the current health in the range [0.0, 1.0].
-	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	float GetHealthNormalized() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Lyra|Health")
+	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	ECerberusDeathState GetDeathState() const { return DeathState; }
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Lyra|Health", Meta = (ExpandBoolAsExecs = "ReturnValue"))
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Cerberus|Health", Meta = (ExpandBoolAsExecs = "ReturnValue"))
 	bool IsDeadOrDying() const { return (DeathState > ECerberusDeathState::NotDead); }
 
 	// Begins the death sequence for the owner.

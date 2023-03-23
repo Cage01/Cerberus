@@ -89,6 +89,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
 	ACerberusPlayerState* GetCerberusPlayerState() const;
+	ACerberusPlayerController* GetCerberusPlayerController() const;
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
 	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
@@ -172,6 +173,7 @@ protected:
 	FORCEINLINE UCerberusInteractionComponent* GetInteractable() const { return InteractionData.ViewedInteractionComponent; }
 
 	FTimerHandle TimerHandle_Interact;
+
 
 public:
 

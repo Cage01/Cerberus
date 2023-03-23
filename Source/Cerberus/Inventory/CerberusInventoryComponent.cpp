@@ -3,7 +3,6 @@
 
 #include "CerberusInventoryComponent.h"
 #include "Cerberus/CerberusLogChannels.h"
-#include "Containers/Map.h"
 #include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
@@ -43,26 +42,29 @@ void UCerberusInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	DOREPLIFETIME_CONDITION_NOTIFY(UCerberusInventoryComponent, DefaultItems, COND_None, REPNOTIFY_Always);
 }
 
-// bool UCerberusInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
-// 	FReplicationFlags* RepFlags)
-// {
-// 	check(Channel)
-// 	check(Bunch)
-// 	check(RepFlags)
-//
-// 	// bool bWroteSomething = false;
-// 	//
-// 	// for (UCerberusItem* Item : Items)
-// 	// {
-// 	// 	bWroteSomething |= ReplicateSubobjects(Channel, Bunch, RepFlags);
-// 	// 	bWroteSomething |= Channel->ReplicateSubobject(Item, Bunch, RepFlags);
-// 	// 	AddReplicatedSubObject(Item, COND_None);
-// 	// }
-// 	//
-// 	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-// 	bWroteSomething |= Channel->ReplicateSubobjectList(Items, *Bunch, *RepFlags);
-// 	return bWroteSomething;
-// }
+bool UCerberusInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
+	FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	
+	check(Channel)
+	check(Bunch)
+	check(RepFlags)
+	
+	if (Channel->KeyNeedsToReplicate(0, ReplicatedItemsKey))
+	{
+		for (auto& Item : Items)
+		{
+			if (Channel->KeyNeedsToReplicate(Item->GetUniqueID(), Item->RepKey))
+			{
+				bWroteSomething |= Channel->ReplicateSubobject(Item, *Bunch, *RepFlags);
+			}
+		}
+	}
+
+	return bWroteSomething;
+}
+
 
 UCerberusItem* UCerberusInventoryComponent::AddItem(TSubclassOf<UCerberusItem> ItemClass)
 {
@@ -87,7 +89,6 @@ UCerberusItem* UCerberusInventoryComponent::AddItem(TSubclassOf<UCerberusItem> I
 		OnItemAdded.Broadcast(this, NewItem, NewItem->ID);
 		return NewItem;
 	}
-
 	
 	return nullptr;
 }
@@ -107,13 +108,11 @@ bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item)
 		{
 			//Removing item from replication
 			RemoveReplicatedSubObject(Item);
-			
 			Item->Destroy();
 			OnItemRemoved.Broadcast(this, Item, RemovedIndex);
 			return true;
 		}
 	}
-
 	
 	return false;
 }
@@ -123,7 +122,6 @@ void UCerberusInventoryComponent::RemoveAllItems()
 	AActor* lOwner = GetOwner();
 	checkf(lOwner != nullptr, TEXT("Invalid Inventory Owner"));
 	checkf(lOwner->HasAuthority(), TEXT("Called without Authority!"));
-
 	
 	for (int i = 0; i < Items.Num(); i++)
 	for (UCerberusItem* Item : Items)
@@ -135,7 +133,6 @@ void UCerberusInventoryComponent::RemoveAllItems()
 			
 			Item->Destroy();
 		}
-			
 	}
 	
 	Items.Empty();
@@ -144,7 +141,6 @@ void UCerberusInventoryComponent::RemoveAllItems()
 
 void UCerberusInventoryComponent::InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC)
 {
-	
 	AActor* Owner = GetOwner();
 	check(Owner);
 
@@ -160,7 +156,6 @@ void UCerberusInventoryComponent::InitializeWithAbilitySystem(UCerberusAbilitySy
 		UE_LOG(LogCerberus, Error, TEXT("CerberusInventoryComponent: Cannot initialize the AbilitySystemComponent"), *GetNameSafe(Owner));
 		return;
 	}
-
 	
 	if (GetOwner()->HasAuthority())
 	{
@@ -168,9 +163,7 @@ void UCerberusInventoryComponent::InitializeWithAbilitySystem(UCerberusAbilitySy
 		{
 				AddItem(Item);
 		}
-	
 	}
-	
 }
 
 void UCerberusInventoryComponent::UninitialieFromAbilitySystem()

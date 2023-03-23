@@ -27,12 +27,25 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Cerberus|Inventory")
 	static UCerberusInventoryComponent* FindInventoryComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusInventoryComponent>() : nullptr); }
 
-	//virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
+	/**
+	 * Adds an item to the inventory
+	 * @param ItemCloass Typically a blueprint class of the object that should be created and added to the inventory
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
 	UCerberusItem* AddItem(TSubclassOf<UCerberusItem> ItemClass);
+
+	/**
+	 * Removes an Item from the inventory
+	 * @param Item A reference to the actual item object instance to be removed
+	 */ 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
 	bool RemoveItem(UCerberusItem* Item);
+
+	/** 
+	 * Removes all items from the inventory
+	 */
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
 	void RemoveAllItems();
 	
@@ -41,12 +54,6 @@ public:
 
 
 public:
-	// UPROPERTY(EditDefaultsOnly, Instanced, Category="Cerberus|Inventory")
-	// TArray<UCerberusItemSlot*> DefaultItems;
-	//
-	// UPROPERTY(BlueprintReadOnly, Category="Cerberus|Inventory")
-	// TArray<UCerberusItemSlot*> Items;
-	
 	UPROPERTY(Replicated, EditDefaultsOnly, Category="Cerberus|Inventory")
 	TArray<TSubclassOf<UCerberusItem>> DefaultItems;
 
@@ -65,15 +72,18 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Cerberus|Inventory")
 	FOnItemRemoved OnItemRemoved;
 
-public:
-	UFUNCTION()
-	void OnRep_ItemsUpdated() const;
 	
 protected:
 	UPROPERTY()
 	UCerberusAbilitySystemComponent* AbilitySystemComponent;
 	
 	virtual void OnUnregister() override;	
-	
+
+private:
+	UFUNCTION()
+	void OnRep_ItemsUpdated() const;
+
+	UPROPERTY()
+	int32 ReplicatedItemsKey;
 		
 };

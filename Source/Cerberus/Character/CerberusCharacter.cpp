@@ -18,6 +18,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
+#include "Cerberus/NPC/CerberusNPCCharacter.h"
 #include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -106,6 +107,10 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
 {
 	return CastChecked<ACerberusPlayerState>(GetPlayerState(), ECastCheckedType::NullAllowed);
+}
+ACerberusPlayerController* ACerberusCharacter::GetCerberusPlayerController() const
+{
+	return CastChecked<ACerberusPlayerController>(GetController(), ECastCheckedType::NullAllowed);
 }
 UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
 {
@@ -281,9 +286,10 @@ void ACerberusCharacter::PreformInteractionCheck()
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
 	FVector EyesLoc;
 	FRotator EyesRot;
+
 	
-	EyesLoc = FollowCamera->GetComponentLocation();
 	EyesRot = FollowCamera->GetComponentRotation();
+	EyesLoc = FollowCamera->GetComponentLocation();
 
 	// Get the distance between the character and the camera
 	float ActorDistance = FVector::Dist(EyesLoc, GetActorLocation());
@@ -304,9 +310,10 @@ void ACerberusCharacter::PreformInteractionCheck()
 	
 	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 	{
-		// Check if we hit an interactable object
+		
 		if (TraceHit.GetActor())
 		{
+			// Check if we hit an interactable object
 			if (UCerberusInteractionComponent* InteractionComponent = UCerberusInteractionComponent::FindInteractionComponent(TraceHit.GetActor()))
 			{
 				float Distance = (TraceStart - TraceHit.ImpactPoint).Size();

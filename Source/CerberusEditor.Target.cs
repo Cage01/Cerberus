@@ -8,6 +8,7 @@ public class CerberusEditorTarget : TargetRules
 	public CerberusEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
+		//IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		ExtraModuleNames.Add("Cerberus");
 	}

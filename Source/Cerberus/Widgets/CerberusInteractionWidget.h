@@ -8,7 +8,8 @@
 #include "CerberusInteractionWidget.generated.h"
 
 /**
- * 
+ * UCerberusInteractionWidget
+ * Base class for the interaction widget that gets used to display in world
  */
 UCLASS()
 class CERBERUS_API UCerberusInteractionWidget : public UUserWidget

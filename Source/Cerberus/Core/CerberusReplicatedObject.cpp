@@ -3,6 +3,11 @@
 
 #include "CerberusReplicatedObject.h"
 
+UCerberusReplicatedObject::UCerberusReplicatedObject()
+{
+	RepKey = 0;
+}
+
 UWorld* UCerberusReplicatedObject::GetWorld() const
 {
 	if (const UObject* MyOuter = GetOuter())
@@ -44,13 +49,17 @@ int32 UCerberusReplicatedObject::GetFunctionCallspace(UFunction* Function, FFram
 	return GetOuter()->GetFunctionCallspace(Function, Stack);
 }
 
+void UCerberusReplicatedObject::MarkDirtyForReplication()
+{
+}
+
 void UCerberusReplicatedObject::Destroy()
 {
-	if (!IsPendingKill())
+	if (IsValid(this))
 	{
 		checkf(GetOwningActor()->HasAuthority() == true, TEXT("Destroy:: Object does not have authority to destroy itself!"))
 
 		OnDestroyed();
-		MarkPendingKill();
+		MarkAsGarbage();
 	}
 }

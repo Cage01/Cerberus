@@ -3,6 +3,8 @@
 
 #include "CerberusPlayerController.h"
 
+#include "Cerberus/Widgets/CerberusHUDWidget.h"
+
 ACerberusPlayerController::ACerberusPlayerController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
@@ -18,3 +20,4 @@ UCerberusAbilitySystemComponent* ACerberusPlayerController::GetCerberusAbilitySy
 	const ACerberusPlayerState* CerberusPS = GetCerberusPlayerState();
 	return (CerberusPS ? CerberusPS->GetCerberusAbilitySystemComponent() : nullptr);
 }
+

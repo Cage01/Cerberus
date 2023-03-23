@@ -7,7 +7,7 @@
 #include "CerberusReplicatedObject.generated.h"
 
 /**
- * 
+ * Base Replicated object for the server. Is primarily used as a parent for Inventory items
  */
 UCLASS(Abstract)
 class CERBERUS_API UCerberusReplicatedObject : public UObject
@@ -15,6 +15,8 @@ class CERBERUS_API UCerberusReplicatedObject : public UObject
 	GENERATED_BODY()
 
 public:
+	UCerberusReplicatedObject();
+	
 	virtual UWorld* GetWorld() const override;
 
 
@@ -26,6 +28,12 @@ public:
 	virtual bool CallRemoteFunction(UFunction* Function, void* Parms, FOutParmRec* OutParms, FFrame* Stack) override;
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual int32 GetFunctionCallspace(UFunction* Function, FFrame* Stack) override;
+
+	/**Used to efficiently replicate inventory items*/
+	UPROPERTY()
+	int32 RepKey;
+
+	void MarkDirtyForReplication();
 	
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Object")
 	void Destroy();
