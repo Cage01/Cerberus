@@ -43,9 +43,14 @@ void UCerberusInteractionComponent::BeginFocus(ACerberusCharacter* Character)
 		return;
 
 	OnBeginFocus.Broadcast(Character);
+
+	AActor* owner = GetOwner();
 	
 	SetHiddenInGame(false);
 
+	
+
+	const bool IsUsingListenServer = (GetNetMode() != NM_DedicatedServer);
 	if (!GetOwner()->HasAuthority())
 	{
 		for (auto& VisualComp : GetOwner()->GetComponents())
@@ -73,6 +78,7 @@ void UCerberusInteractionComponent::EndFocus(ACerberusCharacter* Character)
 
 	SetHiddenInGame(true);
 
+	const bool IsUsingListenServer = (GetNetMode() != NM_DedicatedServer);
 	if (!GetOwner()->HasAuthority())
 	{
 		for (auto& VisualComp : GetOwner()->GetComponents())

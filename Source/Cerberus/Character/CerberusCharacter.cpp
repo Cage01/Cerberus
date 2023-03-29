@@ -98,7 +98,7 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 
 	// Initializing Inventory
 	InventoryComponent = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
-	InventoryComponent->Capacity = 20;
+	InventoryComponent->SetCapacity(20);
 
 	InteractionCheckFrequency = 0.2f;
 	InteractionCheckDistance = 1000.f;
@@ -270,11 +270,14 @@ void ACerberusCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//Optimizing interaction, Server wont check for interactables unless one is being interacted with
-	const bool IsInteractingOnServer = (HasAuthority() && IsInteracting());
-	if ((!HasAuthority() || IsInteractingOnServer) && GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) >= InteractionCheckFrequency)
+	if (IsValid(GetCerberusPlayerController()))
 	{
-		PreformInteractionCheck();
+		//Optimizing interaction, Server wont check for interactables unless one is being interacted with
+		const bool IsInteractingOnServer = (HasAuthority() && IsInteracting());
+		if ((GetCerberusPlayerController()->IsLocalPlayerController() || IsInteractingOnServer) && GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) >= InteractionCheckFrequency)
+		{
+			PreformInteractionCheck();
+		}
 	}
 }
 
@@ -288,8 +291,8 @@ void ACerberusCharacter::PreformInteractionCheck()
 	FRotator EyesRot;
 
 	
-	EyesRot = FollowCamera->GetComponentRotation();
-	EyesLoc = FollowCamera->GetComponentLocation();
+	EyesRot = GetFollowCamera()->GetComponentRotation();
+	EyesLoc = GetFollowCamera()->GetComponentLocation();
 
 	// Get the distance between the character and the camera
 	float ActorDistance = FVector::Dist(EyesLoc, GetActorLocation());
@@ -304,7 +307,7 @@ void ACerberusCharacter::PreformInteractionCheck()
 	QueryParams.AddIgnoredActor(this);
 
 	// Debug
-	// const FName TraceTag("MyTraceTag");
+	// const FName TraceTag(this->GetName());
 	// GetWorld()->DebugDrawTraceTag = TraceTag;
 	// QueryParams.TraceTag = TraceTag;
 	
@@ -326,7 +329,7 @@ void ACerberusCharacter::PreformInteractionCheck()
 		}
 	}
 	
-	CouldntFileInteractable();
+	CouldntFindInteractable();
 }
 
 void ACerberusCharacter::FoundNewInteractable(UCerberusInteractionComponent* Interactable)
@@ -342,7 +345,7 @@ void ACerberusCharacter::FoundNewInteractable(UCerberusInteractionComponent* Int
 	Interactable->BeginFocus(this);
 }
 
-void ACerberusCharacter::CouldntFileInteractable()
+void ACerberusCharacter::CouldntFindInteractable()
 {
 	// Clear out interaction timer if its active
 	if (GetWorldTimerManager().IsTimerActive(TimerHandle_Interact))

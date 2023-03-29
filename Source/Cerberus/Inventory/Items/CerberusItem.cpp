@@ -2,7 +2,7 @@
 
 
 #include "CerberusItem.h"
-
+#include "Cerberus/CerberusLogChannels.h"
 #include "Net/UnrealNetwork.h"
 
 #if WITH_EDITOR
@@ -14,17 +14,21 @@ void UCerberusItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 
 	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, Quantity))
 	{
+		if (Quantity > MaxStackSize)
+		{
+			UE_LOG(LogCerberus, Warning, TEXT("You are trying to set the Quantity higher than the MaxStackSize property."))
+		}
 		Quantity = FMath::Clamp(Quantity, 1, bStackable ? MaxStackSize : 1);
 	}
-	// else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, BondSockets))
-	// {
-	// 	// If greater than the allowed number of sockets, it will remove the last element
-	// 	if (BondSockets.Num() > MaxBondLevel)
-	// 	{
-	// 		BondSockets.Pop();
-	// 	}
-	// }
 
+	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, MaxStackSize))
+	{
+		if (MaxStackSize < Quantity)
+		{
+			UE_LOG(LogCerberus, Warning, TEXT("You are trying to set the MaxStackSize lower than the Quantity property."))
+		}
+		MaxStackSize = FMath::Clamp(MaxStackSize, bStackable ? Quantity : 1, MaxStackSize);
+	}
 }
 #endif
 
@@ -48,9 +52,22 @@ void UCerberusItem::SetQuantity(int32 NewQuantity)
 	if (NewQuantity != Quantity)
 	{
 		Quantity = FMath::Clamp(NewQuantity, 0, bStackable ? MaxStackSize : 1);
-		MarkDirtyForReplication();
+		//MarkDirtyForReplication();
 	}
 }
+
+void UCerberusItem::AddQuantity(int32 AmountToAdd)
+{
+	Quantity = FMath::Clamp(Quantity + AmountToAdd, 0, bStackable ? MaxStackSize : 1);
+	//MarkDirtyForReplication();
+}
+
+void UCerberusItem::SubtractQuantity(int32 AmountToSubtract)
+{
+	Quantity = FMath::Clamp(Quantity - AmountToSubtract, 0, bStackable ? MaxStackSize : 1);
+	//MarkDirtyForReplication();
+}
+
 
 void UCerberusItem::Use(ACerberusCharacter* Character)
 {

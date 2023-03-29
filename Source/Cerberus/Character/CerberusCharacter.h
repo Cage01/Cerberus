@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "GameplayTagAssetInterface.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
 #include <GameplayEffectTypes.h>
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
@@ -152,7 +151,7 @@ protected:
 	void PreformInteractionCheck();
 
 	void FoundNewInteractable(UCerberusInteractionComponent* Interactable);
-	void CouldntFileInteractable();
+	void CouldntFindInteractable();
 
 	void BeginInteract();
 	void EndInteract();

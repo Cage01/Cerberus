@@ -27,5 +27,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
 	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
+	FORCEINLINE bool IsListenServer() { return  (GetNetMode() == NM_ListenServer); }
 	
 };

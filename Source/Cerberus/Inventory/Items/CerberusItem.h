@@ -86,7 +86,9 @@ public:
 	//This doesnt need to be replicated, but the th
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 1, EditCondition = bHasProficiency))
 	TArray<FCerberusItemProficiency> ProficiencySockets;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
+	bool bStackable;
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 1, EditCondition = bHasProficiency))
 	// int32 MaxProficiencyLevel;
 	//
@@ -103,21 +105,23 @@ public:
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = MaxModules, EditCondition = bUsesSkills))
 	// TArray<UCerberusItemModule*> Modules;
 	
-	/**Weight of the item*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 0.0))
-	float Weight;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
-	bool bStackable;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 2, EditCondition = bStackable))
-	int32 MaxStackSize;
-
-	UPROPERTY(ReplicatedUsing = OnRep_Quantity, EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(UIMin = 1, EditCondition = bStackable))
-	int32 Quantity;
-
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	void SetQuantity(int32 NewQuantity);
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
+	void AddQuantity(int32 AmountToAdd);
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
+	void SubtractQuantity(int32 AmountToSubtract);
+	
+	UFUNCTION(BlueprintPure, Category="Cerberus|Items")
+	FORCEINLINE int32 GetQuantity() const { return Quantity; }
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
+	FORCEINLINE int32 GetMaxStackSize() const { return MaxStackSize; }
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
+	FORCEINLINE int32 GetStackRemaining() const { return (MaxStackSize - Quantity); }
 
 	virtual void Use(class ACerberusCharacter* Character);
 	/**Can include different functionality based on context. Like if you hold the interact button on a weapon, you could automatically equip */
@@ -144,6 +148,18 @@ public:
 protected:
 	int ID;
 	
+	/**Weight of the item*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 0.0))
+	float Weight;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_Quantity, EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(UIMin = 1, EditCondition = bStackable))
+	int32 Quantity;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 2, EditCondition = bStackable))
+	int32 MaxStackSize;
+
+	
+protected:	
 	UFUNCTION()
 	void OnRep_Quantity();
 	
@@ -151,6 +167,6 @@ protected:
 	// void OnRep_CurrentProficiencyLevel();
 
 private:
-	friend class UCerberusInventoryComponent;
+	//friend class UCerberusInventoryComponent;
 	
 };
