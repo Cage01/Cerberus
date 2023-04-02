@@ -18,7 +18,6 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
-#include "Cerberus/NPC/CerberusNPCCharacter.h"
 #include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -172,7 +171,6 @@ void ACerberusCharacter::UseItem_Implementation(UCerberusItem* Item)
 {
 	if (Item)
 	{
-
 		Item->Use(this);
 		Item->OnUse(this); //BP Event
 	}
@@ -262,7 +260,7 @@ void ACerberusCharacter::OnAbilitySystemInitialized()
 void ACerberusCharacter::OnAbilitySystemUninitialized()
 {
 	HealthComponent->UninitializeFromAbilitySystem();
-	InventoryComponent->UninitialieFromAbilitySystem();
+	InventoryComponent->UninitializeFromAbilitySystem();
 }
 
 
@@ -270,18 +268,13 @@ void ACerberusCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (IsValid(GetCerberusPlayerController()))
+	if (GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionCheckFrequency)
 	{
-		//Optimizing interaction, Server wont check for interactables unless one is being interacted with
-		const bool IsInteractingOnServer = (HasAuthority() && IsInteracting());
-		if ((GetCerberusPlayerController()->IsLocalPlayerController() || IsInteractingOnServer) && GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) >= InteractionCheckFrequency)
-		{
-			PreformInteractionCheck();
-		}
+		PerformInteractionCheck();
 	}
 }
 
-void ACerberusCharacter::PreformInteractionCheck()
+void ACerberusCharacter::PerformInteractionCheck()
 {
 	if (GetController() == nullptr)
 		return;
@@ -324,6 +317,11 @@ void ACerberusCharacter::PreformInteractionCheck()
 				{
 					FoundNewInteractable(InteractionComponent);
 				}
+				else if (Distance > InteractionComponent->InteractionDistance && GetInteractable())
+				{
+					CouldntFindInteractable();
+				}
+
 				return;
 			}
 		}
@@ -365,8 +363,18 @@ void ACerberusCharacter::CouldntFindInteractable()
 void ACerberusCharacter::BeginInteract()
 {
 	if (!HasAuthority())
+	{
 		ServerBeginInteract();
+	}
+		
 
+
+	// The server will only check if we're looking at an item once we begin interacting with it, to avoid the server running checks every tick
+	if (HasAuthority())
+	{
+		PerformInteractionCheck();
+	}
+		
 	
 	InteractionData.bInteractHeld = true;
 
@@ -404,12 +412,12 @@ void ACerberusCharacter::EndInteract()
 
 void ACerberusCharacter::ServerEndInteract_Implementation()
 {
-	BeginInteract();
+	EndInteract();
 }
 
 void ACerberusCharacter::ServerBeginInteract_Implementation()
 {
-	EndInteract();
+	BeginInteract();
 }
 
 void ACerberusCharacter::Interact()

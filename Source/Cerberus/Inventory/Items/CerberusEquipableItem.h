@@ -16,5 +16,5 @@ class CERBERUS_API UCerberusEquipableItem : public UCerberusItem
 
 public:
 	UCerberusEquipableItem();
-	
+	virtual void Use(ACerberusCharacter* Character) override;
 };

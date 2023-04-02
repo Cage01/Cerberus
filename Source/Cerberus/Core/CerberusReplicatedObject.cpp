@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "CerberusReplicatedObject.h"
+#include "Net/UnrealNetwork.h"
 
 UCerberusReplicatedObject::UCerberusReplicatedObject()
 {
@@ -47,10 +47,6 @@ int32 UCerberusReplicatedObject::GetFunctionCallspace(UFunction* Function, FFram
 {
 	check (GetOuter() != nullptr)
 	return GetOuter()->GetFunctionCallspace(Function, Stack);
-}
-
-void UCerberusReplicatedObject::MarkDirtyForReplication()
-{
 }
 
 void UCerberusReplicatedObject::Destroy()

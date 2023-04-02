@@ -68,9 +68,15 @@ public:
 
 class UCerberusAbilitySystemComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemAdded, UCerberusInventoryComponent*, InventoryComponent, UCerberusItem*, Item, int, Index);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemRemoved,UCerberusInventoryComponent*, InventoryComponent, UCerberusItem*, Item, int, Index);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemAdded, UCerberusItem*, Item);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemRemoved, UCerberusItem*, Item);
 
+/**
+ * UCerberusInventoryComponent
+ * A component that allows an Actor to hold items. These can be used, looted or interacted with in some way with the inventory.
+ * 
+ * An Item must always be spawned into the world, or contained within an inventory.
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CERBERUS_API UCerberusInventoryComponent : public UGameFrameworkComponent
 {
@@ -84,8 +90,6 @@ public:
 	/** Returns the Inventory component if one exists on the specified actor. */
 	UFUNCTION(BlueprintPure, Category = "Cerberus|Inventory")
 	static UCerberusInventoryComponent* FindInventoryComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusInventoryComponent>() : nullptr); }
-
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 	/** Will add an item to the inventory thats already been initialized and doesnt need to be created. */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Inventory")
@@ -127,7 +131,7 @@ public:
 	int32 ConsumeItem(UCerberusItem* Item, const int32 Quantity);
 	
 	void InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC);
-	void UninitialieFromAbilitySystem();
+	void UninitializeFromAbilitySystem();
 
 	/** Getter function for inventory capacity */
 	UFUNCTION(BlueprintPure, Category="Cerberus|Inventory")
@@ -139,16 +143,16 @@ public:
 
 	/** Getter function for an array of all the items inside an inventory */
 	UFUNCTION(BlueprintPure, Category="Cerberus|Inventory")
-	FORCEINLINE TArray<UCerberusItem*> GetItems() const { return Items; }
+	FORCEINLINE TArray<UCerberusItem*> GetItems() const { return Items; };
 
 	UFUNCTION(Client, Reliable)
 	void ClientRefreshInventory();
 	
 protected:
-	UPROPERTY(Replicated, EditDefaultsOnly, Category="Cerberus|Inventory")
-	UCerberusItem* DefaultItems;
+	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Inventory")
+	TArray<TSubclassOf<UCerberusItem>> DefaultItems;
 
-	UPROPERTY(ReplicatedUsing=OnRep_ItemsUpdated, BlueprintReadOnly, Category="Cerberus|Inventory")
+	UPROPERTY(ReplicatedUsing=OnRep_Items, VisibleAnywhere, Category="Cerberus|Inventory")
 	TArray<UCerberusItem*> Items;
 
 	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Inventory")
@@ -165,6 +169,9 @@ protected:
 
 	
 protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual bool ReplicateSubobjects(UActorChannel *Channel, FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
+	
 	UPROPERTY()
 	UCerberusAbilitySystemComponent* AbilitySystemComponent;
 	
@@ -172,15 +179,21 @@ protected:
 
 private:
 	/** Dont call Items.Add() directly, use this function instead, as it handles replication and ownership */
-	UCerberusItem* AddItem(UCerberusItem* Item);
+	UCerberusItem* AddItem(UCerberusItem* Item, int32 Quantity);
 	
 	UFUNCTION()
-	void OnRep_ItemsUpdated() const;
+	void OnRep_Items();
 
 	UPROPERTY()
 	int32 ReplicatedItemsKey;
 
 	/** Internal, non-BP exposed add item function. Dont call this directly, use TryAddItem(), or TryAddItemFromClass() instead. */
 	FItemAddResult TryAddItem_Internal(UCerberusItem* Item);
-		
+
+	UFUNCTION()
+	void ItemAdded(UCerberusItem* Item);
+
+	UFUNCTION()
+	void ItemRemoved(UCerberusItem* Item);
+
 };

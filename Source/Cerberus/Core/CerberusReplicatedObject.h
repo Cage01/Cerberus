@@ -7,9 +7,9 @@
 #include "CerberusReplicatedObject.generated.h"
 
 /**
- * Base Replicated object for the server. Is primarily used as a parent for Inventory items
+ * Base Replicated object for the server
  */
-UCLASS(Abstract)
+UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
 class CERBERUS_API UCerberusReplicatedObject : public UObject
 {
 	GENERATED_BODY()
@@ -18,6 +18,11 @@ public:
 	UCerberusReplicatedObject();
 	
 	virtual UWorld* GetWorld() const override;
+
+	/**Used to efficiently replicate inventory items*/
+	UPROPERTY()
+	int32 RepKey;
+
 
 
 	UFUNCTION(BlueprintPure, Category="Cerberus|Object")
@@ -28,17 +33,14 @@ public:
 	virtual bool CallRemoteFunction(UFunction* Function, void* Parms, FOutParmRec* OutParms, FFrame* Stack) override;
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual int32 GetFunctionCallspace(UFunction* Function, FFrame* Stack) override;
-
-	/**Used to efficiently replicate inventory items*/
-	UPROPERTY()
-	int32 RepKey;
-
-	void MarkDirtyForReplication();
+	
 	
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Object")
 	void Destroy();
 
 protected:
+	virtual void MarkDirtyForReplication() PURE_VIRTUAL(UCerberusReplicatedObject::MarkDirtyForReplication, );
+	
 	virtual void OnDestroyed()
 	{
 		

@@ -34,7 +34,9 @@ enum class ECerberusDeathState : uint8
 /**
  * UCerberusHealthComponent
  *
- *	An actor component used to handle anything related to health.
+ *	An Actor component used to handle anything related to health.
+ *	
+ *	Any object in the game that you want to have a health attribute and use all functionality related to health should have this component
  */
 UCLASS(Blueprintable, Meta=(BlueprintSpawnableComponent))
 class CERBERUS_API UCerberusHealthComponent : public UGameFrameworkComponent
@@ -45,27 +47,27 @@ public:
 
 	UCerberusHealthComponent(const FObjectInitializer& ObjectInitializer);
 
-	// Returns the health component if one exists on the specified actor.
+	/** A static function that will attempt to return the health component if one exists on the specified actor. */
 	UFUNCTION(BlueprintPure, Category = "Cerberus|Health")
 	static UCerberusHealthComponent* FindHealthComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusHealthComponent>() : nullptr); }
 
-	// Initialize the component using an ability system component.
+	/** Initialize the component using an ability system component. */
 	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	void InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC);
 
-	// Uninitialize the component, clearing any references to the ability system.
+	/** Uninitialize the component, clearing any references to the ability system. */
 	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	void UninitializeFromAbilitySystem();
 
-	// Returns the current health value.
+	/** Returns the current health value. */
 	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	float GetHealth() const;
 
-	// Returns the current maximum health value.
+	/** Returns the current maximum health value. */
 	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	float GetMaxHealth() const;
 
-	// Returns the current health in the range [0.0, 1.0].
+	/** Returns the current health in the range [0.0, 1.0]. To be used to update UI elements such as progress bars*/
 	UFUNCTION(BlueprintCallable, Category = "Cerberus|Health")
 	float GetHealthNormalized() const;
 
@@ -75,30 +77,30 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Cerberus|Health", Meta = (ExpandBoolAsExecs = "ReturnValue"))
 	bool IsDeadOrDying() const { return (DeathState > ECerberusDeathState::NotDead); }
 
-	// Begins the death sequence for the owner.
+	/** Begins the death sequence for the owner. */
 	virtual void StartDeath();
 
-	// Ends the death sequence for the owner.
+	/** Ends the death sequence for the owner. */
 	virtual void FinishDeath();
 
-	// Applies enough damage to kill the owner.
+	/** Applies enough damage to kill the owner. */
 	virtual void DamageSelfDestruct(bool bFellOutOfWorld = false);
 
 public:
 
-	// Delegate fired when the health value has changed.
+	/** Delegate fired when the health value has changed. */
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_AttributeChanged OnHealthChanged;
 
-	// Delegate fired when the max health value has changed.
+	/** Delegate fired when the max health value has changed. */
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_AttributeChanged OnMaxHealthChanged;
 
-	// Delegate fired when the death sequence has started.
+	/** Delegate fired when the death sequence has started. */
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_DeathEvent OnDeathStarted;
 
-	// Delegate fired when the death sequence has finished.
+	/** Delegate fired when the death sequence has finished. */
 	UPROPERTY(BlueprintAssignable)
 	FCerberusHealth_DeathEvent OnDeathFinished;
 

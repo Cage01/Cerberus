@@ -9,7 +9,7 @@
 
 /**
  * UCerberusInteractionWidget
- * Base class for the interaction widget that gets used to display in world
+ * Base class for the UI card that appears in world when looking at an Actor that contains an InteractionComponent
  */
 UCLASS()
 class CERBERUS_API UCerberusInteractionWidget : public UUserWidget

@@ -6,3 +6,8 @@
 UCerberusEquipableItem::UCerberusEquipableItem()
 {
 }
+
+void UCerberusEquipableItem::Use(ACerberusCharacter* Character)
+{
+	Super::Use(Character);
+}

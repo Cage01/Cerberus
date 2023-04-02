@@ -3,6 +3,7 @@
 
 #include "CerberusItem.h"
 #include "Cerberus/CerberusLogChannels.h"
+#include "Cerberus/Inventory/CerberusInventoryComponent.h"
 #include "Net/UnrealNetwork.h"
 
 #if WITH_EDITOR
@@ -34,7 +35,6 @@ void UCerberusItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 
 UCerberusItem::UCerberusItem()
 {
-	Weight = 1.f;
 	bStackable = true;
 	Quantity = 1;
 	// bBondable = false;
@@ -52,26 +52,22 @@ void UCerberusItem::SetQuantity(int32 NewQuantity)
 	if (NewQuantity != Quantity)
 	{
 		Quantity = FMath::Clamp(NewQuantity, 0, bStackable ? MaxStackSize : 1);
-		//MarkDirtyForReplication();
+		MarkDirtyForReplication();
 	}
 }
 
 void UCerberusItem::AddQuantity(int32 AmountToAdd)
 {
 	Quantity = FMath::Clamp(Quantity + AmountToAdd, 0, bStackable ? MaxStackSize : 1);
-	//MarkDirtyForReplication();
+	MarkDirtyForReplication();
 }
 
 void UCerberusItem::SubtractQuantity(int32 AmountToSubtract)
 {
 	Quantity = FMath::Clamp(Quantity - AmountToSubtract, 0, bStackable ? MaxStackSize : 1);
-	//MarkDirtyForReplication();
+	MarkDirtyForReplication();
 }
 
-
-void UCerberusItem::Use(ACerberusCharacter* Character)
-{
-}
 
 void UCerberusItem::AddedToInventory(UCerberusInventoryComponent* InventoryComponent)
 {
@@ -80,6 +76,15 @@ void UCerberusItem::AddedToInventory(UCerberusInventoryComponent* InventoryCompo
 bool UCerberusItem::ShouldShowInInventory() const
 {
 	return true;
+}
+
+void UCerberusItem::MarkDirtyForReplication()
+{
+	++RepKey;
+	if (OwningInventory)
+	{
+		++OwningInventory->ReplicatedItemsKey;
+	}
 }
 
 void UCerberusItem::OnRep_Quantity()
@@ -98,5 +103,4 @@ void UCerberusItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCerberusItem, Quantity);
-	//DOREPLIFETIME_CONDITION(UCerberusItem, OwningInventory, COND_InitialOnly);
 }

@@ -11,6 +11,9 @@
 UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
+	OnItemAdded.AddDynamic(this, &UCerberusInventoryComponent::ItemAdded);
+	OnItemRemoved.AddDynamic(this, &UCerberusInventoryComponent::ItemRemoved);
+	
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 	PrimaryComponentTick.bCanEverTick = false;
 	
@@ -24,9 +27,20 @@ UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitialize
 	bReplicateUsingRegisteredSubObjectList = true;
 }
 
-void UCerberusInventoryComponent::OnRep_ItemsUpdated() const
+void UCerberusInventoryComponent::OnRep_Items()
 {
 	OnInventoryUpdated.Broadcast();
+
+	for (auto& Item : Items)
+	{
+		// This is a trick to tell whether the item has be initialized on the client or not, and to send out the delegate if not
+		// There may be a better way to do it though.
+		if (!Item->World)
+		{
+			OnItemAdded.Broadcast(Item);
+			Item->World = GetWorld();
+		}
+	}
 }
 
 
@@ -35,17 +49,20 @@ void UCerberusInventoryComponent::OnUnregister()
 	Super::OnUnregister();
 }
 
-UCerberusItem* UCerberusInventoryComponent::AddItem(UCerberusItem* Item)
+UCerberusItem* UCerberusInventoryComponent::AddItem(UCerberusItem* Item, int32 Quantity)
 {
 	if (GetOwner() && GetOwner()->HasAuthority())
 	{
 		UCerberusItem* NewItem = NewObject<UCerberusItem>(GetOwner(), Item->GetClass());
-		NewItem->SetQuantity(Item->GetQuantity());
+		NewItem->SetQuantity(Quantity);
 		NewItem->OwningInventory = this;
 		NewItem->AddedToInventory(this);
 		Items.Add(NewItem);
 		NewItem->MarkDirtyForReplication();
-
+		AddReplicatedSubObject(NewItem);
+		OnItemAdded.Broadcast(NewItem);
+		OnRep_Items();
+		
 		return NewItem;
 	}
 
@@ -58,41 +75,64 @@ FItemAddResult UCerberusInventoryComponent::TryAddItem_Internal(UCerberusItem* I
 	if (GetOwner() && GetOwner()->HasAuthority())
 	{
 		const int32 AddAmount = Item->GetQuantity();
-		int32 TotalAdded = 0;
-
-		// Will not add, if adding the item exceeds the available capacity
-		if (Items.Num() + 1 > GetCapacity())
-		{
-			return FItemAddResult::AddedNone(AddAmount, LOCTEXT("InventoryCapacityFullText", "Couldn't add item to your Inventory. Inventory is full"));
-		}
 
 		if (Item->bStackable)
 		{
-			if (UCerberusItem* FoundItem = FindItem(Item))
+			int32 TotalAdded = 0;
+			TArray<UCerberusItem*> FoundItems = FindItemsByClass(Item->GetClass());
+
+			if (FoundItems.IsEmpty())
+			{
+				//Check if there is space to add the item
+				if (Items.Num() + 1 < GetCapacity())
+				{
+					//TODO: This doesnt take into account situations where only some items were added from the stack 
+					const int32 ActualAddAmount = FMath::Min(AddAmount, Item->GetMaxStackSize());
+					AddItem(Item,ActualAddAmount);
+					return FItemAddResult::AddedAll(ActualAddAmount);
+				}
+				
+				//Otherwise the inventory was full 
+				return FItemAddResult::AddedNone(AddAmount, LOCTEXT("InventoryCapacityFullText", "Couldn't add item to your Inventory. Inventory is full"));
+			}
+			
+			for ( const auto& FoundItem : FoundItems)
 			{
 				if (FoundItem->GetStackRemaining() > 0)
 				{
 					const int32 ActualAddAmount = FMath::Min(AddAmount, FoundItem->GetStackRemaining());
 					FoundItem->AddQuantity(ActualAddAmount);
-					//Item->SubtractQuantity(ActualAddAmount);
 					TotalAdded += ActualAddAmount;
-					//Item->SetQuantity(Item->GetQuantity() - ActualAddAmount);
-					FItemAddResult Result = TryAddItem_Internal(Item);
-					//FText ErrorText = FText::Format(LOCTEXT("InventoryStackErrorText", "Couldn't add entire stack of {ItemName} to inventory."), Item);
 
-					// All items have been added to existing stacks
-					// if (Item->GetQuantity() == 0)
-					// {
-					// 	return FItemAddResult::AddedAll()
-					// } 
+					ensure(FoundItem->GetQuantity() <= FoundItem->GetMaxStackSize());
 				}
-			} 
+			}
+
+			// Determine the correct AddResult and return
+			if (TotalAdded <= 0)
+				return FItemAddResult::AddedNone(AddAmount, LOCTEXT("InventoryCapacityFullText", "Couldn't add item to your Inventory. Inventory is full"));
+			
+			if (TotalAdded < Item->GetQuantity())
+				return FItemAddResult::AddedSome(AddAmount, TotalAdded, LOCTEXT("InventoryStackErrorText", "Couldn't add entire stack of Item to inventory."));
+			
+			if (TotalAdded == Item->GetQuantity())
+				return FItemAddResult::AddedAll(AddAmount);
+
+		} else
+		{
+			if (Items.Num() + 1 < GetCapacity())
+			{
+				ensure(Item->GetQuantity() == 1);
+				AddItem(Item, AddAmount);
+				return FItemAddResult::AddedAll(Item->GetQuantity());
+			}
+			
+			//Otherwise the inventory was full 
+			return FItemAddResult::AddedNone(AddAmount, LOCTEXT("InventoryCapacityFullText", "Couldn't add item to your Inventory. Inventory is full"));
 		}
-		
-		AddItem(Item);
-		return FItemAddResult::AddedAll(Item->GetQuantity());
 	}
-	return FItemAddResult::AddedAll(Item->GetQuantity());
+	
+	return FItemAddResult::AddedNone(-1, LOCTEXT("ErrorMessage", ""));
 }
 
 
@@ -100,19 +140,14 @@ void UCerberusInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UCerberusInventoryComponent, Items, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UCerberusInventoryComponent, DefaultItems, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME(UCerberusInventoryComponent, Items);
 }
 
-bool UCerberusInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
-	FReplicationFlags* RepFlags)
+bool UCerberusInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
 	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-	
-	check(Channel)
-	check(Bunch)
-	check(RepFlags)
-	
+
+	//Check if the array of items needs to replicate
 	if (Channel->KeyNeedsToReplicate(0, ReplicatedItemsKey))
 	{
 		for (auto& Item : Items)
@@ -138,35 +173,6 @@ FItemAddResult UCerberusInventoryComponent::TryAddItemFromClass(TSubclassOf<UCer
 	Item->SetQuantity(Quantity);
 	return TryAddItem_Internal(Item);
 }
-
-// UCerberusItem* UCerberusInventoryComponent::AddItem(TSubclassOf<UCerberusItem> ItemClass)
-// {
-// 	if (ItemClass && !ItemClass->HasAnyClassFlags(CLASS_Abstract))
-// 	{
-// 		AActor* lOwner = GetOwner();
-// 			
-// 		checkf(lOwner != nullptr, TEXT("Invalid Inventory Owner"));
-// 		checkf(lOwner->HasAuthority(), TEXT("Called without Authority!"));
-// 		// Use the Actor as the Outer.
-// 		UCerberusItem* NewItem = NewObject<UCerberusItem>(lOwner, ItemClass);
-// 		checkf(NewItem != nullptr, TEXT("Unable to create inventory slot"));
-// 		
-// 		// Set immediately for replication
-// 		NewItem->OwningInventory = this;
-// 		NewItem->ID = Items.Num();
-// 		Items.Add(NewItem);
-//
-// 		//Replicate object
-// 		AddReplicatedSubObject(NewItem);
-//
-// 		OnItemAdded.Broadcast(this, NewItem, NewItem->ID);
-// 		return NewItem;
-// 	}
-// 	
-// 	return nullptr;
-// }
-
-
 
 bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item)
 {
@@ -291,21 +297,25 @@ void UCerberusInventoryComponent::InitializeWithAbilitySystem(UCerberusAbilitySy
 	
 	if (GetOwner()->HasAuthority())
 	{
-		// for (UCerberusItem* Item : DefaultItems)
-		// {
-		// 		TryAddItem(Item);
-		// }
+		for (const auto& ItemClass : DefaultItems)
+		{
+			TryAddItemFromClass(ItemClass, 1);
+		}
 	}
 }
 
-void UCerberusInventoryComponent::UninitialieFromAbilitySystem()
+void UCerberusInventoryComponent::UninitializeFromAbilitySystem()
 {
 	AbilitySystemComponent = nullptr;
 
 	const AActor* lOwner = GetOwner();
 	if (lOwner && lOwner->HasAuthority())
 	{
-		//RemoveAllItems();
+		// Removing all items
+		for (auto& Item : Items)
+		{
+			RemoveItem(Item);
+		}
 	}
 }
 
@@ -318,5 +328,17 @@ void UCerberusInventoryComponent::SetCapacity(int32 Value)
 void UCerberusInventoryComponent::ClientRefreshInventory_Implementation()
 {
 	OnInventoryUpdated.Broadcast();
+}
+
+void UCerberusInventoryComponent::ItemAdded(UCerberusItem* Item)
+{
+	FString RoleString = GetOwner()->HasAuthority() ? "server" : "client";
+	UE_LOG(LogTemp, Warning, TEXT("Item added: %s on %s"), *GetNameSafe(Item), *RoleString);
+}
+
+void UCerberusInventoryComponent::ItemRemoved(UCerberusItem* Item)
+{
+	FString RoleString = GetOwner()->HasAuthority() ? "server" : "client";
+	UE_LOG(LogTemp, Warning, TEXT("Item Removed: %s on %s"), *GetNameSafe(Item), *RoleString);
 }
 #undef LOCTEXT_NAMESPACE

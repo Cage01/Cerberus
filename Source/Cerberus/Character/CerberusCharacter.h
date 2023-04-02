@@ -43,6 +43,12 @@ class ACerberusPlayerState;
 class UCerberusPawnExtensionComponent;
 class UCerberusAbilitySystemComponent;
 
+/**
+ * ACerberusCharacter
+ *
+ *	Base class used for (all?) humanoid characters. Will contain an InventoryComponent, HealthComponent, AbilitySystemComponent, StaticMesh, and the ability to interact.
+ */
+
 UCLASS(config=Game, meta=(ShortTooltip="The base character pawn class used by the project."))
 class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -55,18 +61,6 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-
-	/** Character Inventory */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
-	UCerberusInventoryComponent* InventoryComponent;
-
-	/** Character Inventory */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
-	UCerberusHealthComponent* HealthComponent;
-
-	/** Pawn Extension to handle unpredictable initialization flow from networking */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
-	UCerberusPawnExtensionComponent* PawnExtensionComponent;
 
 	/** Skeletal Mesh setup for equipment **/
 	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
@@ -85,6 +79,20 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 	
 public:
 	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+
+	/** Character Inventory */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
+	UCerberusInventoryComponent* InventoryComponent;
+
+	/** Character Health */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
+	UCerberusHealthComponent* HealthComponent;
+
+	/** Pawn Extension to handle unpredictable initialization flow from networking */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
+	UCerberusPawnExtensionComponent* PawnExtensionComponent;
+
 	
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
 	ACerberusPlayerState* GetCerberusPlayerState() const;
@@ -148,7 +156,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Character|Interaction")
 	float InteractionCheckDistance;
 	
-	void PreformInteractionCheck();
+	void PerformInteractionCheck();
 
 	void FoundNewInteractable(UCerberusInteractionComponent* Interactable);
 	void CouldntFindInteractable();

@@ -30,7 +30,7 @@ class UCerberusInventoryComponent;
  *
  * Base Item object to be used for the project. Is also replicated 
  */
-UCLASS(Blueprintable, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
 class CERBERUS_API UCerberusItem : public UCerberusReplicatedObject
 {
 	GENERATED_BODY()
@@ -44,6 +44,10 @@ protected:
 public:
 	UCerberusItem();
 
+	UPROPERTY(Transient)
+	UWorld* World;
+	
+	virtual void MarkDirtyForReplication() override;
 	
 	/*
 	* Accessor for the relevant inventory component
@@ -104,6 +108,9 @@ public:
 	//
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = MaxModules, EditCondition = bUsesSkills))
 	// TArray<UCerberusItemModule*> Modules;
+
+	UFUNCTION()
+	void OnRep_Quantity();
 	
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	void SetQuantity(int32 NewQuantity);
@@ -123,7 +130,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	FORCEINLINE int32 GetStackRemaining() const { return (MaxStackSize - Quantity); }
 
-	virtual void Use(class ACerberusCharacter* Character);
+	virtual void Use(class ACerberusCharacter* Character) PURE_VIRTUAL(UCerberusItem::Use, );;
 	/**Can include different functionality based on context. Like if you hold the interact button on a weapon, you could automatically equip */
 	virtual void AddedToInventory(UCerberusInventoryComponent* InventoryComponent);
 
@@ -139,29 +146,20 @@ public:
 	UPROPERTY()
 	UCerberusInventoryComponent* OwningInventory;
 	
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
-	FORCEINLINE float GetStackWeight() const { return Quantity * Weight; }
-	
 	UFUNCTION(BlueprintPure, Category="Cerberus|Items")
 	virtual bool ShouldShowInInventory() const;
 	
 protected:
 	int ID;
 	
-	/**Weight of the item*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 0.0))
-	float Weight;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_Quantity, EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(UIMin = 1, EditCondition = bStackable))
+	UPROPERTY(ReplicatedUsing = OnRep_Quantity, EditAnywhere, BlueprintReadWrite, Category="Cerberus|Items", meta=(UIMin = 1, EditCondition = bStackable))
 	int32 Quantity;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 2, EditCondition = bStackable))
 	int32 MaxStackSize;
 
-	
-protected:	
-	UFUNCTION()
-	void OnRep_Quantity();
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
 	
 	// UFUNCTION()
 	// void OnRep_CurrentProficiencyLevel();
