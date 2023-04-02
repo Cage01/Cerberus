@@ -18,7 +18,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, ACerberusCharacter*, Ch
 /**
  * UCerberusInteractionComponent
  *
- * Base class to interact with things in the world (lights, doors, items, loot, other players, etc)
+ * A component to make things interactable in the world
+ * Add this to any item or object that a player can interact with, such as picking up weapons, opening doors, and etc.
  */
 UCLASS(ClassGroup = (Custom), Meta=(BlueprintSpawnableComponent))
 class CERBERUS_API UCerberusInteractionComponent : public UWidgetComponent
@@ -30,21 +31,24 @@ public:
 
 	void RefreshWidget();
 	
-	// Returns the Interaction component if one exists on the specified actor.
+	/** A static function that will attempt to return the inventory component if one exists on the specified actor. */
 	UFUNCTION(BlueprintPure, Category = "Cerberus|Interaction")
 	static UCerberusInteractionComponent* FindInteractionComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UCerberusInteractionComponent>() : nullptr); }
 
-	// Called on the client when the players interaction check trace begins/ends hitting the item
+	/** Called on the client when the players interaction check trace begins colliding the item */
 	void BeginFocus(ACerberusCharacter* Character);
+	/** Called on the client when the players interaction check trace ends colliding the item */
 	void EndFocus(ACerberusCharacter* Character);
 
-	// Called on the client when the player begins/ends interaction with the item
+	/** Called on the client when the player begins interaction with the item */
 	void BeginInteract(ACerberusCharacter* Character);
+	/** Called on the client when the player nds interaction with the item */
 	void EndInteract(ACerberusCharacter* Character);
 
-	// Client side interact
+	/** Client side interact */
 	void Interact(ACerberusCharacter* Character);
 
+	/** Will get a value between 0 and 1 to display on a UI. The value is based on the total time required to interact and the amount of time that has passed */
 	UFUNCTION(BlueprintPure, Category="Cerberus|Interaction")
 	float GetInteractPercentage();
 
@@ -65,6 +69,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Interaction")
 	bool bAllowMultipleInteractors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Interaction")
+	int32 OutlineColorValue;
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Interaction")
 	void SetInteractableNameText(const FText& NewNameText);
@@ -99,4 +106,12 @@ protected:
 
 	UPROPERTY()
 	TArray<ACerberusCharacter*> Interactors;
+
+private:
+	UFUNCTION()
+	void ToggleOutline(int32 Value) const;
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 };

@@ -4,6 +4,7 @@
 #include "CerberusInteractionComponent.h"
 
 #include "Cerberus/Character/CerberusCharacter.h"
+#include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Widgets/CerberusInteractionWidget.h"
 
 UCerberusInteractionComponent::UCerberusInteractionComponent()
@@ -15,6 +16,7 @@ UCerberusInteractionComponent::UCerberusInteractionComponent()
 	NameText = FText::FromString("Interactable Object");
 	ActionText = FText::FromString("Interact");
 	bAllowMultipleInteractors = true;
+	OutlineColorValue = 1;
 
 	Space = EWidgetSpace::Screen;
 	DrawSize = FIntPoint(600,100);
@@ -43,26 +45,13 @@ void UCerberusInteractionComponent::BeginFocus(ACerberusCharacter* Character)
 		return;
 
 	OnBeginFocus.Broadcast(Character);
-
-	AActor* owner = GetOwner();
 	
-	SetHiddenInGame(false);
-
-	
-
-	const bool IsUsingListenServer = (GetNetMode() != NM_DedicatedServer);
-	if (!GetOwner()->HasAuthority())
+	if (Character->GetCerberusPlayerController()->IsLocalController())
 	{
-		for (auto& VisualComp : GetOwner()->GetComponents())
+		SetHiddenInGame(false);
+		if (OutlineColorValue > 0)
 		{
-			if (UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(VisualComp))
-			{
-				if (PrimitiveComponent->ComponentHasTag("interactable.outline"))
-				{
-					PrimitiveComponent->SetRenderCustomDepth(true);
-				}
-				
-			}
+			ToggleOutline(OutlineColorValue);
 		}
 	}
 	
@@ -71,26 +60,14 @@ void UCerberusInteractionComponent::BeginFocus(ACerberusCharacter* Character)
 
 void UCerberusInteractionComponent::EndFocus(ACerberusCharacter* Character)
 {
-	if(!IsActive() || !GetOwner() || !Character)
-		return;
-
 	OnEndFocus.Broadcast(Character);
-
-	SetHiddenInGame(true);
-
-	const bool IsUsingListenServer = (GetNetMode() != NM_DedicatedServer);
-	if (!GetOwner()->HasAuthority())
+	
+	if (Character->GetCerberusPlayerController()->IsLocalController())
 	{
-		for (auto& VisualComp : GetOwner()->GetComponents())
+		SetHiddenInGame(true);
+		if (OutlineColorValue > 0)
 		{
-			if (UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(VisualComp))
-			{
-				if (PrimitiveComponent->ComponentHasTag("interactable.outline"))
-				{
-					PrimitiveComponent->SetRenderCustomDepth(false);
-				}
-				
-			}
+			ToggleOutline(0);
 		}
 	}
 }
@@ -128,7 +105,7 @@ float UCerberusInteractionComponent::GetInteractPercentage()
 		 }
 	 }
 
-	return 0;
+	return 0.0f;
 }
 
 void UCerberusInteractionComponent::SetInteractableNameText(const FText& NewNameText)
@@ -170,3 +147,47 @@ bool UCerberusInteractionComponent::CanInteract(ACerberusCharacter* Character) c
 	const bool bPlayerAlreadyInteracting = !bAllowMultipleInteractors && Interactors.Num() >= 1;
 	return !bPlayerAlreadyInteracting && IsActive() && GetOwner() != nullptr && Character != nullptr;
 }
+
+void UCerberusInteractionComponent::ToggleOutline(int32 Value) const
+{
+	for (auto& VisualComp : GetOwner()->GetComponents())
+	{
+		if (UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(VisualComp))
+		{
+			if (Value > 0)
+				PrimitiveComponent->SetRenderCustomDepth(true);
+			else
+				PrimitiveComponent->SetRenderCustomDepth(false);
+			
+			PrimitiveComponent->SetCustomDepthStencilValue(Value);
+		}
+	}
+}
+
+
+#if WITH_EDITOR
+
+void UCerberusInteractionComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	// If a new pickup is selected in the property editor, change the mesh to reflect the new item being selected
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UCerberusInteractionComponent, OutlineColorValue))
+	{
+		if (OutlineColorValue > 0)
+		{
+			//Toggle on outline to preview colors in the editor
+			ToggleOutline(OutlineColorValue);
+
+			//After 2 seconds turn the properties off for use in-game
+			FTimerDelegate TimerDelegate;
+			TimerDelegate.BindUFunction(this, FName("ToggleOutline"), 0);
+			
+			FTimerHandle TimerHandle;
+			GetOwner()->GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, 2.0f, false);
+		}
+	}
+}
+#endif
