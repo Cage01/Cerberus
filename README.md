@@ -28,3 +28,5 @@ Project name Cerberus is a new game in development featuring a dark and gritty C
 | Gameplay Ability | GA_ | |
 | Gameplay Effect | GE_ | |
 | UI Widgets | WBP_ | |
+| Materials | M_ | |
+| Material Instances | M_ | _Inst |
