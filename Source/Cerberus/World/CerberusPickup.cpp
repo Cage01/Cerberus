@@ -25,6 +25,7 @@ ACerberusPickup::ACerberusPickup()
 	InteractionComponent->NameText = FText::FromString("Pickup");
 	InteractionComponent->ActionText = FText::FromString("Take");
 	InteractionComponent->OnInteract.AddDynamic(this, &ACerberusPickup::OnTakePickup);
+	InteractionComponent->OutlineColorValue = 255; //White
 	InteractionComponent->SetupAttachment(PickupMesh);
 
 	SetReplicates(true);

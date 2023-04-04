@@ -11,6 +11,7 @@
 UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
+	// Added for debugging purposes
 	OnItemAdded.AddDynamic(this, &UCerberusInventoryComponent::ItemAdded);
 	OnItemRemoved.AddDynamic(this, &UCerberusInventoryComponent::ItemRemoved);
 	
@@ -31,27 +32,25 @@ void UCerberusInventoryComponent::OnRep_Items()
 {
 	OnInventoryUpdated.Broadcast();
 
+	
 	for (auto& Item : Items)
 	{
 		// This is a trick to tell whether the item has be initialized on the client or not, and to send out the delegate if not
 		// There may be a better way to do it though.
 		if (!Item->World)
 		{
-			OnItemAdded.Broadcast(Item);
+			// Wont replicate the item if the player host is preforming this action
+			if (GetWorld()->GetNetMode() != NM_ListenServer)
+				OnItemAdded.Broadcast(Item);
+			
 			Item->World = GetWorld();
 		}
 	}
 }
 
-
-void UCerberusInventoryComponent::OnUnregister()
-{
-	Super::OnUnregister();
-}
-
 UCerberusItem* UCerberusInventoryComponent::AddItem(UCerberusItem* Item, int32 Quantity)
 {
-	if (GetOwner() && GetOwner()->HasAuthority())
+	if (GetOwner() && GetOwner()->HasAuthority() && Item)
 	{
 		UCerberusItem* NewItem = NewObject<UCerberusItem>(GetOwner(), Item->GetClass());
 		NewItem->SetQuantity(Quantity);
@@ -72,7 +71,7 @@ UCerberusItem* UCerberusInventoryComponent::AddItem(UCerberusItem* Item, int32 Q
 
 FItemAddResult UCerberusInventoryComponent::TryAddItem_Internal(UCerberusItem* Item)
 {
-	if (GetOwner() && GetOwner()->HasAuthority())
+	if (GetOwner() && GetOwner()->HasAuthority() && Item)
 	{
 		const int32 AddAmount = Item->GetQuantity();
 
@@ -181,6 +180,10 @@ bool UCerberusInventoryComponent::RemoveItem(UCerberusItem* Item)
 		if (Item)
 		{
 			Items.RemoveSingle(Item);
+			OnItemRemoved.Broadcast(Item);
+
+			OnRep_Items();
+			
 			ReplicatedItemsKey++;
 
 			return true;
@@ -246,7 +249,7 @@ int32 UCerberusInventoryComponent::ConsumeItem(UCerberusItem* Item)
 {
 	if (Item)
 	{
-		ConsumeItem(Item, Item->GetQuantity());
+		return ConsumeItem(Item, Item->GetQuantity());
 	}
 
 	return 0;
@@ -261,17 +264,16 @@ int32 UCerberusInventoryComponent::ConsumeItem(UCerberusItem* Item, const int32 
 		//We shouldn't have a negative amount of the item after the drop
 		ensure(!(Item->GetQuantity() - RemoveQuantity < 0));
 		
-		Item->SetQuantity(Item->GetQuantity() - RemoveQuantity);
+		Item->SubtractQuantity(RemoveQuantity);
 		
 		//We now have 0 of this item, remove it from the inventory
 		if (Item->GetQuantity() <= 0)
 		{
 			RemoveItem(Item);
-		} else
-		{
-			//Broadcast to the client that items have been consumed
-			ClientRefreshInventory();
 		}
+		//Broadcast to the client that items have been consumed
+		ClientRefreshInventory();
+		
 		return RemoveQuantity;
 	}
 	return 0;

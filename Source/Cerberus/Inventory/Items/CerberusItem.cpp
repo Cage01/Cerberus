@@ -6,32 +6,6 @@
 #include "Cerberus/Inventory/CerberusInventoryComponent.h"
 #include "Net/UnrealNetwork.h"
 
-#if WITH_EDITOR
-void UCerberusItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	FName ChangedPropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-
-	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, Quantity))
-	{
-		if (Quantity > MaxStackSize)
-		{
-			UE_LOG(LogCerberus, Warning, TEXT("You are trying to set the Quantity higher than the MaxStackSize property."))
-		}
-		Quantity = FMath::Clamp(Quantity, 1, bStackable ? MaxStackSize : 1);
-	}
-
-	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, MaxStackSize))
-	{
-		if (MaxStackSize < Quantity)
-		{
-			UE_LOG(LogCerberus, Warning, TEXT("You are trying to set the MaxStackSize lower than the Quantity property."))
-		}
-		MaxStackSize = FMath::Clamp(MaxStackSize, bStackable ? Quantity : 1, MaxStackSize);
-	}
-}
-#endif
 
 UCerberusItem::UCerberusItem()
 {
@@ -104,3 +78,38 @@ void UCerberusItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	DOREPLIFETIME(UCerberusItem, Quantity);
 }
+
+#if WITH_EDITOR
+void UCerberusItem::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FName ChangedPropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, Quantity))
+	{
+		if (Quantity > MaxStackSize)
+		{
+			UE_LOG(LogCerberus, Warning, TEXT("You are trying to set the Quantity higher than the MaxStackSize property."))
+		}
+		Quantity = FMath::Clamp(Quantity, 1, bStackable ? MaxStackSize : 1);
+	}
+
+	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, MaxStackSize))
+	{
+		if (MaxStackSize < Quantity)
+		{
+			UE_LOG(LogCerberus, Warning, TEXT("You are trying to set the MaxStackSize lower than the Quantity property."))
+		}
+		MaxStackSize = FMath::Clamp(MaxStackSize, bStackable ? Quantity : 1, MaxStackSize);
+	}
+
+	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UCerberusItem, bStackable))
+	{
+		if (!bStackable)
+		{
+			Quantity = 1;
+		}
+	}
+}
+#endif

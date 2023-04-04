@@ -19,6 +19,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Inventory/Items/CerberusItem.h"
 #include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
+#include "Cerberus/World/CerberusPickup.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
@@ -121,6 +122,85 @@ UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
 	return PawnExtensionComponent->GetCerberusAbilitySystemComponent();
 }
 
+void ACerberusCharacter::UseItem(UCerberusItem* Item)
+{
+	//Tell the server to initiate using the item
+	if (!HasAuthority())
+	{
+		ServerUseItem(Item);
+	}
+
+	if (HasAuthority())
+	{
+		if (InventoryComponent && !InventoryComponent->FindItem(Item))
+		{
+			return;
+		}
+	}
+
+	if (Item)
+	{
+		Item->Use(this);
+	}
+}
+
+void ACerberusCharacter::ServerUseItem_Implementation(UCerberusItem* Item)
+{
+	UseItem(Item);
+}
+
+bool ACerberusCharacter::ServerUseItem_Validate(UCerberusItem* Item)
+{
+	return true;
+}
+
+
+void ACerberusCharacter::DropItem(UCerberusItem* Item, int32 Quantity)
+{
+	if (InventoryComponent && Item && InventoryComponent->FindItem(Item))
+	{
+		if (!HasAuthority())
+		{
+			ServerDropItem(Item, Quantity);
+			return;
+		}
+
+		if (HasAuthority())
+		{
+			const int32 ItemQuantity = Item->GetQuantity();
+			const int32 DroppedQuantity = InventoryComponent->ConsumeItem(Item, Quantity);
+
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.Owner = this;
+			SpawnParameters.bNoFail = true;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+			FVector SpawnLocation = GetActorLocation();
+			SpawnLocation.Z -= GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+			FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+
+			ensure(PickupClass);
+			
+			if (ACerberusPickup* Pickup = GetWorld()->SpawnActor<ACerberusPickup>(PickupClass, SpawnTransform, SpawnParameters))
+			{
+				//Initializing item object to create an instance of the blueprint pickup class to spawn into the world
+				Pickup->InitializePickup(Item->GetClass(), DroppedQuantity);
+			}
+
+		}
+	}
+}
+
+void ACerberusCharacter::ServerDropItem_Implementation(UCerberusItem* Item, int32 Quantity)
+{
+	DropItem(Item, Quantity);
+}
+
+bool ACerberusCharacter::ServerDropItem_Validate(UCerberusItem* Item, int32 Quantity)
+{
+	return true;
+}
 
 void ACerberusCharacter::InitializeAttributes()
 {
@@ -166,15 +246,6 @@ void ACerberusCharacter::SetupBinds()
 
 //////////////////////////////////////////////////////////////////////////
 // Replication
-
-void ACerberusCharacter::UseItem_Implementation(UCerberusItem* Item)
-{
-	if (Item)
-	{
-		Item->Use(this);
-		Item->OnUse(this); //BP Event
-	}
-}
 
 void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

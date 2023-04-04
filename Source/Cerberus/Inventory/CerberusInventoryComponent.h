@@ -174,8 +174,6 @@ protected:
 	
 	UPROPERTY()
 	UCerberusAbilitySystemComponent* AbilitySystemComponent;
-	
-	virtual void OnUnregister() override;	
 
 private:
 	/** Dont call Items.Add() directly, use this function instead, as it handles replication and ownership */

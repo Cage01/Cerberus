@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
+class ACerberusPickup;
 USTRUCT()
 struct FInteractionData
 {
@@ -106,9 +107,28 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Cerberus|Character")
 	FGameplayTagContainer GameplayTags;
 
+
+	//Items
+
+	
 	//TODO: Make this into an ability with GAS?
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category="Cerberus|Character|Inventory")
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
 	void UseItem(UCerberusItem* Item);
+
+	/**[Server] Use an item from our inventory*/
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerUseItem(UCerberusItem* Item);
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
+	void DropItem(UCerberusItem* Item, int32 Quantity);
+
+	/**[Server] Drop an item from our inventory*/
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerDropItem(UCerberusItem* Item, int32 Quantity);
+	
+	/**This needs to be set because the pickups use a blueprint base class*/
+	UPROPERTY(EditDefaultsOnly,  Category="Cerberus|Character|Items")
+	TSubclassOf<ACerberusPickup> PickupClass;
 	
 	/**
 	 * @brief Initializes a default set of attributes for the character to have

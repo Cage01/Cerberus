@@ -9,7 +9,7 @@
 /**
  * Base Replicated object for the server
  */
-UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract)
 class CERBERUS_API UCerberusReplicatedObject : public UObject
 {
 	GENERATED_BODY()
@@ -22,8 +22,7 @@ public:
 	/**Used to efficiently replicate inventory items*/
 	UPROPERTY()
 	int32 RepKey;
-
-
+	
 
 	UFUNCTION(BlueprintPure, Category="Cerberus|Object")
 	AActor* GetOwningActor() const;
