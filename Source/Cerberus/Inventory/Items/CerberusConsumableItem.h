@@ -20,5 +20,5 @@ public:
 	TArray<TSubclassOf<UGameplayEffect>> Effects;
 	
 protected:
-	virtual void Use(class ACerberusCharacter* Character) override;
+	virtual void Use(ACerberusCharacter* Character) override;
 };

@@ -10,6 +10,7 @@
 UCerberusItem::UCerberusItem()
 {
 	bStackable = true;
+	bRequiresUseConfirm = false;
 	Quantity = 1;
 	// bBondable = false;
 	ItemDisplayName = FText::FromString("Item");
@@ -32,13 +33,13 @@ void UCerberusItem::SetQuantity(int32 NewQuantity)
 
 void UCerberusItem::AddQuantity(int32 AmountToAdd)
 {
-	Quantity = FMath::Clamp(Quantity + AmountToAdd, 0, bStackable ? MaxStackSize : 1);
+	Quantity = FMath::Clamp(Quantity + AmountToAdd, 0, bStackable ? GetStackRemaining() : 1);
 	MarkDirtyForReplication();
 }
 
 void UCerberusItem::SubtractQuantity(int32 AmountToSubtract)
 {
-	Quantity = FMath::Clamp(Quantity - AmountToSubtract, 0, bStackable ? MaxStackSize : 1);
+	Quantity = FMath::Clamp(Quantity - AmountToSubtract, 0, bStackable ? Quantity : 1);
 	MarkDirtyForReplication();
 }
 
@@ -63,6 +64,8 @@ void UCerberusItem::MarkDirtyForReplication()
 
 void UCerberusItem::OnRep_Quantity()
 {
+	UE_LOG(LogCerberus, Warning, TEXT("OnRep_Quantity() %d"), Quantity);
+	
 	OnItemModified.Broadcast();
 }
 

@@ -3,6 +3,7 @@
 
 #include "CerberusInventoryComponent.h"
 #include "Cerberus/CerberusLogChannels.h"
+#include "Cerberus/Utilities/CerberusNetworkUtils.h"
 #include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
@@ -14,6 +15,7 @@ UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitialize
 	// Added for debugging purposes
 	OnItemAdded.AddDynamic(this, &UCerberusInventoryComponent::ItemAdded);
 	OnItemRemoved.AddDynamic(this, &UCerberusInventoryComponent::ItemRemoved);
+	OnInventoryUpdated.AddDynamic(this, &UCerberusInventoryComponent::InventoryUpdated);
 	
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 	PrimaryComponentTick.bCanEverTick = false;
@@ -22,16 +24,23 @@ UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitialize
 	AbilitySystemComponent = nullptr;
 
 	// Component must be replicate to replicate its subobjects
-	SetIsReplicatedByDefault(true);
-
+	//SetIsReplicatedByDefault(true);
+	SetIsReplicated(true);
 	// New method of SubObject replication in 5.1
-	bReplicateUsingRegisteredSubObjectList = true;
+	//bReplicateUsingRegisteredSubObjectList = true;
 }
 
 void UCerberusInventoryComponent::OnRep_Items()
 {
+	if (GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogCerberus, Warning, TEXT("Server OnRep_Items()"));
+	} else
+	{
+		UE_LOG(LogCerberus, Warning, TEXT("Client OnRep_Items()"));
+	}
 	OnInventoryUpdated.Broadcast();
-
+	
 	
 	for (auto& Item : Items)
 	{
@@ -40,7 +49,7 @@ void UCerberusInventoryComponent::OnRep_Items()
 		if (!Item->World)
 		{
 			// Wont replicate the item if the player host is preforming this action
-			if (GetWorld()->GetNetMode() != NM_ListenServer)
+			if (!UCerberusNetworkUtils::IsListenServerHost(GetWorld()))
 				OnItemAdded.Broadcast(Item);
 			
 			Item->World = GetWorld();
@@ -58,7 +67,7 @@ UCerberusItem* UCerberusInventoryComponent::AddItem(UCerberusItem* Item, int32 Q
 		NewItem->AddedToInventory(this);
 		Items.Add(NewItem);
 		NewItem->MarkDirtyForReplication();
-		AddReplicatedSubObject(NewItem);
+		//AddReplicatedSubObject(NewItem);
 		OnItemAdded.Broadcast(NewItem);
 		OnRep_Items();
 		
@@ -265,14 +274,18 @@ int32 UCerberusInventoryComponent::ConsumeItem(UCerberusItem* Item, const int32 
 		ensure(!(Item->GetQuantity() - RemoveQuantity < 0));
 		
 		Item->SubtractQuantity(RemoveQuantity);
-		
 		//We now have 0 of this item, remove it from the inventory
 		if (Item->GetQuantity() <= 0)
 		{
 			RemoveItem(Item);
+		} else
+		{
+			//OnRep_Items();
+			UE_LOG(LogCerberus, Warning, TEXT("Server Item count %d"), Item->GetQuantity());
+			//Broadcast to the client that items have been consumed
+			ClientRefreshInventory();
 		}
-		//Broadcast to the client that items have been consumed
-		ClientRefreshInventory();
+
 		
 		return RemoveQuantity;
 	}
@@ -342,5 +355,32 @@ void UCerberusInventoryComponent::ItemRemoved(UCerberusItem* Item)
 {
 	FString RoleString = GetOwner()->HasAuthority() ? "server" : "client";
 	UE_LOG(LogTemp, Warning, TEXT("Item Removed: %s on %s"), *GetNameSafe(Item), *RoleString);
+}
+
+void UCerberusInventoryComponent::InventoryUpdated()
+{
+	FString RoleString = GetOwner()->HasAuthority() ? "server" : "client";
+	UE_LOG(LogTemp, Warning, TEXT("Inventory Updated: %s"), *RoleString);
+
+
+	if (GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Server items and quantities"));
+		for (auto& Item: Items)
+		{
+			const FString name = Item->ItemDisplayName.ToString();
+			const int32 quantity = Item->GetQuantity();
+			UE_LOG(LogTemp, Warning, TEXT("%s: %d"), *name, quantity);
+		}
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client items and quantities"));
+		for (auto& Item: Items)
+		{
+			const FString name = Item->ItemDisplayName.ToString();
+			const int32 quantity = Item->GetQuantity();
+			UE_LOG(LogTemp, Warning, TEXT("%s: %d"), *name, quantity);
+		}
+	}
 }
 #undef LOCTEXT_NAMESPACE

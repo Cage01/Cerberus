@@ -83,6 +83,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
 	EITemRarity Rarity;
 
+	/**Will determine whether this item should have a popup window confirming whether to use it or not. Defaults to false.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Items")
+	bool bRequiresUseConfirm;
+	
 	/**This item can level up and your character can become more proficient in using it.*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
 	bool bHasProficiency;
@@ -130,7 +134,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	FORCEINLINE int32 GetStackRemaining() const { return (MaxStackSize - Quantity); }
 
-	virtual void Use(class ACerberusCharacter* Character) PURE_VIRTUAL(UCerberusItem::Use, );;
+	virtual void Use(class ACerberusCharacter* Character) PURE_VIRTUAL(UCerberusItem::Use, );
 	/**Can include different functionality based on context. Like if you hold the interact button on a weapon, you could automatically equip */
 	virtual void AddedToInventory(UCerberusInventoryComponent* InventoryComponent);
 
@@ -152,7 +156,7 @@ public:
 protected:
 	int ID;
 	
-	UPROPERTY(ReplicatedUsing = OnRep_Quantity, EditAnywhere, BlueprintReadWrite, Category="Cerberus|Items", meta=(UIMin = 1, EditCondition = bStackable))
+	UPROPERTY(ReplicatedUsing = OnRep_Quantity, EditAnywhere, Category="Cerberus|Items", meta=(UIMin = 1, EditCondition = bStackable))
 	int32 Quantity;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 2, EditCondition = bStackable))
