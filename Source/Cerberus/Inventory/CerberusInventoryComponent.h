@@ -78,7 +78,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemRemoved, UCerberusItem*, Item
  * An Item must always be spawned into the world, or contained within an inventory.
  */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CERBERUS_API UCerberusInventoryComponent : public UGameFrameworkComponent
+class CERBERUS_API UCerberusInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -193,5 +193,8 @@ private:
 
 	UFUNCTION()
 	void ItemRemoved(UCerberusItem* Item);
-
+	
+	UFUNCTION()
+	void InventoryUpdated();
+	
 };

@@ -12,33 +12,50 @@
 
 void UCerberusConsumableItem::Use(ACerberusCharacter* Character)
 {
-	//Super::Use(Character);
 
-	
-	if (UCerberusAbilitySystemComponent* CerberusASC = Character->GetCerberusAbilitySystemComponent())
+	if (Character)
 	{
+		//Do stuff
 
-		if (GetOwningActor()->HasAuthority())
+		if (UCerberusInventoryComponent* Inventory = Character->InventoryComponent)
 		{
-			for (TSubclassOf<UGameplayEffect> Effect : Effects)
-			{
-				if (Effect)
-				{
-					FGameplayEffectContextHandle EffectContext = CerberusASC->MakeEffectContext();
-					EffectContext.AddInstigator(Character->GetCerberusPlayerState(), Character);
-					EffectContext.AddSourceObject(Character);
-
-					FGameplayEffectSpecHandle SpecHandle = CerberusASC->MakeOutgoingSpec(Effect, 1, EffectContext);
-					if (SpecHandle.IsValid())
-					{
-						FActiveGameplayEffectHandle GEHandle = CerberusASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-						if (!GEHandle.WasSuccessfullyApplied())
-							UE_LOG(LogCerberusAbilitySystem, Error, TEXT("UCerberusFoodItem: Gameplay effect was not sucessfully applied"))
-					}	
-				}
-			}
+			UE_LOG(LogTemp, Warning, TEXT("UCerberusConsumableItem: Item being used"))
+			Inventory->ConsumeItem(this, 1);
 		}
 	}
 
-	OwningInventory->RemoveItem(this);
+	
+	//Super::Use(Character);
+
+	// bool bConsumed = false;
+	// if (UCerberusAbilitySystemComponent* CerberusASC = Character->GetCerberusAbilitySystemComponent())
+	// {
+	// 	int32 consumed = 0;
+	// 	if (GetOwningActor()->HasAuthority())
+	// 	{
+	// 		for (TSubclassOf<UGameplayEffect> Effect : Effects)
+	// 		{
+	// 			if (Effect)
+	// 			{
+	// 				FGameplayEffectContextHandle EffectContext = CerberusASC->MakeEffectContext();
+	// 				EffectContext.AddInstigator(Character->GetCerberusPlayerState(), Character);
+	// 				EffectContext.AddSourceObject(Character);
+	//
+	// 				FGameplayEffectSpecHandle SpecHandle = CerberusASC->MakeOutgoingSpec(Effect, 1, EffectContext);
+	// 				if (SpecHandle.IsValid())
+	// 				{
+	// 					FActiveGameplayEffectHandle GEHandle = CerberusASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	// 					if (!GEHandle.WasSuccessfullyApplied())
+	// 						UE_LOG(LogCerberusAbilitySystem, Error, TEXT("UCerberusConsumableItem: Gameplay effect was not sucessfully applied"))
+	// 					else
+	// 					{
+	// 						bConsumed = true;
+	// 						UE_LOG(LogCerberusAbilitySystem, Warning, TEXT("%d consumables consumed"), consumed);
+	// 					}
+	//
+	// 				}	
+	// 			}
+	// 		}
+	// 	}
+	// }
 }

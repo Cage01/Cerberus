@@ -67,6 +67,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Interaction")
 	FText ActionType;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Items")
+	UTexture2D* InteractionThumbnail;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Items")
+	int32 InteractionQuantity;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Interaction")
 	bool bAllowMultipleInteractors;
 

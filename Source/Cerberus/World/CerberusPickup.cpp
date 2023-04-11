@@ -27,6 +27,7 @@ ACerberusPickup::ACerberusPickup()
 	InteractionComponent->OnInteract.AddDynamic(this, &ACerberusPickup::OnTakePickup);
 	InteractionComponent->OutlineColorValue = 255; //White
 	InteractionComponent->SetupAttachment(PickupMesh);
+	InteractionComponent->InteractionQuantity = 0;
 
 	SetReplicates(true);
 }
@@ -119,6 +120,8 @@ void ACerberusPickup::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 		if (ItemTemplate)
 		{
 			PickupMesh->SetStaticMesh(ItemTemplate->StaticMesh);
+			InteractionComponent->InteractionQuantity = ItemTemplate->GetQuantity();
+			InteractionComponent->InteractionThumbnail = ItemTemplate->Thumbnail;
 		}
 	}
 }

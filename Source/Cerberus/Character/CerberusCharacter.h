@@ -119,12 +119,12 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerUseItem(UCerberusItem* Item);
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
-	void DropItem(UCerberusItem* Item, int32 Quantity);
-
-	/**[Server] Drop an item from our inventory*/
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerDropItem(UCerberusItem* Item, int32 Quantity);
+	// UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
+	// void DropItem(UCerberusItem* Item, int32 Quantity);
+	//
+	// /**[Server] Drop an item from our inventory*/
+	// UFUNCTION(Server, Reliable, WithValidation)
+	// void ServerDropItem(UCerberusItem* Item, int32 Quantity);
 	
 	/**This needs to be set because the pickups use a blueprint base class*/
 	UPROPERTY(EditDefaultsOnly,  Category="Cerberus|Character|Items")
