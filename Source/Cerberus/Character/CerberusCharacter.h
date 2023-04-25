@@ -4,14 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "Cerberus/Inventory/Items/CerberusItem.h"
+#include "Cerberus/Items/CerberusItem.h"
 #include <GameplayEffectTypes.h>
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
+#include "Cerberus/Items/CerberusEquipableItem.h"
 #include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
+class UCerberusEquipmentComponent;
+class UCerberusGearItem;
 class ACerberusPickup;
+class UCerberusHealthComponent;
+class UCerberusInventoryComponent;
+class UCerberusGameplayAbility;
+class ACerberusPlayerController;
+class ACerberusPlayerState;
+class UCerberusPawnExtensionComponent;
+class UCerberusAbilitySystemComponent;
+
 USTRUCT()
 struct FInteractionData
 {
@@ -20,6 +31,8 @@ struct FInteractionData
 	FInteractionData()
 	{
 		ViewedInteractionComponent = nullptr;
+		TraceStart = FVector::Zero();
+		TraceEnd = FVector::Zero();
 		LastInteractionCheckTime = 0.f;
 		bInteractHeld = false;
 	}
@@ -28,6 +41,12 @@ struct FInteractionData
 	UPROPERTY()
 	UCerberusInteractionComponent* ViewedInteractionComponent;
 
+	UPROPERTY()
+	FVector TraceStart;
+
+	UPROPERTY()
+	FVector TraceEnd;
+	
 	//The time when we last checked for an interactable
 	UPROPERTY()
 	float LastInteractionCheckTime;
@@ -35,14 +54,6 @@ struct FInteractionData
 	UPROPERTY()
 	bool bInteractHeld;
 };
-
-class UCerberusHealthComponent;
-class UCerberusInventoryComponent;
-class UCerberusGameplayAbility;
-class ACerberusPlayerController;
-class ACerberusPlayerState;
-class UCerberusPawnExtensionComponent;
-class UCerberusAbilitySystemComponent;
 
 /**
  * ACerberusCharacter
@@ -55,33 +66,22 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
-
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
-
-	/** Skeletal Mesh setup for equipment **/
-	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
-	USkeletalMeshComponent* HelmetMesh;
-	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
-	USkeletalMeshComponent* ChestMesh;
-	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
-	USkeletalMeshComponent* ArmsMesh;
-	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
-	USkeletalMeshComponent* LegsMesh;
-	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
-	USkeletalMeshComponent* BackpackMesh;
-	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
-	USkeletalMeshComponent* SpecialEquipMesh;
-
-	
 public:
 	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	virtual void BeginPlay() override;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
+	/** Player Controller */
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	ACerberusPlayerState* GetCerberusPlayerState() const;
+	ACerberusPlayerController* GetCerberusPlayerController() const;
 
+	/** Character Equipment */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
+	UCerberusEquipmentComponent* EquipmentComponent;
+	
 	/** Character Inventory */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
 	UCerberusInventoryComponent* InventoryComponent;
@@ -94,22 +94,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
 	UCerberusPawnExtensionComponent* PawnExtensionComponent;
 
+
 	
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
-	ACerberusPlayerState* GetCerberusPlayerState() const;
-	ACerberusPlayerController* GetCerberusPlayerController() const;
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
-	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-	//TODO: Probably want to move this to another location?
-	UPROPERTY(BlueprintReadWrite, Category="Cerberus|Character")
-	FGameplayTagContainer GameplayTags;
-
-
-	//Items
-
+	//////////////////////////////////////////////////////////////////////////
+	// Items
 	
 	//TODO: Make this into an ability with GAS?
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
@@ -118,17 +107,6 @@ public:
 	/**[Server] Use an item from our inventory*/
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerUseItem(UCerberusItem* Item);
-
-	// UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
-	// void DropItem(UCerberusItem* Item, int32 Quantity);
-	//
-	// /**[Server] Drop an item from our inventory*/
-	// UFUNCTION(Server, Reliable, WithValidation)
-	// void ServerDropItem(UCerberusItem* Item, int32 Quantity);
-	
-	/**This needs to be set because the pickups use a blueprint base class*/
-	UPROPERTY(EditDefaultsOnly,  Category="Cerberus|Character|Items")
-	TSubclassOf<ACerberusPickup> PickupClass;
 	
 	/**
 	 * @brief Initializes a default set of attributes for the character to have
@@ -143,6 +121,16 @@ public:
 	 */
 	virtual void SetupBinds();
 
+public:
+	/** Ability System (May remove in the future)*/
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Character")
+	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	//TODO: Probably want to move this to another location?
+	UPROPERTY(BlueprintReadWrite, Category="Cerberus|Character")
+	FGameplayTagContainer GameplayTags;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Cerberus|Character")
 	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
 
@@ -154,21 +142,20 @@ public:
 	float TurnRateGamepad;
 	
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
-
-public:
+	
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	
-	
+
 protected:
-	virtual void Tick(float DeltaSeconds) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Character|Preview")
+	TSubclassOf<ACerberusPreviewActor> PreviewActorClass;
 
+
+	
 	// Setting up character interaction 
 	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Character|Interaction")
 	float InteractionCheckFrequency;
@@ -178,8 +165,16 @@ protected:
 	
 	void PerformInteractionCheck();
 
+	UFUNCTION(Server, Reliable)
+	void ServerInteractableDataUpdate(FInteractionData Data);
+	
 	void FoundNewInteractable(UCerberusInteractionComponent* Interactable);
 	void CouldntFindInteractable();
+
+	UCerberusInteractionComponent* InteractionLineTrace(FVector TraceStart, FVector TraceEnd, FCollisionQueryParams QueryParams);
+	
+	// UFUNCTION(Server, Reliable, WithValidation)
+	// void ServerPreformLineTrace(FVector TraceStart, FVector TraceEnd);
 
 	void BeginInteract();
 	void EndInteract();
@@ -201,7 +196,6 @@ protected:
 
 	FTimerHandle TimerHandle_Interact;
 
-
 public:
 
 	// True if we're interacting with an item that has an interaction time (Something that requires you to hold the button rather than press)
@@ -211,6 +205,8 @@ public:
 	float GetRemainingInteractTime() const;
 
 protected:
+	virtual void Tick(float DeltaSeconds) override;
+	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -234,9 +230,7 @@ protected:
 
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
-
-
-protected:
+	
 	virtual void InitializeAbilitySystem();
 	virtual void OnAbilitySystemInitialized();
 	virtual void OnAbilitySystemUninitialized();
@@ -249,7 +243,26 @@ protected:
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
+
+private:
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* FollowCamera;
+	
+
+	/** Skeletal Mesh setup for equipment **/
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* HelmetMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* ChestMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* LegsMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* BackMesh;
 	
 };
 

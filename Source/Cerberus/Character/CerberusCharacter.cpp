@@ -9,7 +9,8 @@
 #include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Abilities/CerberusGameplayAbility.h"
-#include "Cerberus/Inventory/CerberusInventoryComponent.h"
+#include "Cerberus/Actors/CerberusPreviewActor.h"
+#include "Cerberus/UniversalComponents/CerberusInventoryComponent.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Player/CerberusPlayerState.h"
 #include "Components/CapsuleComponent.h"
@@ -17,9 +18,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Cerberus/Inventory/Items/CerberusItem.h"
+#include "Cerberus/Items/CerberusItem.h"
 #include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
-#include "Cerberus/World/CerberusPickup.h"
+#include "Cerberus/UniversalComponents/CerberusEquipmentComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
@@ -63,28 +64,23 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	EquipmentComponent = CreateDefaultSubobject<UCerberusEquipmentComponent>(TEXT("EquipmentComponent"));
+	//TODO Set default skeletal meshes here
+	////EquipmentComponent->DefaultMeshes.Add(/**Slot*/, CreateDefaultSubobject<USkeletalMesh>(TEXT("Name")));
+	
+	HelmetMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_HELMET, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HelmetMesh")));
+	ChestMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_CHEST, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ChestMesh")));
+	LegsMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_LEGS, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LegsMesh")));
+	BackMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_BACK, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BackMesh")));
 
+	for (auto& PlayerMesh : EquipmentComponent->EquippedMeshes)
+	{
+		USkeletalMeshComponent* MeshComponent = PlayerMesh.Value;
+		MeshComponent->SetupAttachment(GetMesh());
+		MeshComponent->SetLeaderPoseComponent(GetMesh());
+	}
 
-	
-	// Equipment skeletal mesh setup
-	HelmetMesh = CreateDefaultSubobject<USkeletalMeshComponent>("HelmetMesh");
-	HelmetMesh->SetupAttachment(GetMesh());
-	
-	ChestMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ChestMesh");
-	ChestMesh->SetupAttachment(GetMesh());
-	
-	ArmsMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ArmsMesh");
-	ArmsMesh->SetupAttachment(GetMesh());
-	
-	LegsMesh = CreateDefaultSubobject<USkeletalMeshComponent>("LegsMesh");
-	LegsMesh->SetupAttachment(GetMesh());
-	
-	BackpackMesh = CreateDefaultSubobject<USkeletalMeshComponent>("BackpackMesh");
-	BackpackMesh->SetupAttachment(GetMesh());
-	
-	SpecialEquipMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SpecialEquipMesh");
-	SpecialEquipMesh->SetupAttachment(GetMesh());
-
+	EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::EIS_HEAD, GetMesh());
 	
 	// Initializing Pawn Extension Component which has nice utility with AbilitySystem
 	PawnExtensionComponent = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
@@ -93,8 +89,6 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 
 	// Initializing Health and other states related to health
 	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
-	// HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
-	// HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 
 	// Initializing Inventory
 	InventoryComponent = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
@@ -102,6 +96,26 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 
 	InteractionCheckFrequency = 0.2f;
 	InteractionCheckDistance = 1000.f;
+}
+
+void ACerberusCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	const FVector Location = FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 1000000000.f);
+	const FRotator Rotation = GetActorRotation();
+	// ACerberusPreviewActor* PreviewActor = GetWorld()->SpawnActor<ACerberusPreviewActor>(Location, Rotation);
+	// PreviewActor->MasterMesh = GetMesh();
+	// PreviewActor->SubMeshes = EquipmentComponent->EquippedMeshes;
+	//PreviewActor->EquippedItems = EquipmentComponent->EquippedItems;
+	//PreviewActor->Initialize();
+
+	//Spawn preview actor for UI and inventory menu's
+	if (ACerberusPreviewActor* PreviewActor = GetWorld()->SpawnActor<ACerberusPreviewActor>(PreviewActorClass, Location, Rotation))
+	{
+		PreviewActor->MasterMesh->SetSkeletalMeshAsset(GetMesh()->GetSkeletalMeshAsset());
+		PreviewActor->SetSubMeshMap(EquipmentComponent->EquippedMeshes);
+	}
 }
 
 ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
@@ -112,16 +126,10 @@ ACerberusPlayerController* ACerberusCharacter::GetCerberusPlayerController() con
 {
 	return CastChecked<ACerberusPlayerController>(GetController(), ECastCheckedType::NullAllowed);
 }
-UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
-{
-	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
-}
 
-UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
-{
-	return PawnExtensionComponent->GetCerberusAbilitySystemComponent();
-}
 
+//////////////////////////////////////////////////////////////////////////
+// Items
 void ACerberusCharacter::UseItem(UCerberusItem* Item)
 {
 	//Tell the server to initiate using the item
@@ -156,52 +164,55 @@ bool ACerberusCharacter::ServerUseItem_Validate(UCerberusItem* Item)
 }
 
 
-// void ACerberusCharacter::DropItem(UCerberusItem* Item, int32 Quantity)
-// {
-// 	if (InventoryComponent && Item && InventoryComponent->FindItem(Item))
-// 	{
-// 		if (!HasAuthority())
-// 		{
-// 			ServerDropItem(Item, Quantity);
-// 			return;
-// 		}
-//
-// 		if (HasAuthority())
-// 		{
-// 			const int32 ItemQuantity = Item->GetQuantity();
-// 			const int32 DroppedQuantity = InventoryComponent->ConsumeItem(Item, Quantity);
-//
-// 			FActorSpawnParameters SpawnParameters;
-// 			SpawnParameters.Owner = this;
-// 			SpawnParameters.bNoFail = true;
-// 			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-//
-// 			FVector SpawnLocation = GetActorLocation();
-// 			SpawnLocation.Z -= GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-//
-// 			FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
-//
-// 			ensure(PickupClass);
-// 			
-// 			if (ACerberusPickup* Pickup = GetWorld()->SpawnActor<ACerberusPickup>(PickupClass, SpawnTransform, SpawnParameters))
-// 			{
-// 				//Initializing item object to create an instance of the blueprint pickup class to spawn into the world
-// 				Pickup->InitializePickup(Item->GetClass(), DroppedQuantity);
-// 			}
-//
-// 		}
-// 	}
-// }
-//
-// void ACerberusCharacter::ServerDropItem_Implementation(UCerberusItem* Item, int32 Quantity)
-// {
-// 	DropItem(Item, Quantity);
-// }
-//
-// bool ACerberusCharacter::ServerDropItem_Validate(UCerberusItem* Item, int32 Quantity)
-// {
-// 	return true;
-// }
+
+//////////////////////////////////////////////////////////////////////////
+// Replication
+
+void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+/**
+ * @brief 
+ * @param ChangedPropertyTracker 
+ */
+void ACerberusCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+}
+
+/* Setup client based functionality */
+void ACerberusCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	PawnExtensionComponent->HandlePlayerStateReplicated();
+	InitializeAbilitySystem();
+}
+
+void ACerberusCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+	// Needed in case the PC wasn't valid when we Init-ed the ASC.
+	if (ACerberusPlayerState* PS = GetCerberusPlayerState())
+	{
+		PS->GetCerberusAbilitySystemComponent()->RefreshAbilityActorInfo();
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+///
+UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
+{
+	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
+}
+
+UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
+{
+	return PawnExtensionComponent->GetCerberusAbilitySystemComponent();
+}
 
 void ACerberusCharacter::InitializeAttributes()
 {
@@ -233,35 +244,6 @@ void ACerberusCharacter::GiveAbilities()
 	}
 }
 
-void ACerberusCharacter::SetupBinds()
-{
-	if (GetCerberusAbilitySystemComponent() && InputComponent)
-	{
-		const FGameplayAbilityInputBinds Binds("Confirm", "Cancel", "ECerberusAbilityInputID",
-			static_cast<int32>(ECerberusAbilityInputID::Confirm), static_cast<int32>(ECerberusAbilityInputID::Cancel));
-
-		GetCerberusAbilitySystemComponent()->BindAbilityActivationToInputComponent(InputComponent, Binds);
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// Replication
-
-void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
-
-/**
- * @brief 
- * @param ChangedPropertyTracker 
- */
-void ACerberusCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
-{
-	Super::PreReplication(ChangedPropertyTracker);
-}
-
 /* Setup server based functionality */
 void ACerberusCharacter::PossessedBy(AController* NewController)
 {
@@ -278,26 +260,6 @@ void ACerberusCharacter::UnPossessed()
 
 	PawnExtensionComponent->HandleControllerChanged();
 }
-
-/* Setup client based functionality */
-void ACerberusCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	PawnExtensionComponent->HandlePlayerStateReplicated();
-	InitializeAbilitySystem();
-}
-
-void ACerberusCharacter::OnRep_Controller()
-{
-	Super::OnRep_Controller();
-	// Needed in case the PC wasn't valid when we Init-ed the ASC.
-	if (ACerberusPlayerState* PS = GetCerberusPlayerState())
-	{
-		PS->GetCerberusAbilitySystemComponent()->RefreshAbilityActorInfo();
-	}
-}
-
 
 void ACerberusCharacter::InitializeAbilitySystem()
 {
@@ -340,11 +302,20 @@ void ACerberusCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionCheckFrequency)
+	if (!HasAuthority())
 	{
-		PerformInteractionCheck();
+		if (GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionCheckFrequency)
+		{
+			PerformInteractionCheck();
+		}
 	}
+
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Interaction
 
 void ACerberusCharacter::PerformInteractionCheck()
 {
@@ -365,7 +336,6 @@ void ACerberusCharacter::PerformInteractionCheck()
 	// Start the line trace where the characters location but aligns to the crosshair
 	FVector TraceStart = (EyesRot.Vector() * ActorDistance) + EyesLoc;
 	FVector TraceEnd = (EyesRot.Vector() * InteractionCheckDistance) + TraceStart;
-	FHitResult TraceHit;
 
 	
 	FCollisionQueryParams QueryParams;
@@ -375,31 +345,30 @@ void ACerberusCharacter::PerformInteractionCheck()
 	// const FName TraceTag(this->GetName());
 	// GetWorld()->DebugDrawTraceTag = TraceTag;
 	// QueryParams.TraceTag = TraceTag;
-	
-	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
-	{
-		
-		if (TraceHit.GetActor())
-		{
-			// Check if we hit an interactable object
-			if (UCerberusInteractionComponent* InteractionComponent = UCerberusInteractionComponent::FindInteractionComponent(TraceHit.GetActor()))
-			{
-				float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
-				if (InteractionComponent != GetInteractable() && Distance <= InteractionComponent->InteractionDistance)
-				{
-					FoundNewInteractable(InteractionComponent);
-				}
-				else if (Distance > InteractionComponent->InteractionDistance && GetInteractable())
-				{
-					CouldntFindInteractable();
-				}
 
-				return;
-			}
+	if (UCerberusInteractionComponent* Interactable = InteractionLineTrace(TraceStart, TraceEnd, QueryParams); Interactable != nullptr)
+	{
+		if (GetInteractable() != Interactable)
+		{
+			InteractionData.TraceStart = TraceStart;
+			InteractionData.TraceEnd = TraceEnd;
+			FoundNewInteractable(Interactable);
+		}
+	} else
+	{
+		if (GetInteractable() != nullptr)
+		{
+			InteractionData.TraceStart = FVector::Zero();
+			InteractionData.TraceEnd = FVector::Zero();
+			CouldntFindInteractable();
 		}
 	}
-	
-	CouldntFindInteractable();
+
+}
+
+void ACerberusCharacter::ServerInteractableDataUpdate_Implementation(FInteractionData Data)
+{
+	InteractionData = Data;
 }
 
 void ACerberusCharacter::FoundNewInteractable(UCerberusInteractionComponent* Interactable)
@@ -412,8 +381,53 @@ void ACerberusCharacter::FoundNewInteractable(UCerberusInteractionComponent* Int
 	}
 	
 	InteractionData.ViewedInteractionComponent = Interactable;
+	ServerInteractableDataUpdate(InteractionData); //Notify server of change
 	Interactable->BeginFocus(this);
 }
+
+UCerberusInteractionComponent* ACerberusCharacter::InteractionLineTrace(FVector TraceStart, FVector TraceEnd, FCollisionQueryParams QueryParams)
+{
+	FHitResult TraceHit;
+	
+	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		if (TraceHit.GetActor())
+		{
+			// Check if we hit an interactable object
+			if (UCerberusInteractionComponent* InteractionComponent = UCerberusInteractionComponent::FindInteractionComponent(TraceHit.GetActor()))
+			{
+				float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+				if (InteractionComponent != GetInteractable() && Distance <= InteractionComponent->InteractionDistance)
+				{
+					return InteractionComponent;
+				}
+				if (Distance > InteractionComponent->InteractionDistance && GetInteractable())
+				{
+					return nullptr;
+				}
+
+				return GetInteractable();
+			}
+		}
+	}
+	
+	return nullptr;
+}
+
+// void ACerberusCharacter::ServerPreformLineTrace_Implementation(FVector TraceStart, FVector TraceEnd)
+// {
+// 	FCollisionQueryParams QueryParams;
+// 	QueryParams.AddIgnoredActor(this);
+//
+// 	InteractionLineTrace(TraceStart, TraceEnd, QueryParams);
+// }
+//
+// bool ACerberusCharacter::ServerPreformLineTrace_Validate(FVector TraceStart, FVector TraceEnd)
+// {
+// 	// Perform any validation checks on the input parameters here
+// 	return true;
+// }
+
 
 void ACerberusCharacter::CouldntFindInteractable()
 {
@@ -430,6 +444,7 @@ void ACerberusCharacter::CouldntFindInteractable()
 	}
 
 	InteractionData.ViewedInteractionComponent = nullptr;
+	ServerInteractableDataUpdate(InteractionData);
 }
 
 void ACerberusCharacter::BeginInteract()
@@ -439,13 +454,29 @@ void ACerberusCharacter::BeginInteract()
 		ServerBeginInteract();
 	}
 		
-
-
-	// The server will only check if we're looking at an item once we begin interacting with it, to avoid the server running checks every tick
 	if (HasAuthority())
 	{
-		PerformInteractionCheck();
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		
+		//Validate interaction object
+		if (const UCerberusInteractionComponent* InteractionComponent = InteractionLineTrace(InteractionData.TraceStart, InteractionData.TraceEnd, QueryParams))
+		{
+			if (InteractionComponent != GetInteractable())
+			{
+				return;
+			}
+		} else
+		{
+			return;
+		}
 	}
+
+	// The server will only check if we're looking at an item once we begin interacting with it, to avoid the server running checks every tick
+	// if (HasAuthority())
+	// {
+	// 	PerformInteractionCheck(true);
+	// }
 		
 	
 	InteractionData.bInteractHeld = true;
@@ -481,7 +512,6 @@ void ACerberusCharacter::EndInteract()
 	}
 }
 
-
 void ACerberusCharacter::ServerEndInteract_Implementation()
 {
 	EndInteract();
@@ -516,6 +546,17 @@ float ACerberusCharacter::GetRemainingInteractTime() const
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+void ACerberusCharacter::SetupBinds()
+{
+	if (GetCerberusAbilitySystemComponent() && InputComponent)
+	{
+		const FGameplayAbilityInputBinds Binds("Confirm", "Cancel", "ECerberusAbilityInputID",
+			static_cast<int32>(ECerberusAbilityInputID::Confirm), static_cast<int32>(ECerberusAbilityInputID::Cancel));
+
+		GetCerberusAbilitySystemComponent()->BindAbilityActivationToInputComponent(InputComponent, Binds);
+	}
+}
+
 void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -552,8 +593,6 @@ void ACerberusCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
-
-
 
 void ACerberusCharacter::MoveForward(float Value)
 {

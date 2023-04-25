@@ -5,8 +5,8 @@
 
 #include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/Character/CerberusCharacter.h"
-#include "Cerberus/Inventory/CerberusInventoryComponent.h"
-#include "Cerberus/Inventory/Items/CerberusItem.h"
+#include "Cerberus/UniversalComponents/CerberusInventoryComponent.h"
+#include "Cerberus/Items/CerberusItem.h"
 #include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
