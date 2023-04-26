@@ -3,6 +3,7 @@
 
 #include "CerberusPreviewActor.h"
 
+#include "Cerberus/Enums/EquipableSlot.h"
 #include "Cerberus/Items/CerberusGearItem.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -22,6 +23,38 @@ ACerberusPreviewActor::ACerberusPreviewActor()
 	MasterMesh->SetupAttachment(RootComponent);
 
 
+	UEnum* Slots = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEquipableSlot"), true);
+
+	for (int32 EnumIndex = 0; EnumIndex < Slots->NumEnums(); ++EnumIndex)
+	{
+		EEquipableSlot Slot = static_cast<EEquipableSlot>(Slots->GetValueByIndex(EnumIndex));
+		//EEquipableSlot Slot = EnumValue.GetValue();
+
+		// Skip helper values
+		if (Slot == EEquipableSlot::ALL || Slot == EEquipableSlot::NONE)
+			continue;
+		
+		// Do something with EnumValue here
+		const FName SlotName = FName(*UEnum::GetValueAsString(Slot));
+		USkeletalMeshComponent* MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(SlotName);
+		AddOwnedComponent(MeshComp);
+		MeshComp->SetupAttachment(MasterMesh);
+		MeshComp->SetLeaderPoseComponent(MasterMesh);
+		SubMeshes.Add(Slot, MeshComp);
+		
+	}
+	
+	// for (EEquipableSlot Slot : TEnumRange<EEquipableSlot>())
+	// {
+	// 	const FName SlotName = FName(*UEnum::GetValueAsString(Slot));
+	// 	USkeletalMeshComponent* MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(SlotName);
+	// 	AddOwnedComponent(MeshComp);
+	// 	MeshComp->SetupAttachment(MasterMesh);
+	// 	MeshComp->SetLeaderPoseComponent(MasterMesh);
+	// 	SubMeshes.Add(Slot, MeshComp);
+	// }
+	
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(MasterMesh, NAME_None);
 	const FTransform ArmTransform = FTransform(
@@ -34,12 +67,14 @@ ACerberusPreviewActor::ACerberusPreviewActor()
 	RenderTarget->SetupAttachment(SpringArm, NAME_None);
 }
 
-void ACerberusPreviewActor::UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMeshComponent* Mesh)
+void ACerberusPreviewActor::UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh)
 {
-	if (Mesh)
+	if (NewMesh)
 	{
-		SubMeshes.Add(Slot, Mesh);
-		OnSubMeshChanged.Broadcast(Slot, Mesh);
+		USkeletalMeshComponent* MeshComp = *SubMeshes.Find(Slot);
+		MeshComp->SetSkeletalMeshAsset(NewMesh);
+		DrawPreview_Internal(Slot);
+		OnSubMeshChanged.Broadcast(Slot, MeshComp);
 	}
 }
 
@@ -47,6 +82,8 @@ void ACerberusPreviewActor::SetSubMeshMap(TMap<EEquipableSlot, USkeletalMeshComp
 {
 	SubMeshes.Empty();
 	SubMeshes = Meshes;
+	
+	DrawPreview_Internal(EEquipableSlot::ALL);
 	OnAllSubMeshesUpdated.Broadcast();
 }
 
@@ -64,8 +101,69 @@ void ACerberusPreviewActor::BeginPlay()
 
 }
 
-void ACerberusPreviewActor::DrawPreview_Internal()
+USkeletalMeshComponent* ACerberusPreviewActor::FindMeshComponentByName(FName ComponentName)
 {
+	if (ComponentName.IsValid())
+	{
+		TArray<USkeletalMeshComponent*> SkeletalMeshComponents;
+		GetComponents(SkeletalMeshComponents);
+	
+		for (USkeletalMeshComponent* SkeletalMeshComponent : SkeletalMeshComponents)
+		{
+			if (SkeletalMeshComponent->GetFName() == ComponentName)
+			{
+				return SkeletalMeshComponent;
+			}
+		}
+	}
 
+
+	return nullptr;
+}
+
+void ACerberusPreviewActor::DrawPreview_Internal(EEquipableSlot UpdatedSlot) 
+{
+	// If nothing was updated return
+	if (UpdatedSlot == EEquipableSlot::NONE)
+		return;
+
+	// If all the slots were updated, iterate through and update each
+	if (UpdatedSlot == EEquipableSlot::ALL)
+	{
+		UEnum* Slots = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEquipableSlot"), true);
+		for (int32 EnumIndex = 0; EnumIndex < Slots->NumEnums(); ++EnumIndex)
+		{
+			EEquipableSlot Slot = static_cast<EEquipableSlot>(Slots->GetValueByIndex(EnumIndex));
+
+			//Skip helper values
+			if (Slot == EEquipableSlot::ALL || Slot == EEquipableSlot::NONE)
+				continue;
+			
+			const FName SlotName = FName(*UEnum::GetValueAsString(Slot));
+
+			// Update the actual owned component with the new mesh
+			if (USkeletalMeshComponent* OwnedComponent = FindMeshComponentByName(SlotName))
+			{
+				if(SubMeshes.Contains(Slot))
+				{
+					const USkeletalMeshComponent* MeshComponent = *SubMeshes.Find(Slot);
+					OwnedComponent->SetSkeletalMeshAsset(MeshComponent->GetSkeletalMeshAsset());
+				}
+			}
+		}
+
+		return;
+	}
+
+	// Otherwise a specific slot was updated
+	const FName SlotName = FName(*UEnum::GetValueAsString(UpdatedSlot));
+
+	// Update the actual owned component with the new mesh
+	if (USkeletalMeshComponent* OwnedComponent = FindMeshComponentByName(SlotName))
+	{
+		const USkeletalMeshComponent* MeshComponent = *SubMeshes.Find(UpdatedSlot);
+		OwnedComponent->SetSkeletalMeshAsset(MeshComponent->GetSkeletalMeshAsset());
+	}
+	
 }
 

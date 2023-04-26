@@ -26,16 +26,12 @@ class CERBERUS_API ACerberusPreviewActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ACerberusPreviewActor();
-	
-	// /** Takes in a map of all Equipped items to update the skeletal mesh in one pass. Will also modify the local EquippedItems Map*/
-	// UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
-	// void DrawPreview(UCerberusGearItem* Item);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Preview")
 	USkeletalMeshComponent* MasterMesh;
 	
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
-	void UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMeshComponent* Mesh);
+	void UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh);
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
 	void SetSubMeshMap(TMap<EEquipableSlot, USkeletalMeshComponent*> Meshes);
@@ -60,10 +56,11 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Preview")
 	TMap<EEquipableSlot, USkeletalMeshComponent*> SubMeshes;
-	
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
+	USkeletalMeshComponent* FindMeshComponentByName(FName ComponentName);
 
 private:
 	/** Private function to draw all the skeletal meshes */
-	void DrawPreview_Internal();
-	
+	void DrawPreview_Internal(EEquipableSlot UpdatedSlot);
 };

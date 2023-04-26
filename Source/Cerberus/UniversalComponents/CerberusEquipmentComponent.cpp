@@ -3,6 +3,7 @@
 
 #include "CerberusEquipmentComponent.h"
 
+#include "Cerberus/Actors/CerberusPreviewActor.h"
 #include "Cerberus/Items/CerberusEquipableItem.h"
 #include "Cerberus/Items/CerberusGearItem.h"
 #include "Engine/ActorChannel.h"
@@ -11,6 +12,7 @@
 // Sets default values for this component's properties
 UCerberusEquipmentComponent::UCerberusEquipmentComponent()
 {
+	
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
@@ -62,7 +64,10 @@ USkeletalMeshComponent* UCerberusEquipmentComponent::FindSlotSkeletalMeshCompone
 bool UCerberusEquipmentComponent::EquipItem(UCerberusEquipableItem* Item)
 {
 	EquippedItems.Add(Item->Slot, Item);
+	UpdatePreviewActor(Item);
+	
 	OnEquippedItemsChanged.Broadcast(Item->Slot, Item);
+	
 	return true;
 }
 
@@ -75,6 +80,8 @@ bool UCerberusEquipmentComponent::UnEquipItem(UCerberusEquipableItem* Item)
 			if (Item == *EquippedItems.Find(Item->Slot))
 			{
 				EquippedItems.Remove(Item->Slot);
+				UpdatePreviewActor(Item); //TODO I dont think this works for unequipping currently
+				
 				OnEquippedItemsChanged.Broadcast(Item->Slot, nullptr);
 				return true;
 			}
@@ -125,4 +132,12 @@ void UCerberusEquipmentComponent::BeginPlay()
 
 	// ...
 	
+}
+
+void UCerberusEquipmentComponent::UpdatePreviewActor(UCerberusEquipableItem* Item)
+{
+	if (const UCerberusGearItem* Gear = Cast<UCerberusGearItem>(Item))
+	{
+		PreviewActor->UpdateSubMeshMap(Gear->Slot, Gear->Mesh);
+	}
 }

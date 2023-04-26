@@ -10,6 +10,7 @@
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Abilities/CerberusGameplayAbility.h"
 #include "Cerberus/Actors/CerberusPreviewActor.h"
+#include "Cerberus/Enums/EquipableSlot.h"
 #include "Cerberus/UniversalComponents/CerberusInventoryComponent.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Player/CerberusPlayerState.h"
@@ -103,7 +104,7 @@ void ACerberusCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	const FVector Location = FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 1000000000.f);
-	const FRotator Rotation = GetActorRotation();
+	const FRotator Rotation = FRotator::ZeroRotator;
 	// ACerberusPreviewActor* PreviewActor = GetWorld()->SpawnActor<ACerberusPreviewActor>(Location, Rotation);
 	// PreviewActor->MasterMesh = GetMesh();
 	// PreviewActor->SubMeshes = EquipmentComponent->EquippedMeshes;
@@ -115,6 +116,9 @@ void ACerberusCharacter::BeginPlay()
 	{
 		PreviewActor->MasterMesh->SetSkeletalMeshAsset(GetMesh()->GetSkeletalMeshAsset());
 		PreviewActor->SetSubMeshMap(EquipmentComponent->EquippedMeshes);
+
+		//Pass preview actor to the equipment component to keep track of gear changes
+		EquipmentComponent->PreviewActor = PreviewActor;
 	}
 }
 

@@ -9,25 +9,6 @@
 
 class ACerberusPreviewActor;
 class UCerberusGearItem;
-UENUM(BlueprintType)
-enum class EEquipableSlot: uint8
-{
-	//Character Specific
-	EIS_HEAD UMETA(DisplayName = "Head"),
-	
-	//Gear specific
-	GIS_HELMET UMETA(DisplayName = "Helmet"),
-	GIS_CHEST UMETA(DisplayName = "Chest"),
-	GIS_LEGS UMETA(DisplayName = "Legs"),
-	GIS_BACK UMETA(DisplayName = "Back"),
-	GIS_PRIMARY_WEAPON UMETA(DisplayName = "Primary Weapon"),
-	GIS_SECONDARY_WEAPON UMETA(DisplayName = "Secondary Weapon"),
-	GIS_THROWABLE UMETA(DisplayName = "Throwable"),
-	
-	//Weapon specific
-	WIS_BARREL UMETA(DisplayName = "Weapon Barrel"),
-	WIS_MAGAZINE UMETA(DisplayName = "Weapon Magazine")
-};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquippedItemsChanged, const EEquipableSlot, Slot, const UCerberusEquipableItem*, Item);
 
@@ -48,7 +29,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool ReplicateSubobjects(UActorChannel *Channel, FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 
-	UPROPERTY(BlueprintAssignable, Category = "Cerberus|Equipment")
+	UPROPERTY(EditDefaultsOnly, BlueprintAssignable, Category = "Cerberus|Equipment")
 	FOnEquippedItemsChanged OnEquippedItemsChanged;
 
 	/** The mesh to have displayed if we dont have an item equipped to a slot */
@@ -87,6 +68,9 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void UpdatePreviewActor(UCerberusEquipableItem* Item);
 
 private:
 	UPROPERTY()
