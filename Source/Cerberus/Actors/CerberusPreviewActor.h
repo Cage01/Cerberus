@@ -27,12 +27,15 @@ public:
 	// Sets default values for this actor's properties
 	ACerberusPreviewActor();
 
+	/** The mesh that will be used for the Master/Leader Pose Component. Animations will reference this mesh when moving the other components. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Preview")
 	USkeletalMeshComponent* MasterMesh;
-	
+
+	/** Will update a single slot in the mesh map. If you have a reference to a USkeletalMeshComponent, call the function ->GetSkeletalMeshAsset() to then pass into this */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
 	void UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh);
 
+	/** Will clear out the original submesh map and reset it with the values given */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
 	void SetSubMeshMap(TMap<EEquipableSlot, USkeletalMeshComponent*> Meshes);
 
@@ -57,10 +60,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Preview")
 	TMap<EEquipableSlot, USkeletalMeshComponent*> SubMeshes;
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
-	USkeletalMeshComponent* FindMeshComponentByName(FName ComponentName);
-
 private:
+	/** Private function to find the correct Mesh via name. The names in this case are generated automatically based on the slot they fit into */
+	USkeletalMeshComponent* FindMeshComponentByName(FName ComponentName);
+	
 	/** Private function to draw all the skeletal meshes */
 	void DrawPreview_Internal(EEquipableSlot UpdatedSlot);
 };

@@ -136,6 +136,7 @@ void UCerberusEquipmentComponent::BeginPlay()
 
 void UCerberusEquipmentComponent::UpdatePreviewActor(UCerberusEquipableItem* Item)
 {
+	// If the cast isnt successful then its not an item that has a visual component to it and we should continue
 	if (const UCerberusGearItem* Gear = Cast<UCerberusGearItem>(Item))
 	{
 		PreviewActor->UpdateSubMeshMap(Gear->Slot, Gear->Mesh);

@@ -12,6 +12,13 @@ class UCerberusGearItem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquippedItemsChanged, const EEquipableSlot, Slot, const UCerberusEquipableItem*, Item);
 
+/**
+ * UCerberusEquipmentComponent
+ * 
+ * This component will be attached to actors that have pieces of equipment attached to them.
+ * In instances of items themselves having their own sets of equipment. When spawning an actor of it in the world, we should consider giving it this component
+ * The same goes for enemies that might have weapons and other equipment.
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CERBERUS_API UCerberusEquipmentComponent : public UActorComponent
 {
