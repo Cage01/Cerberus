@@ -16,6 +16,10 @@ class CERBERUS_API UCerberusInventoryItemWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	/** This function will only execute successfully if the new item is valid, and the Item property has no current value */
+	UFUNCTION(BlueprintPure, Category="Cerberus|Inventory")
+	bool SetItem(UCerberusItem* NewItem);
+	
 	UPROPERTY(BlueprintReadOnly, Category="Cerberus|Inventory", meta=(ExposeOnSpawn = true))
 	UCerberusItem* Item;
 };

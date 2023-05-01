@@ -8,6 +8,7 @@
 #include "ModularPlayerController.h"
 #include "CerberusPlayerController.generated.h"
 
+class UCerberusInventoryComponent;
 class UCerberusAbilitySystemComponent;
 /**
  * ACerberusPlayerController
@@ -28,7 +29,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
 	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
-	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
-	FORCEINLINE bool IsListenServer() { return  (GetNetMode() == NM_ListenServer); }
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void ClientShowNotification(const FText& Message);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowNotification(const FText& Message);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowLootMenu(const UCerberusInventoryComponent* LootSource);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideLootMenu();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHitPlayer();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowIngameUI();
 	
 };

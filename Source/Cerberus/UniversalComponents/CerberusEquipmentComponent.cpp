@@ -141,4 +141,6 @@ void UCerberusEquipmentComponent::UpdatePreviewActor(UCerberusEquipableItem* Ite
 	{
 		PreviewActor->UpdateSubMeshMap(Gear->Slot, Gear->Mesh);
 	}
+
+	//TODO: add case for weapon updates, this will put an object into a bone slot rather than update the skeletal mesh
 }

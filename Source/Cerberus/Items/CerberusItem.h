@@ -9,6 +9,7 @@
 #include "UObject/NoExportTypes.h"
 #include "CerberusItem.generated.h"
 
+class UCerberusItemTooltip;
 class UCerberusItemModule;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnItemModified);
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnProficiencyModified);
@@ -88,6 +89,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Items")
 	bool bRequiresUseConfirm;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
+	bool bStackable;
+
+	/** UI Widget to display when hovering over this item in an inventory */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
+	TSubclassOf<UCerberusItemTooltip> ItemTooltip;
+
 	/**This item can level up and your character can become more proficient in using it.*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
 	bool bHasProficiency;
@@ -95,9 +103,7 @@ public:
 	//This doesnt need to be replicated, but the th
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 1, EditCondition = bHasProficiency))
 	TArray<FCerberusItemProficiency> ProficiencySockets;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items")
-	bool bStackable;
+	
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 1, EditCondition = bHasProficiency))
 	// int32 MaxProficiencyLevel;
 	//

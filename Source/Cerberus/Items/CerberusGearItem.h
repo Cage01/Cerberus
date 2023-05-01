@@ -19,7 +19,9 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const override;
 
+	/** Overrides the EquipableItem::Equip() function and will tell the Owners EquipmentComponent to update its skeletal mesh with this item */
 	virtual bool Equip(AActor* Owner) override;
+	/** Overrides the EquipableItem::UnEquip() Will tell the Owners EquipmentComponent to update its skeletal mesh and remove this item */
 	virtual bool UnEquip(AActor* Owner) override;
 	
 	/** The physical representation of this gear item */

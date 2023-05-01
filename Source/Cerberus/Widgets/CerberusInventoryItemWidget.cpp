@@ -3,3 +3,13 @@
 
 #include "CerberusInventoryItemWidget.h"
 
+bool UCerberusInventoryItemWidget::SetItem(UCerberusItem* NewItem)
+{
+	if (NewItem && !Item)
+	{
+		Item = NewItem;
+		return true;
+	}
+
+	return false;
+}

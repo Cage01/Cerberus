@@ -21,3 +21,8 @@ UCerberusAbilitySystemComponent* ACerberusPlayerController::GetCerberusAbilitySy
 	return (CerberusPS ? CerberusPS->GetCerberusAbilitySystemComponent() : nullptr);
 }
 
+void ACerberusPlayerController::ClientShowNotification_Implementation(const FText& Message)
+{
+	ShowNotification(Message);
+}
+

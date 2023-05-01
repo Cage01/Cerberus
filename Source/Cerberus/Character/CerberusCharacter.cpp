@@ -122,6 +122,16 @@ void ACerberusCharacter::BeginPlay()
 	}
 }
 
+void ACerberusCharacter::Restart()
+{
+	Super::Restart();
+
+	if (ACerberusPlayerController* PC = Cast<ACerberusPlayerController>(GetController()))
+	{
+		PC->ShowIngameUI();
+	}
+}
+
 ACerberusPlayerState* ACerberusCharacter::GetCerberusPlayerState() const
 {
 	return CastChecked<ACerberusPlayerState>(GetPlayerState(), ECastCheckedType::NullAllowed);

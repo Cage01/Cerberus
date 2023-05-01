@@ -69,6 +69,7 @@ class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	ACerberusCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void BeginPlay() override;
+	virtual void Restart() override;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
@@ -100,7 +101,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// Items
 	
-	//TODO: Make this into an ability with GAS?
+	/** UseItem will be called from the Inventory when clicking on an item inside of it. It will then instruct the character to use or equip said item. */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Character|Items")
 	void UseItem(UCerberusItem* Item);
 
