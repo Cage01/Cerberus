@@ -76,6 +76,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	//TODO: Currently has functionality for complete removal of gear from slot. Probably not something we actually want, but is used currently for testing
 	UFUNCTION()
 	void UpdatePreviewActor(UCerberusEquipableItem* Item);
 

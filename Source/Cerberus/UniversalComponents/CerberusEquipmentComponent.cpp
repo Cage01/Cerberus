@@ -106,22 +106,29 @@ void UCerberusEquipmentComponent::ResetSkeletalMesh(EEquipableSlot Slot)
 	// This will currently just remove any skeletal mesh from the character, but not replace it with skin or anything else
 	if (USkeletalMeshComponent* EquipableMesh = *EquippedMeshes.Find(Slot))
 	{
-		if (USkeletalMesh* DefaultMesh = *DefaultMeshes.Find(Slot))
+		if (!DefaultMeshes.IsEmpty())
 		{
-			EquipableMesh->SetSkeletalMesh(DefaultMesh);
-
-			//Put the materials back on the body mesh (Since gear may have applied a different material)
-			for (int32 i = 0; i < DefaultMesh->GetMaterials().Num(); ++i)
+			if (USkeletalMesh* DefaultMesh = *DefaultMeshes.Find(Slot))
 			{
-				if (DefaultMesh->GetMaterials().IsValidIndex(i))
+				EquipableMesh->SetSkeletalMesh(DefaultMesh);
+
+				//Put the materials back on the body mesh (Since gear may have applied a different material)
+				for (int32 i = 0; i < DefaultMesh->GetMaterials().Num(); ++i)
 				{
-					EquipableMesh->SetMaterial(i, DefaultMesh->GetMaterials()[i].MaterialInterface);
+					if (DefaultMesh->GetMaterials().IsValidIndex(i))
+					{
+						EquipableMesh->SetMaterial(i, DefaultMesh->GetMaterials()[i].MaterialInterface);
+					}
 				}
+			} else
+			{
+				EquipableMesh->SetSkeletalMesh(nullptr);
 			}
 		} else
 		{
 			EquipableMesh->SetSkeletalMesh(nullptr);
 		}
+
 	}
 }
 

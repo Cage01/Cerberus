@@ -17,8 +17,8 @@ class CERBERUS_API UCerberusInventoryItemWidget : public UUserWidget
 
 public:
 	/** This function will only execute successfully if the new item is valid, and the Item property has no current value */
-	UFUNCTION(BlueprintPure, Category="Cerberus|Inventory")
-	bool SetItem(UCerberusItem* NewItem);
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Inventory")
+	void SetItem(UCerberusItem* NewItem = nullptr);
 	
 	UPROPERTY(BlueprintReadOnly, Category="Cerberus|Inventory", meta=(ExposeOnSpawn = true))
 	UCerberusItem* Item;
