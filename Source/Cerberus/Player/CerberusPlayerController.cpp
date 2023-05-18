@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CerberusPlayerController.h"
 
-#include "Cerberus/Widgets/CerberusHUDWidget.h"
+#include "Cerberus/Structs/CerberusNotification.h"
 
 ACerberusPlayerController::ACerberusPlayerController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -21,8 +21,8 @@ UCerberusAbilitySystemComponent* ACerberusPlayerController::GetCerberusAbilitySy
 	return (CerberusPS ? CerberusPS->GetCerberusAbilitySystemComponent() : nullptr);
 }
 
-void ACerberusPlayerController::ClientShowNotification_Implementation(const FText& Message)
+void ACerberusPlayerController::ClientShowNotification_Implementation(FNotification Notification)
 {
-	ShowNotification(Message);
+	ShowNotification(Notification);
 }
 

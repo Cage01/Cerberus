@@ -5,7 +5,6 @@
 #include "CerberusPawnExtensionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Cerberus/Cerberus.h"
-#include "Cerberus/CerberusGameplayTags.h"
 #include "Cerberus/CerberusLogChannels.h"
 #include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
 #include "Cerberus/AbilitySystem/Abilities/CerberusGameplayAbility.h"
@@ -20,8 +19,10 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Items/CerberusItem.h"
+//#include "Cerberus/Structs/CerberusNotification.h"
 #include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
 #include "Cerberus/UniversalComponents/CerberusEquipmentComponent.h"
+#include "Net/UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACerberusCharacter
@@ -57,7 +58,7 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
+	
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
@@ -71,7 +72,9 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	
 	HelmetMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_HELMET, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HelmetMesh")));
 	ChestMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_CHEST, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ChestMesh")));
+	HandsMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_HANDS, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandsMesh")));
 	LegsMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_LEGS, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LegsMesh")));
+	FeetMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_FEET, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FeetMesh")));
 	BackMesh = EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::GIS_BACK, CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BackMesh")));
 
 	for (auto& PlayerMesh : EquipmentComponent->EquippedMeshes)
@@ -81,7 +84,7 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 		MeshComponent->SetLeaderPoseComponent(GetMesh());
 	}
 
-	EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::EIS_HEAD, GetMesh());
+	EquipmentComponent->EquippedMeshes.Add(EEquipableSlot::ROOT, GetMesh());
 	
 	// Initializing Pawn Extension Component which has nice utility with AbilitySystem
 	PawnExtensionComponent = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
@@ -126,9 +129,9 @@ void ACerberusCharacter::Restart()
 {
 	Super::Restart();
 
-	if (ACerberusPlayerController* PC = Cast<ACerberusPlayerController>(GetController()))
+	if (GetCerberusPlayerController())
 	{
-		PC->ShowIngameUI();
+		GetCerberusPlayerController()->ShowIngameUI();
 	}
 }
 
@@ -141,6 +144,123 @@ ACerberusPlayerController* ACerberusCharacter::GetCerberusPlayerController() con
 	return CastChecked<ACerberusPlayerController>(GetController(), ECastCheckedType::NullAllowed);
 }
 
+void ACerberusCharacter::SetLootSource(UCerberusInventoryComponent* NewLootSource)
+{
+	/** If the item we're looting gets destroyed, we need to tell the client to remove their loot source */
+	if (NewLootSource && NewLootSource->GetOwner())
+	{
+		NewLootSource->GetOwner()->OnDestroyed.AddUniqueDynamic(this, &ACerberusCharacter::OnLootSourceOwnerDestroyed);
+	}
+	
+	if (!HasAuthority())
+	{
+		if (NewLootSource)
+		{
+			// Looting an actor keeps it alive for extra time before being destroyed to give the player enough time to loot it
+			if (AActor* Actor = Cast<AActor>(NewLootSource->GetOwner()))
+			{
+				Actor->SetLifeSpan(FMath::Min(Actor->GetLifeSpan() + 120.f, 300.f));
+			}
+		}
+		ServerSetLootSource(NewLootSource);
+	} else
+	{
+		LootSource = NewLootSource;
+	}
+}
+
+bool ACerberusCharacter::IsLooting() const
+{
+	return LootSource != nullptr;
+}
+
+void ACerberusCharacter::LootItem(UCerberusItem* Item)
+{
+	if (Item)
+	{
+		if (!HasAuthority())
+		{
+			ServerLootItem(Item);
+		} else
+		{
+			if (InventoryComponent && LootSource && Item && LootSource->HasItem(Item->GetClass(), Item->GetQuantity()))
+			{
+				//Will try to add the item and consume it from the loot source inventory. If it couldnt be added a notification will be thrown on the players screen
+				const FItemAddResult Result = InventoryComponent->TryAddItem(Item);
+
+				// FNotification Notification;
+				// if (Result.Result != EItemAddResult::IAR_NoItemsAdded)
+				// {
+				// 	LootSource->ConsumeItem(Item, Result.ActualAmountGiven);
+				// 	Notification = FNotification::CreateLootNotification(Item);
+				// } else
+				// {
+				// 	Notification = FNotification::CreateBasicNotification(Result.ErrorText);
+				// }
+				//
+				// GetCerberusPlayerController()->ShowNotification(Notification);
+			}
+		}	
+	}
+
+}
+
+// void ACerberusCharacter::BeginLootingPlayer(ACerberusCharacter* Character)
+// {
+// 	if (Character)
+// 	{
+// 		Character->SetLootSource(InventoryComponent);
+// 	}
+// }
+
+void ACerberusCharacter::ServerLootItem_Implementation(UCerberusItem* Item)
+{
+	LootItem(Item);
+}
+
+bool ACerberusCharacter::ServerLootItem_Validate(UCerberusItem* Item)
+{
+	return true;
+}
+
+
+void ACerberusCharacter::ServerSetLootSource_Implementation(UCerberusInventoryComponent* NewLootSource)
+{
+	SetLootSource(NewLootSource);
+}
+
+bool ACerberusCharacter::ServerSetLootSource_Validate(UCerberusInventoryComponent* NewLootSource)
+{
+	return true;
+}
+
+void ACerberusCharacter::OnLootSourceOwnerDestroyed(AActor* DestroyedActor)
+{
+	//Remove the loot source
+	if (HasAuthority() && LootSource && DestroyedActor == LootSource->GetOwner())
+	{
+		ServerSetLootSource(nullptr);
+	}
+}
+
+void ACerberusCharacter::OnRep_LootSource()
+{
+	//Bring up or remove the loot menu (Sends an event to blueprints to trigger the UI)
+	if (GetCerberusPlayerController())
+	{
+		if (GetCerberusPlayerController()->IsLocalController())
+		{
+			//TODO: Show loot menu notification
+			// if (LootSource)
+			// {
+			// 	GetCerberusPlayerController()->ShowLootMenu(LootSource);
+			// } else
+			// {
+			// 	GetCerberusPlayerController()->HideLootMenu();
+			// }
+		}
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Items
@@ -185,6 +305,8 @@ bool ACerberusCharacter::ServerUseItem_Validate(UCerberusItem* Item)
 void ACerberusCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACerberusCharacter, LootSource);
 }
 
 /**
@@ -341,25 +463,25 @@ void ACerberusCharacter::PerformInteractionCheck()
 	FRotator EyesRot;
 
 	
-	EyesRot = GetFollowCamera()->GetComponentRotation();
-	EyesLoc = GetFollowCamera()->GetComponentLocation();
-
+	EyesRot = FollowCamera->GetComponentRotation();
+	EyesLoc = FollowCamera->GetComponentLocation();
+	
 	// Get the distance between the character and the camera
 	float ActorDistance = FVector::Dist(EyesLoc, GetActorLocation());
-
+	
 	// Start the line trace where the characters location but aligns to the crosshair
 	FVector TraceStart = (EyesRot.Vector() * ActorDistance) + EyesLoc;
 	FVector TraceEnd = (EyesRot.Vector() * InteractionCheckDistance) + TraceStart;
-
+	
 	
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-
+	
 	// Debug
 	// const FName TraceTag(this->GetName());
 	// GetWorld()->DebugDrawTraceTag = TraceTag;
 	// QueryParams.TraceTag = TraceTag;
-
+	
 	if (UCerberusInteractionComponent* Interactable = InteractionLineTrace(TraceStart, TraceEnd, QueryParams); Interactable != nullptr)
 	{
 		if (GetInteractable() != Interactable)
@@ -375,6 +497,13 @@ void ACerberusCharacter::PerformInteractionCheck()
 			InteractionData.TraceStart = FVector::Zero();
 			InteractionData.TraceEnd = FVector::Zero();
 			CouldntFindInteractable();
+	
+			// If we're looting we want to reset the loot source and remove the UI
+			if (IsLooting())
+			{
+				GetCerberusPlayerController()->HideLootMenu();
+				SetLootSource(nullptr);
+			}
 		}
 	}
 

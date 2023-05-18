@@ -11,12 +11,15 @@
 // Sets default values
 ACerberusPreviewActor::ACerberusPreviewActor()
 {
+	//Setting defaults
+	DefaultRotation = FRotator(0.f, -90.f, 0.f);
+	
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
 	MasterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Master"));
 	const FTransform MeshTransform = FTransform(
-		FRotator(0.f, -90.f, 0.f),
+		DefaultRotation,
 		FVector(0.f, 0.f, -100.f),
 		FVector(1.f));
 	MasterMesh->SetRelativeTransform(MeshTransform);
@@ -33,8 +36,8 @@ ACerberusPreviewActor::ACerberusPreviewActor()
 		// Skip helper values
 		if (Slot == EEquipableSlot::ALL || Slot == EEquipableSlot::NONE)
 			continue;
-		
-		// Do something with EnumValue here
+
+		// Create SkeletalMeshComponent and attach it to the Master
 		const FName SlotName = FName(*UEnum::GetValueAsString(Slot));
 		USkeletalMeshComponent* MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(SlotName);
 		AddOwnedComponent(MeshComp);
@@ -43,22 +46,12 @@ ACerberusPreviewActor::ACerberusPreviewActor()
 		SubMeshes.Add(Slot, MeshComp);
 		
 	}
-	
-	// for (EEquipableSlot Slot : TEnumRange<EEquipableSlot>())
-	// {
-	// 	const FName SlotName = FName(*UEnum::GetValueAsString(Slot));
-	// 	USkeletalMeshComponent* MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(SlotName);
-	// 	AddOwnedComponent(MeshComp);
-	// 	MeshComp->SetupAttachment(MasterMesh);
-	// 	MeshComp->SetLeaderPoseComponent(MasterMesh);
-	// 	SubMeshes.Add(Slot, MeshComp);
-	// }
-	
 
+	// Acts as the camera for the preview actor. Will handle rotation and etc
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(MasterMesh, NAME_None);
 	const FTransform ArmTransform = FTransform(
-	FRotator(0.f, -90.f, 0.f),
+	DefaultRotation,
 	FVector(0.f, 0.f, 80.f),
 	FVector(1.f));
 	SpringArm->SetRelativeTransform(ArmTransform);
@@ -67,12 +60,13 @@ ACerberusPreviewActor::ACerberusPreviewActor()
 	RenderTarget->SetupAttachment(SpringArm, NAME_None);
 }
 
-void ACerberusPreviewActor::UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh)
+void ACerberusPreviewActor::UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh, FTransform MeshTransform)
 {
 	if (NewMesh)
 	{
 		USkeletalMeshComponent* MeshComp = *SubMeshes.Find(Slot);
 		MeshComp->SetSkeletalMeshAsset(NewMesh);
+		MeshComp->SetRelativeTransform(MeshTransform);
 		DrawPreview_Internal(Slot);
 		OnSubMeshChanged.Broadcast(Slot, MeshComp);
 	}
@@ -101,6 +95,11 @@ void ACerberusPreviewActor::BeginPlay()
 
 }
 
+void ACerberusPreviewActor::ResetPreviewRotation()
+{
+	SpringArm->SetRelativeRotation(DefaultRotation);
+}
+
 USkeletalMeshComponent* ACerberusPreviewActor::FindMeshComponentByName(FName ComponentName)
 {
 	if (ComponentName.IsValid())
@@ -117,7 +116,6 @@ USkeletalMeshComponent* ACerberusPreviewActor::FindMeshComponentByName(FName Com
 		}
 	}
 
-
 	return nullptr;
 }
 
@@ -131,12 +129,12 @@ void ACerberusPreviewActor::DrawPreview_Internal(EEquipableSlot UpdatedSlot)
 	if (UpdatedSlot == EEquipableSlot::ALL)
 	{
 		UEnum* Slots = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEquipableSlot"), true);
-		for (int32 EnumIndex = 0; EnumIndex < Slots->NumEnums(); ++EnumIndex)
+		for (int32 EnumIndex = 0; EnumIndex < static_cast<int32>(EEquipableSlot::NUM); ++EnumIndex)
 		{
 			EEquipableSlot Slot = static_cast<EEquipableSlot>(Slots->GetValueByIndex(EnumIndex));
 
-			//Skip helper values
-			if (Slot == EEquipableSlot::ALL || Slot == EEquipableSlot::NONE)
+			//Skips the root mesh, shouldn't hopefully need to be updated
+			if (Slot == EEquipableSlot::ROOT)
 				continue;
 			
 			const FName SlotName = FName(*UEnum::GetValueAsString(Slot));
@@ -148,6 +146,7 @@ void ACerberusPreviewActor::DrawPreview_Internal(EEquipableSlot UpdatedSlot)
 				{
 					const USkeletalMeshComponent* MeshComponent = *SubMeshes.Find(Slot);
 					OwnedComponent->SetSkeletalMeshAsset(MeshComponent->GetSkeletalMeshAsset());
+					OwnedComponent->SetRelativeTransform(MeshComponent->GetRelativeTransform());
 				}
 			}
 		}
@@ -163,6 +162,7 @@ void ACerberusPreviewActor::DrawPreview_Internal(EEquipableSlot UpdatedSlot)
 	{
 		const USkeletalMeshComponent* MeshComponent = *SubMeshes.Find(UpdatedSlot);
 		OwnedComponent->SetSkeletalMeshAsset(MeshComponent->GetSkeletalMeshAsset());
+		OwnedComponent->SetRelativeTransform(MeshComponent->GetRelativeTransform());
 	}
 	
 }

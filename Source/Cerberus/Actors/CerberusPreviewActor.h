@@ -33,7 +33,7 @@ public:
 
 	/** Will update a single slot in the mesh map. If you have a reference to a USkeletalMeshComponent, call the function ->GetSkeletalMeshAsset() to then pass into this */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
-	void UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh);
+	void UpdateSubMeshMap(EEquipableSlot Slot, USkeletalMesh* NewMesh, FTransform MeshTransform);
 
 	/** Will clear out the original submesh map and reset it with the values given */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
@@ -50,6 +50,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Cerberus|Preview")
+	FRotator DefaultRotation;
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
+	void ResetPreviewRotation();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Preview")
 	USpringArmComponent* SpringArm;

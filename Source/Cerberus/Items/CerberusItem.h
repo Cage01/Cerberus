@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CerberusItemProficiency.h"
-#include "Cerberus/AbilitySystem/Abilities/CerberusGameplayAbility.h"
 #include "Cerberus/Core/CerberusReplicatedObject.h"
-#include "UObject/NoExportTypes.h"
 #include "CerberusItem.generated.h"
 
 class UCerberusItemTooltip;
@@ -31,7 +29,7 @@ class UCerberusInventoryComponent;
  *
  * Base Item object to be used for the project. Is also replicated 
  */
-UCLASS(Abstract, NotBlueprintable, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract, NotBlueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class CERBERUS_API UCerberusItem : public UCerberusReplicatedObject
 {
 	GENERATED_BODY()
@@ -104,6 +102,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 1, EditCondition = bHasProficiency))
 	TArray<FCerberusItemProficiency> ProficiencySockets;
 	
+	
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Items", meta=(ClampMin = 1, EditCondition = bHasProficiency))
 	// int32 MaxProficiencyLevel;
 	//
@@ -126,15 +125,31 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	void SetQuantity(int32 NewQuantity);
 
+	/**
+	 * @brief A helper function to add to quantity of this item without having to directly set it.
+	 * @param AmountToAdd The value that will be added to the current Quantity value
+	 */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	void AddQuantity(int32 AmountToAdd);
 
+	/**
+	 * @brief A helper function to subtract from the quantity of this item without having to directly set it.
+	 * @param AmountToSubtract The value that will be subtracted from the current Quantity value.
+	 */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	void SubtractQuantity(int32 AmountToSubtract);
-	
+
+	/**
+	 * @brief Will return the amount of this item that exists
+	 * @return 
+	 */
 	UFUNCTION(BlueprintPure, Category="Cerberus|Items")
 	FORCEINLINE int32 GetQuantity() const { return Quantity; }
 
+	/**
+	 * @brief The max amount of this item that can occupy an inventory slot
+	 * @return 
+	 */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Items")
 	FORCEINLINE int32 GetMaxStackSize() const { return MaxStackSize; }
 

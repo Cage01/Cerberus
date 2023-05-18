@@ -75,18 +75,18 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Interaction")
 	bool bAllowMultipleInteractors;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Interaction")
 	int32 OutlineColorValue;
+
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Interaction")
+	FORCEINLINE void SetIsInteractable(bool NewIsInteractable) { bIsInteractable = NewIsInteractable; }
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Interaction")
 	void SetInteractableNameText(const FText& NewNameText);
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Interaction")
 	void SetInteractableActionText(const FText& NewActionText);
-
-	UFUNCTION(BlueprintCallable, Category="Cerberus|Interaction")
-	void SetInteractableActionType(const FText& NewActionType);
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintAssignable)
@@ -112,6 +112,9 @@ protected:
 
 	UPROPERTY()
 	TArray<ACerberusCharacter*> Interactors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Interaction")
+	bool bIsInteractable;
 
 private:
 	UFUNCTION()

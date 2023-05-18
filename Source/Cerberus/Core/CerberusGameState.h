@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ModularGameState.h"
+#include "GameFramework/GameState.h"
 #include "CerberusGameState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CERBERUS_API ACerberusGameState : public AModularGameState
+class CERBERUS_API ACerberusGameState : public AGameState
 {
 	GENERATED_BODY()
 	

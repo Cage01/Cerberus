@@ -10,12 +10,15 @@
 UENUM(BlueprintType)
 enum class EEquipableSlot: uint8
 {
-	//Character Specific
-	EIS_HEAD UMETA(DisplayName = "Head"),
+	//Root mesh slot
+	ROOT UMETA(DisplayName = "Root"),
 	
 	//Gear specific
 	GIS_HELMET UMETA(DisplayName = "Helmet"),
 	GIS_CHEST UMETA(DisplayName = "Chest"),
+	GIS_SHOULDERS UMETA(DisplayName = "Shoulders"),
+	GIS_HANDS UMETA(DisplayName = "Hands"),
+	GIS_FEET UMETA(DisplayName = "Feet"),
 	GIS_LEGS UMETA(DisplayName = "Legs"),
 	GIS_BACK UMETA(DisplayName = "Back"),
 	GIS_PRIMARY_WEAPON UMETA(DisplayName = "Primary Weapon"),
@@ -28,11 +31,10 @@ enum class EEquipableSlot: uint8
 
 	
 	//End - Helps to iterate through the slots
-	//Count UMETA(Hidden),
+	NUM UMETA(Hidden),
 
 	//Helpers (Do not include in the iteration count)
 	NONE UMETA(Hidden),
 	ALL UMETA(Hidden)
 	
 };
-//ENUM_RANGE_BY_COUNT(EEquipableSlot, EEquipableSlot::Count);

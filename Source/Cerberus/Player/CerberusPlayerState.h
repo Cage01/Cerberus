@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "ModularPlayerState.h"
+#include "GameFramework/PlayerState.h"
 #include "CerberusPlayerState.generated.h"
 
 class UCerberusAbilitySystemComponent;
@@ -17,7 +17,7 @@ class UAbilitySystemComponent;
  * The AbilitySystemComponent for the player character is initialized here.
  */
 UCLASS(Config = Game)
-class CERBERUS_API ACerberusPlayerState : public AModularPlayerState, public IAbilitySystemInterface
+class CERBERUS_API ACerberusPlayerState : public APlayerState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 

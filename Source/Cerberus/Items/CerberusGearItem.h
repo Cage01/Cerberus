@@ -23,6 +23,11 @@ public:
 	virtual bool Equip(AActor* Owner) override;
 	/** Overrides the EquipableItem::UnEquip() Will tell the Owners EquipmentComponent to update its skeletal mesh and remove this item */
 	virtual bool UnEquip(AActor* Owner) override;
+
+	//TODO: May need to be put in CerberusEquipableItem class
+	/** Handles setting the location, rotation and scale of this item on a character. Will be defaulted to 0 location, 0 rotation and scale = 1 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Gear")
+	FTransform MeshTransform;
 	
 	/** The physical representation of this gear item */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Gear")

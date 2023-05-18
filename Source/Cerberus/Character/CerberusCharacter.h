@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "Cerberus/Items/CerberusItem.h"
-#include <GameplayEffectTypes.h>
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
 #include "Cerberus/Items/CerberusEquipableItem.h"
 #include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
@@ -96,7 +95,45 @@ public:
 	UCerberusPawnExtensionComponent* PawnExtensionComponent;
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// Looting
+
+	/** Setting the source of what this character is looting, could be an enemy, a chest or anything else with an InventoryComponent. Will be null if nothing is being looted*/
+	UFUNCTION(BlueprintCallable)
+	void SetLootSource(UCerberusInventoryComponent* NewLootSource);
+
+	/** Will return true if there is a valid LootSource */
+	UFUNCTION(BlueprintPure, Category="Cerberus|Looting")
+	bool IsLooting() const;
+
+	/** Handles looting an item from another Inventory */
+	UFUNCTION(BlueprintCallable, Category="Cerberus|Looting")
+	void LootItem(UCerberusItem* Item);
+
+	/**[Server] Handles looting an item from another Inventory */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerLootItem(UCerberusItem* Item);
+
+protected:
+	/** Actually handles the ability to loot other players */
+	// UFUNCTION()
+	// void BeginLootingPlayer(ACerberusCharacter* Character);
+
+	/**[Server] setting the loot source that the player is focusing on */
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerSetLootSource(UCerberusInventoryComponent* NewLootSource);
+
+	UPROPERTY(ReplicatedUsing=OnRep_LootSource, BlueprintReadOnly)
+	UCerberusInventoryComponent* LootSource;
+
+	UFUNCTION()
+	void OnLootSourceOwnerDestroyed(AActor* DestroyedActor);
+
+	/** Will trigger an event to show UI elements when the loot source is modified in some way */
+	UFUNCTION()
+	void OnRep_LootSource();
 	
+public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// Items
@@ -146,9 +183,9 @@ public:
 
 	
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	// FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	// /** Returns FollowCamera subobject **/
+	// FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 
 protected:
@@ -247,12 +284,12 @@ protected:
 
 private:
 	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
+	class USpringArmComponent* CameraBoom;
+	
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
+	class UCameraComponent* FollowCamera;
 	
 
 	/** Skeletal Mesh setup for equipment **/
@@ -261,7 +298,11 @@ private:
 	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
 	USkeletalMeshComponent* ChestMesh;
 	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* HandsMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
 	USkeletalMeshComponent* LegsMesh;
+	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
+	USkeletalMeshComponent* FeetMesh;
 	UPROPERTY(EditAnywhere, Category="Cerberus|Character")
 	USkeletalMeshComponent* BackMesh;
 	

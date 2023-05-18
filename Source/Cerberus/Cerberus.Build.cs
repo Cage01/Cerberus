@@ -13,16 +13,14 @@ public class Cerberus : ModuleRules
 			{
 				"Core", 
 				"CoreOnline",
-				"CoreUObject", 
+				"CoreUObject",
+				"Serialization",
 				"Engine", 
 				"InputCore",
 				"GameplayAbilities", 
 				"GameplayTags", 
 				"GameplayTasks",
 				"AIModule",
-				"ModularGameplay",
-				"ModularGameplayActors",
-				"GameFeatures",
 				"UMG"
 			});
 		

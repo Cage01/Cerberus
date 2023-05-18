@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 
 #include "Cerberus/Items/CerberusItem.h"
-#include "Components/GameFrameworkComponent.h"
 #include "CerberusInventoryComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -107,14 +106,7 @@ public:
 	 */
 	// UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
 	// UCerberusItem* AddItem(TSubclassOf<UCerberusItem> ItemClass);
-
-	/**
-	 * Removes an Item from the inventory
-	 * @param Item A reference to the actual item object instance to be removed
-	 */ 
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
-	bool RemoveItem(UCerberusItem* Item);
-
+	
 	UFUNCTION(BlueprintPure, Category="Cerberus|Inventory")
 	bool HasItem(TSubclassOf<UCerberusItem> ItemClass, const int32 Quantity = 1) const;
 	
@@ -152,7 +144,14 @@ public:
 	void ClientRefreshInventory();
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="Cerberus|Inventory")
+	/**
+	 * Removes an Item from the inventory
+	 * @param Item A reference to the actual item object instance to be removed
+	 */ 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Cerberus|Inventory")
+	bool RemoveItem(UCerberusItem* Item);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Cerberus|Inventory")
 	TArray<TSubclassOf<UCerberusItem>> DefaultItems;
 
 	UPROPERTY(ReplicatedUsing=OnRep_Items, VisibleAnywhere, Category="Cerberus|Inventory")

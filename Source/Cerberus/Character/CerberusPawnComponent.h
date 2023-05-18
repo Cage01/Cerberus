@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/PawnComponent.h"
 #include "CerberusPawnComponent.generated.h"
 
 UINTERFACE(BlueprintType)
@@ -26,7 +25,7 @@ public:
  *	An actor component that can be used for adding custom behavior to pawns.
  */
 UCLASS(Blueprintable, Meta = (BlueprintSpawnableComponent))
-class CERBERUS_API UCerberusPawnComponent : public UPawnComponent, public ICerberusReadyInterface
+class CERBERUS_API UCerberusPawnComponent : public UActorComponent, public ICerberusReadyInterface
 {
 	GENERATED_BODY()
 

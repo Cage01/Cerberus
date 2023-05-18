@@ -8,22 +8,6 @@
 #include "CerberusEquipableItem.generated.h"
 
 /**
- * Defined slots for an item to be equipped to.
- */
-// UENUM(BlueprintType)
-// enum class EEquipableSlot: uint8
-// {
-// 	EIS_HEAD UMETA(DisplayName = "Head"),
-// 	EIS_HELMET UMETA(DisplayName = "Helmet"),
-// 	EIS_CHEST UMETA(DisplayName = "Chest"),
-// 	EIS_LEGS UMETA(DisplayName = "Legs"),
-// 	EIS_BACK UMETA(DisplayName = "Back"),
-// 	EIS_PRIMARY_WEAPON UMETA(DisplayName = "Primary Weapon"),
-// 	EIS_SECONDARY_WEAPON UMETA(DisplayName = "Secondary Weapon"),
-// 	EIS_THROWABLE UMETA(DisplayName = "Throwable"),
-// };
-
-/**
  * UCerberusEquipableItem
  *
  * Base class for all equipable items in the project. Including but not limited to weapons, armor, throwables such as grenades etc.

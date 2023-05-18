@@ -16,6 +16,7 @@ UCerberusInteractionComponent::UCerberusInteractionComponent()
 	NameText = FText::FromString("Interactable Object");
 	ActionText = FText::FromString("Interact");
 	bAllowMultipleInteractors = true;
+	bIsInteractable = true;
 	OutlineColorValue = 1;
 
 	Space = EWidgetSpace::Screen;
@@ -41,7 +42,7 @@ void UCerberusInteractionComponent::RefreshWidget()
 
 void UCerberusInteractionComponent::BeginFocus(ACerberusCharacter* Character)
 {
-	if(!IsActive() || !GetOwner() || !Character)
+	if(!IsActive() || !GetOwner() || !Character || !bIsInteractable)
 		return;
 
 	OnBeginFocus.Broadcast(Character);
@@ -120,12 +121,6 @@ void UCerberusInteractionComponent::SetInteractableActionText(const FText& NewAc
 	RefreshWidget();
 }
 
-void UCerberusInteractionComponent::SetInteractableActionType(const FText& NewActionType)
-{
-	ActionType = NewActionType;
-	RefreshWidget();
-}
-
 void UCerberusInteractionComponent::Deactivate()
 {
 	Super::Deactivate();
@@ -176,6 +171,7 @@ void UCerberusInteractionComponent::PostEditChangeProperty(FPropertyChangedEvent
 	// If a new pickup is selected in the property editor, change the mesh to reflect the new item being selected
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(UCerberusInteractionComponent, OutlineColorValue))
 	{
+		
 		if (OutlineColorValue > 0)
 		{
 			//Toggle on outline to preview colors in the editor
@@ -185,8 +181,13 @@ void UCerberusInteractionComponent::PostEditChangeProperty(FPropertyChangedEvent
 			FTimerDelegate TimerDelegate;
 			TimerDelegate.BindUFunction(this, FName("ToggleOutline"), 0);
 			
-			FTimerHandle TimerHandle;
-			GetOwner()->GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, 2.0f, false);
+			
+			if (GetOwner() && GetWorld())
+			{
+				FTimerHandle TimerHandle;
+				GetOwner()->GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, 2.0f, false);
+			}
+			
 		}
 	}
 }

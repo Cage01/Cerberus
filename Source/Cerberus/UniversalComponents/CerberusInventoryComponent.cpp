@@ -3,7 +3,10 @@
 
 #include "CerberusInventoryComponent.h"
 #include "Cerberus/CerberusLogChannels.h"
-#include "Cerberus/Utilities/CerberusNetworkUtils.h"
+#include "..\Utilities\CerberusUtils.h"
+#include "Cerberus/Character/CerberusCharacter.h"
+#include "Cerberus/Player/CerberusPlayerController.h"
+#include "Cerberus/Structs/CerberusNotification.h"
 #include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
@@ -49,7 +52,7 @@ void UCerberusInventoryComponent::OnRep_Items()
 		if (!Item->World)
 		{
 			// Wont replicate the item if the player host is preforming this action
-			if (!UCerberusNetworkUtils::IsListenServerHost(GetWorld()))
+			if (!UCerberusUtils::IsListenServerHost(GetWorld()))
 				OnItemAdded.Broadcast(Item);
 			
 			Item->World = GetWorld();
@@ -349,6 +352,16 @@ void UCerberusInventoryComponent::ItemAdded(UCerberusItem* Item)
 {
 	FString RoleString = GetOwner()->HasAuthority() ? "server" : "client";
 	UE_LOG(LogTemp, Warning, TEXT("Item added: %s on %s"), *GetNameSafe(Item), *RoleString);
+
+	if (ACerberusCharacter* Character = Cast<ACerberusCharacter>(GetOwner()))
+	{
+		if (!GetOwner()->HasAuthority())
+		{
+			const FNotification Notification = FNotification::CreateLootNotification(Item);
+			Character->GetCerberusPlayerController()->ClientShowNotification(Notification);
+		}
+		
+	}
 }
 
 void UCerberusInventoryComponent::ItemRemoved(UCerberusItem* Item)

@@ -12,8 +12,6 @@
 				"Engine",
 				"GameplayAbilities",
 				"CoreUObject",
-				"ModularGameplay",
-				"ModularGameplayActors",
 				"UMG"
 			]
 		}
@@ -31,14 +29,6 @@
 			"Enabled": true
 		},
 		{
-			"Name": "ModularGameplay",
-			"Enabled": true
-		},
-		{
-			"Name": "GameFeatures",
-			"Enabled": true
-		},
-		{
 			"Name": "CommonUI",
 			"Enabled": true
 		},
@@ -52,7 +42,7 @@
 		},
 		{
 			"Name": "ModularGameplayActors",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "EnhancedInput",

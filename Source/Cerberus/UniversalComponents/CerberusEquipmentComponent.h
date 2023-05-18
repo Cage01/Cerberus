@@ -10,6 +10,7 @@
 class ACerberusPreviewActor;
 class UCerberusGearItem;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChanged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEquippedItemsChanged, const EEquipableSlot, Slot, const UCerberusEquipableItem*, Item);
 
 /**
@@ -37,7 +38,11 @@ public:
 	virtual bool ReplicateSubobjects(UActorChannel *Channel, FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintAssignable, Category = "Cerberus|Equipment")
+	FOnEquipmentChanged OnEquipmentChanged;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintAssignable, Category = "Cerberus|Equipment")
 	FOnEquippedItemsChanged OnEquippedItemsChanged;
+
 
 	/** The mesh to have displayed if we dont have an item equipped to a slot */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Cerberus|Mesh")
@@ -55,16 +60,19 @@ public:
 	UFUNCTION(BlueprintPure)
 	USkeletalMeshComponent* FindSlotSkeletalMeshComponent(EEquipableSlot Slot);
 
-	/** This must be defined by the actor that owns this component - Current reasoning is that Actors will have to be generated for things like weapons.
+	/**
+	 * This must be defined by the actor that owns this component - Current reasoning is that Actors will have to be generated for things like weapons.
 	 * So when that Actor is spawned it will a default value for the preview actor to associate with it. Which is easier to modify for a designer.
 	 * That value will then be passed to this component.
 	 */
 	UPROPERTY(BlueprintReadOnly, Category="Cerberus|Preview")
 	ACerberusPreviewActor* PreviewActor;
 
+	//Will be called by the Equipable Item classes, they will equip/unequip themselves from this component based on player input in the Character class
 	bool EquipItem(UCerberusEquipableItem* Item);
 	bool UnEquipItem(UCerberusEquipableItem* Item);
 
+	//Updates the skeletal mesh of the character this component is attached to to represent the equipped items.
 	void UpdateSkeletalMesh(UCerberusGearItem* Item);
 	void ResetSkeletalMesh(EEquipableSlot Slot);
 

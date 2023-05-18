@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ModularGameMode.h"
+#include "GameFramework/GameMode.h"
 #include "CerberusGameMode.generated.h"
 
 /**
@@ -14,7 +14,7 @@
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModeCombinedPostLogin, AGameModeBase* /*GameMode*/, AController* /*NewPlayer*/);
 
 UCLASS(Config = Game, meta=(ShortTooltip="The base game mode class used by this project"))
-class ACerberusWorldGameMode : public AModularGameMode
+class ACerberusWorldGameMode : public AGameMode
 {
   GENERATED_BODY()
 

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "GameFeatures/Public/GameFeatureAction.h"
 #include "CerberusExperienceDefinition.generated.h"
 
 
@@ -45,8 +44,8 @@ public:
 	// TObjectPtr<const UCerberusPawnData> DefaultPawnData;
 
 	 //List of actions to perform as this experience is loaded/activated/deactivated/unloaded
-	 UPROPERTY(EditDefaultsOnly, Instanced, Category="Actions")
-	 TArray<UGameFeatureAction*> Actions;
+	 // UPROPERTY(EditDefaultsOnly, Instanced, Category="Actions")
+	 // TArray<UGameFeatureAction*> Actions;
 
 	// List of additional action sets to compose into this experience
 	UPROPERTY(EditDefaultsOnly, Category=Gameplay)

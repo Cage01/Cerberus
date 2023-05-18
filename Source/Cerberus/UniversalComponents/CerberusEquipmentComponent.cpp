@@ -4,6 +4,7 @@
 #include "CerberusEquipmentComponent.h"
 
 #include "Cerberus/Actors/CerberusPreviewActor.h"
+#include "Cerberus/Enums/EquipableSlot.h"
 #include "Cerberus/Items/CerberusEquipableItem.h"
 #include "Cerberus/Items/CerberusGearItem.h"
 #include "Engine/ActorChannel.h"
@@ -97,6 +98,7 @@ void UCerberusEquipmentComponent::UpdateSkeletalMesh(UCerberusGearItem* Item)
 	if (USkeletalMeshComponent* GearMesh = *EquippedMeshes.Find(Item->Slot))
 	{
 		GearMesh->SetSkeletalMesh(Item->Mesh);
+		GearMesh->SetRelativeTransform(Item->MeshTransform);
 		GearMesh->SetMaterial(GearMesh->GetMaterials().Num() - 1, Item->MaterialInstance);
 	}
 }
@@ -143,11 +145,17 @@ void UCerberusEquipmentComponent::BeginPlay()
 
 void UCerberusEquipmentComponent::UpdatePreviewActor(UCerberusEquipableItem* Item)
 {
-	// If the cast isnt successful then its not an item that has a visual component to it and we should continue
-	if (const UCerberusGearItem* Gear = Cast<UCerberusGearItem>(Item))
+	//TODO might want to be dealt with in a better way later
+	// Currently want to avoid modifying the root mesh
+	if (Item->Slot != EEquipableSlot::ROOT)
 	{
-		PreviewActor->UpdateSubMeshMap(Gear->Slot, Gear->Mesh);
+		// If the cast isnt successful then its not an item that has a visual component to it and we should continue
+		if (const UCerberusGearItem* Gear = Cast<UCerberusGearItem>(Item))
+		{
+			PreviewActor->UpdateSubMeshMap(Gear->Slot, Gear->Mesh, Gear->MeshTransform);
+		}
+
+		//TODO: add case for weapon updates, this will put an object into a bone slot rather than update the skeletal mesh
 	}
 
-	//TODO: add case for weapon updates, this will put an object into a bone slot rather than update the skeletal mesh
 }

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
-#include "Components/GameFrameworkComponent.h"
 #include "CerberusHealthComponent.generated.h"
 
 struct FGameplayEffectSpec;
@@ -39,7 +38,7 @@ enum class ECerberusDeathState : uint8
  *	Any object in the game that you want to have a health attribute and use all functionality related to health should have this component
  */
 UCLASS(Blueprintable, Meta=(BlueprintSpawnableComponent))
-class CERBERUS_API UCerberusHealthComponent : public UGameFrameworkComponent
+class CERBERUS_API UCerberusHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 

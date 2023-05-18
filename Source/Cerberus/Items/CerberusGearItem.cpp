@@ -9,6 +9,11 @@
 
 UCerberusGearItem::UCerberusGearItem()
 {
+	MeshTransform = FTransform(
+		FRotator(0.f, 0.f, 0.f),
+		FVector(0.f, 0.f, 0.f),
+		FVector(1.f));
+	
 	DamageResistanceMultiplier = 0.1f;
 	MaxDurability = 100;
 	Durability = MaxDurability;
