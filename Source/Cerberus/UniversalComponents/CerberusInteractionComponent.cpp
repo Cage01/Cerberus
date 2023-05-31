@@ -6,10 +6,12 @@
 #include "Cerberus/Character/CerberusCharacter.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Widgets/CerberusInteractionWidget.h"
+#include "Net/UnrealNetwork.h"
 
 UCerberusInteractionComponent::UCerberusInteractionComponent()
 {
 	SetComponentTickEnabled(false);
+	SetIsReplicated(true);
 
 	InteractionTime = 0.0f;
 	InteractionDistance = 200.0f;
@@ -25,6 +27,13 @@ UCerberusInteractionComponent::UCerberusInteractionComponent()
 
 	SetActive(true);
 	SetHiddenInGame(true);
+}
+
+void UCerberusInteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCerberusInteractionComponent, bIsInteractable);
 }
 
 void UCerberusInteractionComponent::RefreshWidget()
@@ -140,7 +149,7 @@ void UCerberusInteractionComponent::Deactivate()
 bool UCerberusInteractionComponent::CanInteract(ACerberusCharacter* Character) const
 {
 	const bool bPlayerAlreadyInteracting = !bAllowMultipleInteractors && Interactors.Num() >= 1;
-	return !bPlayerAlreadyInteracting && IsActive() && GetOwner() != nullptr && Character != nullptr;
+	return !bPlayerAlreadyInteracting && IsActive() && GetOwner() != nullptr && Character != nullptr && bIsInteractable;
 }
 
 void UCerberusInteractionComponent::ToggleOutline(int32 Value) const

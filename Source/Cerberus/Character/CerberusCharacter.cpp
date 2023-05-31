@@ -187,18 +187,7 @@ void ACerberusCharacter::LootItem(UCerberusItem* Item)
 			{
 				//Will try to add the item and consume it from the loot source inventory. If it couldnt be added a notification will be thrown on the players screen
 				const FItemAddResult Result = InventoryComponent->TryAddItem(Item);
-
-				// FNotification Notification;
-				// if (Result.Result != EItemAddResult::IAR_NoItemsAdded)
-				// {
-				// 	LootSource->ConsumeItem(Item, Result.ActualAmountGiven);
-				// 	Notification = FNotification::CreateLootNotification(Item);
-				// } else
-				// {
-				// 	Notification = FNotification::CreateBasicNotification(Result.ErrorText);
-				// }
-				//
-				// GetCerberusPlayerController()->ShowNotification(Notification);
+				
 			}
 		}	
 	}
@@ -489,6 +478,10 @@ void ACerberusCharacter::PerformInteractionCheck()
 			InteractionData.TraceStart = TraceStart;
 			InteractionData.TraceEnd = TraceEnd;
 			FoundNewInteractable(Interactable);
+		}
+		else if (!Interactable->GetIsInteractable())
+		{
+			CouldntFindInteractable();
 		}
 	} else
 	{

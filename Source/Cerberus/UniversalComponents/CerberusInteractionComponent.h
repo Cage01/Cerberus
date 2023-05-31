@@ -28,6 +28,8 @@ class CERBERUS_API UCerberusInteractionComponent : public UWidgetComponent
 
 public:
 	UCerberusInteractionComponent();
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void RefreshWidget();
 	
@@ -51,6 +53,10 @@ public:
 	/** Will get a value between 0 and 1 to display on a UI. The value is based on the total time required to interact and the amount of time that has passed */
 	UFUNCTION(BlueprintPure, Category="Cerberus|Interaction")
 	float GetInteractPercentage();
+
+	/** Will get a value between 0 and 1 to display on a UI. The value is based on the total time required to interact and the amount of time that has passed */
+	UFUNCTION(BlueprintPure, Category="Cerberus|Interaction")
+	FORCEINLINE bool GetIsInteractable() { return bIsInteractable; };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Interaction")
 	float InteractionTime;
@@ -113,7 +119,7 @@ protected:
 	UPROPERTY()
 	TArray<ACerberusCharacter*> Interactors;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cerberus|Interaction")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Cerberus|Interaction")
 	bool bIsInteractable;
 
 private:

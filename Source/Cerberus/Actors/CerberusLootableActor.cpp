@@ -4,9 +4,9 @@
 #include "CerberusLootableActor.h"
 
 #include "Cerberus/Character/CerberusCharacter.h"
+#include "Cerberus/Structs/CerberusLootTableRow.h"
 #include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
 #include "Cerberus/UniversalComponents/CerberusInventoryComponent.h"
-#include "Cerberus/World/CerberusItemSpawn.h"
 
 #define LOCTEXT_NAMESPACE "LootActor"
 // Sets default values
@@ -33,6 +33,7 @@ void ACerberusLootableActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Will call ACerberusLootableActor::OnInteract when the InteractionComponent fires the OnInteract event
 	LootInteraction->OnInteract.AddDynamic(this, &ACerberusLootableActor::OnInteract);
 
 	if (HasAuthority() && LootTable)
@@ -89,7 +90,10 @@ void ACerberusLootableActor::OnInteract(ACerberusCharacter* Character)
 		//Checks number of items left in this inventory. If there are none, disable interactivity
 		if (Inventory->GetItems().Num() == 0)
 		{
+			//The interaction check on the owning character will see this value and decide to hide the UI.
+			//When trying to manually hide the UI here by ending focus, there was no way to get the player client to perform the action from this actor.
 			LootInteraction->SetIsInteractable(false);
+			
 		}
 	}
 	

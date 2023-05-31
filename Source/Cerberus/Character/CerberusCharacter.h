@@ -94,7 +94,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Cerberus|Character", meta = (AllowPrivateAccess = "true"))
 	UCerberusPawnExtensionComponent* PawnExtensionComponent;
 
-
 	//////////////////////////////////////////////////////////////////////////
 	// Looting
 
