@@ -7,8 +7,6 @@
 #include "Cerberus/Character/CerberusCharacter.h"
 #include "Cerberus/UniversalComponents/CerberusInventoryComponent.h"
 #include "Cerberus/Items/CerberusItem.h"
-#include "Cerberus/Player/CerberusPlayerController.h"
-#include "Cerberus/Structs/CerberusNotification.h"
 #include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"

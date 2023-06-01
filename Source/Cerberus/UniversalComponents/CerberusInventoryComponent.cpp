@@ -3,7 +3,7 @@
 
 #include "CerberusInventoryComponent.h"
 #include "Cerberus/CerberusLogChannels.h"
-#include "..\Utilities\CerberusUtils.h"
+#include "Cerberus/Utilities/CerberusUtils.h"
 #include "Cerberus/Character/CerberusCharacter.h"
 #include "Cerberus/Player/CerberusPlayerController.h"
 #include "Cerberus/Structs/CerberusNotification.h"
@@ -357,6 +357,7 @@ void UCerberusInventoryComponent::ItemAdded(UCerberusItem* Item)
 	{
 		if (!GetOwner()->HasAuthority())
 		{
+			//Will post a notification of this item being added to the clients screen
 			const FNotification Notification = FNotification::CreateLootNotification(Item);
 			Character->GetCerberusPlayerController()->ClientShowNotification(Notification);
 		}

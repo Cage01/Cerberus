@@ -83,3 +83,4 @@ Windows/*
 WindowsServer/*
 Plugins/Developer/RiderLink/
 Content/StarterContent/*
+Content/Exclude/*

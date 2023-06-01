@@ -36,6 +36,7 @@ void ACerberusLootableActor::BeginPlay()
 	//Will call ACerberusLootableActor::OnInteract when the InteractionComponent fires the OnInteract event
 	LootInteraction->OnInteract.AddDynamic(this, &ACerberusLootableActor::OnInteract);
 
+	//Server will determine what items are placed within this actor
 	if (HasAuthority() && LootTable)
 	{
 		TArray<FLootTableRow*> SpawnItems;
@@ -49,21 +50,27 @@ void ACerberusLootableActor::BeginPlay()
 			ensure(LootRow);
 
 			float ProbablilityRoll = FMath::FRandRange(0.f, 1.f);
-
-			while (ProbablilityRoll > LootRow->Probability)
+			if (ProbablilityRoll > LootRow->Probability)
 			{
-				LootRow = SpawnItems[FMath::RandRange(0, SpawnItems.Num()-1)];
-				ProbablilityRoll = FMath::FRandRange(0.f, 1.f);
-			}
-
-			if (LootRow && LootRow->Items.Num())
-			{
-				for (auto& ItemClass : LootRow->Items)
+				if (LootRow && LootRow->Items.Num())
 				{
-					const int32 Quantity = Cast<UCerberusItem>(ItemClass->GetDefaultObject())->GetQuantity();
-					Inventory->TryAddItemFromClass(ItemClass, Quantity);
+					for (auto& ItemClass : LootRow->Items)
+					{
+						//TODO: PostEditPropertyChange to not allow this value to go below 1 in the editor
+						// Will set a random quantity based on the value given
+						const int32 Quantity = FMath::RandRange(1, LootRow->MaxQuantity);
+						Inventory->TryAddItemFromClass(ItemClass, Quantity);
+					}
 				}
 			}
+
+			// while (ProbablilityRoll > LootRow->Probability)
+			// {
+			// 	LootRow = SpawnItems[FMath::RandRange(0, SpawnItems.Num()-1)];
+			// 	ProbablilityRoll = FMath::FRandRange(0.f, 1.f);
+			// }
+
+
 		}
 	}
 }
