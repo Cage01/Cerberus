@@ -29,7 +29,8 @@ public class Cerberus : ModuleRules
 			{
 				"Slate",
 				"SlateCore",
-				"NetCore"
+				"NetCore", 
+				"ALSV4_CPP"
 			});
 	}
 }

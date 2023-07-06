@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CerberusPlayerState.h"
+#include "Character/ALSPlayerController.h"
 #include "CerberusPlayerController.generated.h"
 
 struct FNotification;
@@ -16,7 +17,7 @@ class UCerberusAbilitySystemComponent;
  * The base player controller class used by this project.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base player controller class used by this project."))
-class CERBERUS_API ACerberusPlayerController : public APlayerController
+class CERBERUS_API ACerberusPlayerController : public AALSPlayerController
 {
 	GENERATED_BODY()
 

@@ -38,7 +38,6 @@ public:
 	/** Will clear out the original submesh map and reset it with the values given */
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Preview")
 	void SetSubMeshMap(TMap<EEquipableSlot, USkeletalMeshComponent*> Meshes);
-
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintAssignable)
 	FOnAllSubMeshesUpdated OnAllSubMeshesUpdated;

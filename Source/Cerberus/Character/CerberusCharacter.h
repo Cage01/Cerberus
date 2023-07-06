@@ -8,6 +8,7 @@
 #include "Cerberus/AbilitySystem/Attributes/CerberusHealthSet.h"
 #include "Cerberus/Items/CerberusEquipableItem.h"
 #include "Cerberus/UniversalComponents/CerberusInteractionComponent.h"
+#include "Character/ALSCharacter.h"
 #include "GameFramework/Character.h"
 #include "CerberusCharacter.generated.h"
 
@@ -61,7 +62,7 @@ struct FInteractionData
  */
 
 UCLASS(config=Game, meta=(ShortTooltip="The base character pawn class used by the project."))
-class ACerberusCharacter : public ACharacter, public IAbilitySystemInterface
+class ACerberusCharacter : public AALSCharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -282,13 +283,13 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
-	class USpringArmComponent* CameraBoom;
-	
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
-	class UCameraComponent* FollowCamera;
+	// /** Camera boom positioning the camera behind the character */
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
+	// class USpringArmComponent* CameraBoom;
+	//
+	// /** Follow camera */
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
+	// class UCameraComponent* FollowCamera;
 	
 
 	/** Skeletal Mesh setup for equipment **/
