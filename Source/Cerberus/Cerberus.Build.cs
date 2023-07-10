@@ -30,7 +30,8 @@ public class Cerberus : ModuleRules
 				"Slate",
 				"SlateCore",
 				"NetCore", 
-				"ALSV4_CPP"
+				"ALSV4_CPP",
+				"CerberusTools"
 			});
 	}
 }
