@@ -358,6 +358,115 @@ bool UCerberusToolboxBlueprintLibrary::AddSockets(const FName& BoneName, const F
 	return true;
 }
 
+bool UCerberusToolboxBlueprintLibrary::DumpSkeletonCurveNames(USkeleton* Skeleton)
+{
+	// Check input argument
+	if (!IsValid(Skeleton))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Called \"DumpSkeletonCurveNames\" with invalid skeleton."));
+		return false;
+	}
+
+	auto CurveMapping = Skeleton->GetSmartNameContainer(USkeleton::AnimCurveMappingName);
+	if (!CurveMapping)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get curve mapping in \"DumpSkeletonCurveNames\". Contact author of the plugin for more information."));
+		return false;
+	}
+
+	TArray<FName> CurveNames;
+	CurveMapping->Iterate([&CurveNames](const FSmartNameMappingIterator& Iterator)
+		{
+			FName CurveName;
+			if (Iterator.GetName(CurveName))
+			{
+				CurveNames.Add(CurveName);
+			} else
+			{
+				UE_LOG(LogTemp, Error, TEXT("An error occured in \"DumpSkeletonCurveNames\" while getting a curve name. Contact author of the plugin for more information."));
+			}
+		}
+	);
+
+	FString dumpString = "(";
+	uint32 count = 0;
+	for (auto CurveName : CurveNames)
+	{
+		if (count > 0)
+		{
+			dumpString += ",";
+		}
+
+		dumpString += "\"";
+		dumpString += CurveName.ToString();
+		dumpString += "\"";
+
+		count++;
+	}
+
+	dumpString += ")";
+
+	UE_LOG(LogTemp, Log, TEXT("%s"), *dumpString);
+	
+#if WITH_EDITOR
+	FPlatformApplicationMisc::ClipboardCopy(*dumpString);
+#endif
+	return true;
+}
+
+bool UCerberusToolboxBlueprintLibrary::CheckForMissingCurveNames(const TArray<FName>& CurveNamesToCheck, USkeleton* Skeleton)
+{
+	// Check input argument
+	if (!IsValid(Skeleton))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Called \"CheckForMissingCurveNames\" with invalid skeleton."));
+		return false;
+	}
+
+	if (CurveNamesToCheck.Num() <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Called \"CheckForMissingCurveNames\" with no curve names to check"));
+		return false;
+	}
+
+	auto CurveMapping = Skeleton->GetSmartNameContainer(USkeleton::AnimCurveMappingName);
+	if (!CurveMapping)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get curve mapping in \"CheckForMissingCurveNames\". Contact author of the plugin for more information."));
+		return false;
+	}
+
+	TArray<FName> SkeletonCurveNames;
+	CurveMapping->Iterate([&SkeletonCurveNames](const FSmartNameMappingIterator& Iterator)
+		{
+			FName CurveName;
+			if (Iterator.GetName(CurveName))
+			{
+				SkeletonCurveNames.Add(CurveName);
+			} else
+			{
+				UE_LOG(LogTemp, Error, TEXT("An error occured in \"CheckForMissingCurveNames\" while getting a curve name. Contact author of the plugin for more information."));
+			}
+		}
+	);
+
+	bool HasNoMissingCurveNames = true;
+	for (auto& CurveName : CurveNamesToCheck)
+	{
+		if (SkeletonCurveNames.Find(CurveName) == INDEX_NONE)
+		{
+			if (HasNoMissingCurveNames)
+			{
+				UE_LOG(LogTemp, Error, TEXT("The following curves are missing in the skeleton \"%s\": "), *(Skeleton->GetFullName()));
+			}
+
+			UE_LOG(LogTemp, Error, TEXT("  %s"), *CurveName.ToString());
+			HasNoMissingCurveNames = false;
+		}
+	}
+	return true;
+}
+
 
 FString FVectorToString(const FVector& Vector)
 {

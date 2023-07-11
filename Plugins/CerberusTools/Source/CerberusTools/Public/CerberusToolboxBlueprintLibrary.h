@@ -37,5 +37,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Toolbox")
 	static bool AddSockets(const FName& BoneName, const FName& SocketName, const FTransform& RelativeTransform, USkeleton* Skeleton);
-	
+
+	// Skeleton Curves
+	UFUNCTION(BlueprintCallable, Category="Toolbox")
+	static bool DumpSkeletonCurveNames(USkeleton* Skeleton);
+
+	UFUNCTION(BlueprintCallable, Category="Toolbox")
+	static bool CheckForMissingCurveNames(const TArray<FName>& CurveNamesToCheck, USkeleton* Skeleton);
 };
