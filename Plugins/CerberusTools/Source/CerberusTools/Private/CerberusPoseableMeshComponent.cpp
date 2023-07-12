@@ -5,7 +5,7 @@
 
 void UCerberusPoseableMeshComponent::SetBoneLocalTransformByName(const FName& BoneName, const FTransform& InTransform)
 {
-	if (!SkeletalMesh || !RequiredBones.IsValid())
+	if (!GetSkinnedAsset() || !RequiredBones.IsValid())
 	{
 		return;
 	}
@@ -20,7 +20,7 @@ void UCerberusPoseableMeshComponent::SetBoneLocalTransformByName(const FName& Bo
 
 void UCerberusPoseableMeshComponent::UpdatePose()
 {
-	if (!SkeletalMesh)
+	if (!GetSkinnedAsset())
 	{
 		return;
 	}
