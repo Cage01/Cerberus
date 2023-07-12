@@ -8,6 +8,7 @@
 #include "CerberusPlayerController.generated.h"
 
 struct FNotification;
+class UInputMappingContext;
 class UCerberusItem;
 class UCerberusInventoryComponent;
 class UCerberusAbilitySystemComponent;

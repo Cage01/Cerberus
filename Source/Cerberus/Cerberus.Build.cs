@@ -31,7 +31,8 @@ public class Cerberus : ModuleRules
 				"SlateCore",
 				"NetCore", 
 				"ALSV4_CPP",
-				"CerberusTools"
+				"CerberusTools",
+				"EnhancedInput"
 			});
 	}
 }
