@@ -126,6 +126,8 @@ protected:
 	UPROPERTY(ReplicatedUsing=OnRep_LootSource, BlueprintReadOnly)
 	UCerberusInventoryComponent* LootSource;
 
+
+
 	UFUNCTION()
 	void OnLootSourceOwnerDestroyed(AActor* DestroyedActor);
 

@@ -52,5 +52,11 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowIngameUI();
-	
+
+	/**
+	 * Define the input values for the controller. These are defined by Data Asset (Input Mapping Context) files.
+	 * Which are filled with an array of Data Asset (Input Action)'s. Be sure to add to this map when adding controls.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Cerberus|Input")
+	TObjectPtr<UInputMappingContext> InputMappingContext = nullptr;
 };
