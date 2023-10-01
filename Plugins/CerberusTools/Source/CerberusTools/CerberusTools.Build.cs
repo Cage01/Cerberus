@@ -25,7 +25,9 @@ public class CerberusTools : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", 
+				"ContentBrowser",
+				"UnrealEd"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,7 +40,7 @@ public class CerberusTools : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"ApplicationCore"
+				"ApplicationCore",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
