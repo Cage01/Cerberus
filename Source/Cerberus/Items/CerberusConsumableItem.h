@@ -16,8 +16,7 @@ class CERBERUS_API UCerberusConsumableItem : public UCerberusItem
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Cerberus|Items")
-	TArray<TSubclassOf<UGameplayEffect>> Effects;
+
 	
 protected:
 	virtual void Use(ACerberusCharacter* Character) override;

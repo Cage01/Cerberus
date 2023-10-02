@@ -65,7 +65,6 @@ public:
 	}
 };
 
-class UCerberusAbilitySystemComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemAdded, UCerberusItem*, Item);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemRemoved, UCerberusItem*, Item);
@@ -124,9 +123,6 @@ public:
 
 	int32 ConsumeItem(UCerberusItem* Item);
 	int32 ConsumeItem(UCerberusItem* Item, const int32 Quantity);
-	
-	void InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC);
-	void UninitializeFromAbilitySystem();
 
 	/** Getter function for inventory capacity */
 	UFUNCTION(BlueprintPure, Category="Cerberus|Inventory")
@@ -168,9 +164,6 @@ protected:
 
 	UPROPERTY(BlueprintAssignable, Category="Cerberus|Inventory")
 	FOnItemRemoved OnItemRemoved;
-	
-	UPROPERTY()
-	UCerberusAbilitySystemComponent* AbilitySystemComponent;
 
 private:
 	/** Dont call Items.Add() directly, use this function instead, as it handles replication and ownership */

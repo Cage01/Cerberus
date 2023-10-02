@@ -6,8 +6,6 @@
 #include "Camera/CameraComponent.h"
 #include "Cerberus/Cerberus.h"
 #include "Cerberus/CerberusLogChannels.h"
-#include "Cerberus/AbilitySystem/CerberusAbilitySystemComponent.h"
-#include "Cerberus/AbilitySystem/Abilities/CerberusGameplayAbility.h"
 #include "Cerberus/Actors/CerberusPreviewActor.h"
 #include "Cerberus/Enums/EquipableSlot.h"
 #include "Cerberus/UniversalComponents/CerberusInventoryComponent.h"
@@ -17,11 +15,10 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Cerberus/Items/CerberusItem.h"
 //#include "Cerberus/Structs/CerberusNotification.h"
-#include "Cerberus/UniversalComponents/CerberusHealthComponent.h"
 #include "Cerberus/UniversalComponents/CerberusEquipmentComponent.h"
+#include "Cerberus/UniversalComponents/CerberusStatsComponent.h"
 #include "Net/UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,15 +85,13 @@ ACerberusCharacter::ACerberusCharacter(const FObjectInitializer& ObjectInitializ
 	
 	// Initializing Pawn Extension Component which has nice utility with AbilitySystem
 	PawnExtensionComponent = CreateDefaultSubobject<UCerberusPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
-	PawnExtensionComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
-	PawnExtensionComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
-
-	// Initializing Health and other states related to health
-	HealthComponent = CreateDefaultSubobject<UCerberusHealthComponent>(TEXT("HealthComponent"));
 
 	// Initializing Inventory
 	InventoryComponent = CreateDefaultSubobject<UCerberusInventoryComponent>(TEXT("InventoryComponent"));
 	InventoryComponent->SetCapacity(20);
+
+	// Initializing Stats
+	StatsComponent = CreateDefaultSubobject<UCerberusStatsComponent>(TEXT("StatsComponent"));
 
 	InteractionCheckFrequency = 0.2f;
 	InteractionCheckDistance = 1000.f;
@@ -313,61 +308,17 @@ void ACerberusCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	PawnExtensionComponent->HandlePlayerStateReplicated();
-	InitializeAbilitySystem();
 }
 
 void ACerberusCharacter::OnRep_Controller()
 {
 	Super::OnRep_Controller();
-	// Needed in case the PC wasn't valid when we Init-ed the ASC.
-	if (ACerberusPlayerState* PS = GetCerberusPlayerState())
-	{
-		PS->GetCerberusAbilitySystemComponent()->RefreshAbilityActorInfo();
-	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 ///
-UCerberusAbilitySystemComponent* ACerberusCharacter::GetCerberusAbilitySystemComponent() const
-{
-	return Cast<UCerberusAbilitySystemComponent>(GetAbilitySystemComponent());
-}
 
-UAbilitySystemComponent* ACerberusCharacter::GetAbilitySystemComponent() const
-{
-	return PawnExtensionComponent->GetCerberusAbilitySystemComponent();
-}
-
-void ACerberusCharacter::InitializeAttributes()
-{
-	if (GetCerberusAbilitySystemComponent() && DefaultAttributeEffect)
-	{
-		FGameplayEffectContextHandle EffectContext = GetCerberusAbilitySystemComponent()->MakeEffectContext();
-		EffectContext.AddSourceObject(this);
-
-		FGameplayEffectSpecHandle SpecHandle = GetCerberusAbilitySystemComponent()->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
-		if (SpecHandle.IsValid())
-		{
-			FActiveGameplayEffectHandle GEHandle = GetCerberusAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			if (!GEHandle.WasSuccessfullyApplied())
-				UE_LOG(LogCerberusAbilitySystem, Error, TEXT("ACerberusCharacter: Gameplay effect was not sucessfully applied"))
-		}
-	}
-}
-
-void ACerberusCharacter::GiveAbilities()
-{
-	if (HasAuthority() && GetCerberusAbilitySystemComponent() && !DefaultAbilities.IsEmpty())
-	{
-		for (TSubclassOf<UCerberusGameplayAbility>& Ability : DefaultAbilities)
-		{
-			GetCerberusAbilitySystemComponent()->GiveAbility(
-				FGameplayAbilitySpec(Ability, 1, static_cast<int32>(Ability.GetDefaultObject()->AbilityInputID), this));
-		}
-		
-	}
-}
 
 /* Setup server based functionality */
 void ACerberusCharacter::PossessedBy(AController* NewController)
@@ -375,8 +326,6 @@ void ACerberusCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	PawnExtensionComponent->HandleControllerChanged();
-	InitializeAbilitySystem();
-	
 }
 
 void ACerberusCharacter::UnPossessed()
@@ -384,42 +333,6 @@ void ACerberusCharacter::UnPossessed()
 	Super::UnPossessed();
 
 	PawnExtensionComponent->HandleControllerChanged();
-}
-
-void ACerberusCharacter::InitializeAbilitySystem()
-{
-	if (PawnExtensionComponent->IsPawnReadyToInitialize())
-	{
-		ACerberusPlayerState* CerberusPS = GetCerberusPlayerState();
-		check(CerberusPS)
-
-		PawnExtensionComponent->InitializeAbilitySystem(CerberusPS->GetCerberusAbilitySystemComponent(), CerberusPS);
-		
-	}
-}
-
-void ACerberusCharacter::OnAbilitySystemInitialized()
-{
-	UCerberusAbilitySystemComponent* CerberusASC = GetCerberusAbilitySystemComponent();
-	check(CerberusASC);
-
-	HealthComponent->InitializeWithAbilitySystem(CerberusASC);
-	InventoryComponent->InitializeWithAbilitySystem(CerberusASC);
-
-	InitializeAttributes();
-
-	if (HasAuthority())
-	{
-		GiveAbilities();
-
-		UE_LOG(LogCerberusAbilitySystem, Log, TEXT("Character was given abilities by the %s"), *GetClientServerContextString());
-	}
-}
-
-void ACerberusCharacter::OnAbilitySystemUninitialized()
-{
-	HealthComponent->UninitializeFromAbilitySystem();
-	InventoryComponent->UninitializeFromAbilitySystem();
 }
 
 
@@ -682,16 +595,6 @@ float ACerberusCharacter::GetRemainingInteractTime() const
 
 //////////////////////////////////////////////////////////////////////////
 // Input
-void ACerberusCharacter::SetupBinds()
-{
-	if (GetCerberusAbilitySystemComponent() && InputComponent)
-	{
-		const FGameplayAbilityInputBinds Binds("Confirm", "Cancel", "ECerberusAbilityInputID",
-			static_cast<int32>(ECerberusAbilityInputID::Confirm), static_cast<int32>(ECerberusAbilityInputID::Cancel));
-
-		GetCerberusAbilitySystemComponent()->BindAbilityActivationToInputComponent(InputComponent, Binds);
-	}
-}
 
 void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -714,8 +617,7 @@ void ACerberusCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	// Set up interaction
 	PlayerInputComponent->BindAction("InteractAction", IE_Pressed, this, &ACerberusCharacter::BeginInteract);
 	PlayerInputComponent->BindAction("InteractAction", IE_Released, this, &ACerberusCharacter::EndInteract);
-	
-	SetupBinds();
+
 }
 
 void ACerberusCharacter::TurnAtRate(float Rate)

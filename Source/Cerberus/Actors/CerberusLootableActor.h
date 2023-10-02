@@ -32,6 +32,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Components")
 	UDataTable* LootTable;
 
+	/** The amount of rolls we have to land on a random Loot Table row. X = Min rolls, Y = Max rolls */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cerberus|Components")
 	FIntPoint LootRolls;
 	

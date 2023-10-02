@@ -49,6 +49,7 @@ void ACerberusLootableActor::BeginPlay()
 			const FLootTableRow* LootRow = SpawnItems[FMath::RandRange(0, SpawnItems.Num()-1)];
 			ensure(LootRow);
 
+			//TODO: Check if this is right. It seems like a larger number would mean lower chances currently
 			float ProbablilityRoll = FMath::FRandRange(0.f, 1.f);
 			if (ProbablilityRoll > LootRow->Probability)
 			{

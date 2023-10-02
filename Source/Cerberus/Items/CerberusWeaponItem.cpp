@@ -3,3 +3,10 @@
 
 #include "CerberusWeaponItem.h"
 
+void UCerberusWeaponItem::SpawnWeapon(bool bIsSheathed)
+{
+}
+
+void UCerberusWeaponItem::DespawnWeapon()
+{
+}

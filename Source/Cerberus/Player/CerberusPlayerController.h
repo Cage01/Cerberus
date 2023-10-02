@@ -11,7 +11,6 @@ struct FNotification;
 class UInputMappingContext;
 class UCerberusItem;
 class UCerberusInventoryComponent;
-class UCerberusAbilitySystemComponent;
 /**
  * ACerberusPlayerController
  *
@@ -27,9 +26,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
 	ACerberusPlayerState* GetCerberusPlayerState() const;
-
-	UFUNCTION(BlueprintCallable, Category="Cerberus|PlayerController")
-	UCerberusAbilitySystemComponent* GetCerberusAbilitySystemComponent() const;
 
 	/**[Client] Tells blueprints to activate and display a notification */
 	UFUNCTION(Client, Reliable, BlueprintCallable)

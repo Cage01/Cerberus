@@ -3,7 +3,6 @@
 
 DEFINE_LOG_CATEGORY(LogCerberus);
 DEFINE_LOG_CATEGORY(LogCerberusExperience);
-DEFINE_LOG_CATEGORY(LogCerberusAbilitySystem);
 
 FString GetClientServerContextString(UObject* ContextObject)
 {

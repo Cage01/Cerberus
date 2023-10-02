@@ -13,6 +13,5 @@
 
 CERBERUS_API DECLARE_LOG_CATEGORY_EXTERN(LogCerberus, Log, All);
 CERBERUS_API DECLARE_LOG_CATEGORY_EXTERN(LogCerberusExperience, Log, All);
-CERBERUS_API DECLARE_LOG_CATEGORY_EXTERN(LogCerberusAbilitySystem, Log, All);
 
 CERBERUS_API FString GetClientServerContextString(UObject* ContextObject = nullptr);

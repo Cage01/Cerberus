@@ -24,7 +24,6 @@ UCerberusInventoryComponent::UCerberusInventoryComponent(const FObjectInitialize
 	PrimaryComponentTick.bCanEverTick = false;
 	
 	Capacity = 20;
-	AbilitySystemComponent = nullptr;
 
 	// Component must be replicate to replicate its subobjects
 	SetIsReplicatedByDefault(true);
@@ -295,47 +294,6 @@ int32 UCerberusInventoryComponent::ConsumeItem(UCerberusItem* Item, const int32 
 	return 0;
 }
 
-void UCerberusInventoryComponent::InitializeWithAbilitySystem(UCerberusAbilitySystemComponent* InASC)
-{
-	AActor* Owner = GetOwner();
-	check(Owner);
-
-	if (AbilitySystemComponent)
-	{
-		UE_LOG(LogCerberus, Error, TEXT("CerberusInventoryComponent: Inventory component for owner [%s] has already been initialized with an ability system."), *GetNameSafe(Owner));
-		return;
-	}
-	
-	AbilitySystemComponent = InASC;
-	if (!AbilitySystemComponent)
-	{
-		UE_LOG(LogCerberus, Error, TEXT("CerberusInventoryComponent: Cannot initialize the AbilitySystemComponent"), *GetNameSafe(Owner));
-		return;
-	}
-	
-	if (GetOwner()->HasAuthority())
-	{
-		for (const auto& ItemClass : DefaultItems)
-		{
-			TryAddItemFromClass(ItemClass, 1);
-		}
-	}
-}
-
-void UCerberusInventoryComponent::UninitializeFromAbilitySystem()
-{
-	AbilitySystemComponent = nullptr;
-
-	const AActor* lOwner = GetOwner();
-	if (lOwner && lOwner->HasAuthority())
-	{
-		// Removing all items
-		for (auto& Item : Items)
-		{
-			RemoveItem(Item);
-		}
-	}
-}
 
 void UCerberusInventoryComponent::SetCapacity(int32 Value)
 {
