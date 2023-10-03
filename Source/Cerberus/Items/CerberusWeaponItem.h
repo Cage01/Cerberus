@@ -17,8 +17,8 @@ class CERBERUS_API UCerberusWeaponItem : public UCerberusGearItem
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, Category= "Cerberus|Weapons")
-	ACerberusWeaponActor* WeaponActor;
+	//UPROPERTY(BlueprintReadOnly, Category= "Cerberus|Weapons")
+	//ACerberusWeaponActor* WeaponActor;
 
 	UFUNCTION(BlueprintCallable, Category="Cerberus|Weapons")
 	void SpawnWeapon(bool bIsSheathed = false);
