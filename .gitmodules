@@ -1,0 +1,3 @@
+[submodule "ALS-Community"]
+	path = Plugins/
+	url = https://github.com/Cage01/ALS-Community.git
